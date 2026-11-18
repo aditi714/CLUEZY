@@ -1,0 +1,2 @@
+# Clean URLs — nested folders (e.g. investigation/index.html) serve /investigation and /investigation/
+# No rewrite rules required for multi-page static hosting.
