@@ -7,6 +7,8 @@
     "dev": "node serve.js",
     "start": "node serve.js",
     "serve": "npx serve . -p 5173",
-    "preview": "node serve.js"
+    "preview": "node serve.js",
+    "build": "node verify-build.js",
+    "test": "node test-frontend.js"
   }
 }

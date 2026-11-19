@@ -1,284 +1,195 @@
-# CLUEZY - AI-Powered Mystery Game Platform
+# CLUEZY — AI-Powered Technical Problem Solving Platform
 
-A modern web platform for playing interactive mystery games with AI-powered evidence analysis and storytelling. Players solve cases by examining evidence, interviewing suspects, and piecing together clues with the help of advanced AI models.
-
-## Table of Contents
-
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Configuration](#configuration)
-- [Running the App](#running-the-app)
-- [Project Structure](#project-structure)
-- [Environment Variables](#environment-variables)
-- [Database Setup](#database-setup)
-- [Testing](#testing)
-- [AI Integration](#ai-integration)
-- [Deployment](#deployment)
-- [Contributing](#contributing)
-- [License](#license)
+CLUEZY is an intelligent conversational troubleshooting assistant that helps users diagnose and resolve complex technical problems step by step. Rather than making speculative guesses, CLUEZY systematically analyzes issues, establishes confirmed evidence, prioritizes candidate causes, guides users through targeted verification checks, and walks through verified solutions.
 
 ---
 
-## Features
+## Repository Structure
 
-- **Interactive Mystery Games**: Play engaging mystery cases with rich narratives and puzzles.
-- **AI-Powered Evidence Analysis**: Upload images, audio, and documents for AI analysis and clue extraction.
-- **Smart Note-Taking**: AI-powered system to organize clues, suspects, and theories.
-- **Dynamic Storytelling**: AI generates responses, adapts to player actions, and provides hints.
-- **User Authentication**: Secure login and profile management.
-- **Case Management**: Create, edit, and manage mystery cases (admin functionality).
-- **Responsive Design**: Works seamlessly on desktop and mobile devices.
-- **Modern UI**: Clean and intuitive user interface with dark mode support.
+```text
+CLUEZY/
+├── frontend/           # Static pre-rendered application
+│   ├── assets/
+│   │   ├── js/
+│   │   │   ├── cluezy-api.js  # Frontend API client & session manager
+│   │   │   └── cluezy-app.js  # Interactive UI & DOM lifecycle controller
+│   ├── fonts/          # Embedded typography
+│   ├── images/         # Icons and graphics
+│   ├── investigation/  # Active troubleshooting chat interface
+│   ├── investigations/ # Historical investigations log
+│   ├── knowledge-base/ # Knowledge base and reference guides
+│   ├── solution/       # Step-by-step remediation testing flow
+│   ├── resolved/       # Problem resolution summary and post-mortem
+│   ├── package.json    # Frontend scripts
+│   ├── serve.js        # Zero-dependency local static server
+│   ├── verify-build.js # Build & asset verification check
+│   ├── test-frontend.js# Automated frontend API client tests
+│   └── vercel.json     # Vercel deployment configuration
+├── backend/            # FastAPI application
+│   ├── app/
+│   │   ├── api/        # REST endpoints (health, sessions, investigations)
+│   │   ├── core/       # App configuration, database engine, security, error handling
+│   │   ├── models/     # 12 SQLAlchemy 2.0 ORM database models
+│   │   ├── schemas/    # Pydantic v2 validation and response models
+│   │   ├── services/   # Business logic services
+│   │   ├── ai/         # Groq SDK client wrapper (openai/gpt-oss-120b)
+│   │   └── main.py     # FastAPI application factory and lifespan manager
+│   ├── alembic/        # Alembic database migrations
+│   ├── tests/          # Comprehensive pytest test suite
+│   ├── alembic.ini     # Alembic configuration
+│   ├── requirements.txt # Production dependencies
+│   ├── requirements-dev.txt # Development & test dependencies
+│   ├── pyproject.toml  # Project configuration
+│   ├── .env.example    # Backend environment variables template
+│   └── vercel.json     # Vercel serverless Python configuration
+├── docs/
+│   ├── API_CONTRACTS.md # Full API specifications and request/response examples
+│   └── ARCHITECTURE.md  # System architecture, ER diagram, and design documentation
+├── .gitignore          # Repository git ignore rules
+└── README.md           # Project documentation
+```
 
 ---
 
-## Tech Stack
+## Technology Stack
 
 ### Frontend
-
-- **Framework**: React 19
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS 4.1
-- **Routing**: React Router DOM v7
-- **State Management**: TanStack Query, Zustand
-- **UI Components**: Lucide React, Tailwind UI
-- **Form Handling**: React Hook Form, Zod
+- **Framework**: Static pre-rendered React / Next.js
+- **Styling**: Tailwind CSS / Framer layout engine
+- **Local Server**: Node.js HTTP server (`frontend/serve.js`) on port `5173`
 
 ### Backend
+- **Framework**: Python 3.12+, FastAPI, Uvicorn
+- **Validation**: Pydantic v2, Pydantic-Settings
+- **ORM & Migrations**: SQLAlchemy 2.x (AsyncSession), Alembic
+- **Architecture**: Modular Monolithic Architecture
 
-- **Framework**: NestJS (Node.js)
-- **Language**: TypeScript
-- **Database**: PostgreSQL
-- **ORM**: Prisma
-- **Authentication**: Passport.js (JWT)
-- **Validation**: class-validator, class-transformer
-- **Type Checking**: TypeGraphQL
-- **Testing**: Jest
+### Database
+- **Engine**: Supabase PostgreSQL 15+
+- **Async Driver**: `asyncpg`
+- **Sync Driver**: `psycopg2` (for Alembic migrations)
+- **Local Fallback**: SQLite (`sqlite+aiosqlite:///./cluezy.db`) for zero-dependency local testing
 
-### Infrastructure
+### AI Integration
+- **Provider**: Groq API
+- **Primary Model**: `openai/gpt-oss-120b`
+- **SDK**: Official Groq Python SDK (`AsyncGroq`)
 
-- **Database**: PostgreSQL 15+
-- **AI Integration**: OpenAI API
+### Deployment
+- **Platform**: Vercel
+
+---
+
+## Database Models (Foundational Milestone)
+
+1. **Anonymous Sessions (`anonymous_sessions`)**: Temporary sessions with daily token allowances (200,000 tokens/day).
+2. **Investigations (`investigations`)**: Core troubleshooting cases with reference IDs (e.g. `INV-2387`).
+3. **Messages (`messages`)**: Chat dialogue history between user and assistant with quick replies.
+4. **Evidence (`evidence`)**: Confirmed technical facts and observations ("What we know").
+5. **Candidate Causes (`candidate_causes`)**: Ranked root causes under investigation ("Possible causes").
+6. **Knowledge Categories (`knowledge_categories`)**: Domain taxonomy (Network, OS, Software, Programming).
+7. **Diagnostic Causes (`diagnostic_causes`)**: Catalog of known root causes.
+8. **Diagnostic Questions (`diagnostic_questions`)**: Interactive questions to isolate problems.
+9. **Diagnostic Rules (`diagnostic_rules`)**: Inference rules mapping evidence to cause probabilities.
+10. **Recommended Actions (`recommended_actions`)**: Step-by-step diagnostic checks or remediation actions.
+11. **Action Outcomes (`action_outcomes`)**: User feedback on applied actions.
+12. **Reports (`reports`)**: Comprehensive resolution reports and preventative measures.
 
 ---
 
 ## Getting Started
 
 ### Prerequisites
-
-Before you begin, ensure you have the following installed:
-
-- Node.js (LTS version, recommend 20+)
-- npm or pnpm
-- PostgreSQL (or Docker for containerized database)
-- Git
-
-### Installation
-
-Follow these steps to set up the project:
-
-1. **Clone the repository**
-
-```bash
-git clone <repository-url>
-cd cluezy
-```
-
-2. **Backend Installation**
-
-```bash
-# Navigate to backend directory
-cd backend
-
-# Install dependencies
-npm install
-
-# Create environment file
-cp .env.example .env
-
-# Install database migrations
-npx prisma migrate dev
-```
-
-3. **Frontend Installation**
-
-```bash
-# Navigate to frontend directory
-cd ../frontend
-
-# Install dependencies
-npm install
-
-# Create environment file
-cp .env.example .env
-```
+- **Python**: 3.11 or higher
+- **Node.js**: v18 or higher
+- **Pip**: Latest version
 
 ---
 
-## Configuration
+### Backend Setup
 
-### Environment Variables
-
-Both backend and frontend use environment variables. Create `.env` files based on the examples provided.
-
-#### Backend `.env`
-
-```env
-# Database
-DATABASE_URL="postgresql://user:password@localhost:5432/cluezy?schema=public"
-
-# Auth
-JWT_SECRET="your-jwt-secret"
-JWT_EXPIRATION="1d"
-
-# AI / OpenAI
-OPENAI_API_KEY="your-openai-key"
-OPENAI_MODEL="gpt-4o"
-
-# File Uploads
-MAX_FILE_SIZE_MB=10
-
-# CORS
-FRONTEND_URL="http://localhost:5173"
-
-# Admin
-ADMIN_EMAIL="[EMAIL_ADDRESS]"
-ADMIN_PASSWORD="admin-password"
-```
-
-#### Frontend `.env`
-
-```env
-# API Base URL
-VITE_API_URL="http://localhost:3000"
-
-# Auth
-VITE_JWT_SECRET="your-jwt-secret"
-
-# OpenAI
-VITE_OPENAI_API_KEY="your-openai-key"
-
-# File Uploads
-VITE_MAX_FILE_SIZE_MB=10
-```
-
-### Database Setup
-
-We use PostgreSQL with Prisma for database management.
-
-1. **Ensure PostgreSQL is running**
-
+1. **Navigate to the backend directory**:
    ```bash
-   # Start PostgreSQL (example for systemd)
-   sudo systemctl start postgresql
-   ```
-
-2. **Create database**
-
-   ```sql
-   CREATE DATABASE cluezy;
-   ```
-
-3. **Run migrations**
-
-   ```bash
-   # Backend directory
    cd backend
-   npx prisma migrate dev
    ```
 
-4. **Generate Prisma client**
-
+2. **Create and activate a virtual environment (optional but recommended)**:
    ```bash
-   npx prisma generate
+   python -m venv .venv
+   # On Windows (PowerShell):
+   .\.venv\Scripts\Activate.ps1
+   # On Linux/macOS:
+   source .venv/bin/activate
    ```
 
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   pip install -r requirements-dev.txt
+   ```
+
+4. **Configure environment variables**:
+   ```bash
+   cp .env.example .env
+   ```
+   Edit `.env` to configure your Supabase connection string and Groq API key:
+   ```env
+   DATABASE_URL=postgresql+asyncpg://postgres:[PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres
+   DATABASE_URL_SYNC=postgresql://postgres:[PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres
+   GROQ_API_KEY=gsk_...
+   GROQ_MODEL=openai/gpt-oss-120b
+   ```
+   *(Note: If no Supabase connection is specified, the application defaults gracefully to SQLite for local development).*
+
+5. **Run database migrations**:
+   ```bash
+   alembic upgrade head
+   ```
+
+6. **Start the FastAPI backend server**:
+   ```bash
+   uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+   ```
+
+7. **Verify backend endpoints**:
+   - Health check: [http://localhost:8000/health](http://localhost:8000/health)
+   - Interactive API Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
+
 ---
 
-## Running the App
+### Frontend Setup
 
-### Start Backend
+1. **Navigate to the frontend directory**:
+   ```bash
+   cd frontend
+   ```
+
+2. **Start the local static server**:
+   ```bash
+   node serve.js
+   ```
+
+3. **Access the web application**:
+   Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+---
+
+### Running Backend Tests
+
+Run the complete automated test suite using `pytest`:
 
 ```bash
-# In backend directory
+# From repository root:
+pytest backend/tests -v
+
+# Or from backend directory:
 cd backend
-
-npm run start:dev
+pytest -v
 ```
-
-The backend will start on `http://localhost:3000`
-
-### Start Frontend
-
-```bash
-# In frontend directory
-cd frontend
-
-npm run dev
-```
-
-The frontend will start on `http://localhost:5173`
-
-Access the application in your browser at:
-👉 **[http://localhost:5173](http://localhost:5173)**
-
-### Available Commands
-
-| Directory | Command | Description |
-|-----------|---------|-------------|
-| **Backend** | `npm run dev` | Start development server |
-| | `npm run build` | Build for production |
-| | `npm run start` | Start production server |
-| | `npx prisma migrate dev` | Run database migrations |
-| | `npx prisma generate` | Generate Prisma client |
-| **Frontend** | `npm run dev` | Start development server |
-| | `npm run build` | Build for production |
-| | `npm run preview` | Preview production build |
-| | `npm run lint` | Lint TypeScript code |
 
 ---
 
-## Project Structure
+## Documentation
 
-```
-cluezy/
-├── backend/                    # NestJS backend
-│   ├── src/
-│   │   ├── auth/               # Authentication module
-│   │   ├── cases/              # Case management module
-│   │   ├── clues/              # Clue system
-│   │   ├── evidence/           # Evidence upload and AI analysis
-│   │   ├── files/              # File storage and utilities
-│   │   ├── notes/              # Smart note-taking system
-│   │   ├── suspects/           # Suspect management
-│   │   ├── users/              # User management
-│   │   ├── ai/                 # AI integration module
-│   │   ├── common/             # Shared utilities
-│   │   ├── config/             # Configuration
-│   │   ├── guards/             # Authentication guards
-│   │   ├── interceptors/       # Request interceptors
-│   │   ├── filters/            # Exception filters
-│   │   └── main.ts             # Application entry point
-│   ├── prisma/                 # Database schemas and migrations
-│   ├── test/                   # Unit and integration tests
-│   └── package.json
-│
-├── frontend/                   # React frontend
-│   ├── src/
-│   │   ├── components/         # Reusable UI components
-│   │   ├── pages/              # Page components
-│   │   ├── services/           # API services
-│   │   ├── stores/             # State management
-│   │   ├── utils/              # Utility functions
-│   │   ├── App.tsx             # Root component
-│   │   ├── main.tsx            # Application entry point
-│   │   └── index.html
-│   ├── public/                 # Public assets
-│   └── package.json
-│
-├── uploads/                    # File uploads (generated)
-└── README.md                   # Project documentation
-```
+- [API Contracts & Endpoints](docs/API_CONTRACTS.md): Detailed specifications of requests, responses, headers, and schemas.
+- [System Architecture](docs/ARCHITECTURE.md): Architectural design, ER diagrams, Supabase pooler compatibility, and Groq SDK integration.
