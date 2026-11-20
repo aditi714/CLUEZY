@@ -10,5 +10,8 @@
     "preview": "node serve.js",
     "build": "node verify-build.js",
     "test": "node test-frontend.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.119.2"
   }
 }

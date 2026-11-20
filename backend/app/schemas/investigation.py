@@ -54,6 +54,7 @@ class InvestigationListItem(BaseModel):
 
     id: uuid.UUID
     reference_id: str
+    user_id: Optional[str] = None
     title: str
     problem_description: str
     status: str
@@ -70,7 +71,8 @@ class InvestigationDetailResponse(BaseModel):
 
     id: uuid.UUID
     reference_id: str
-    session_id: uuid.UUID
+    user_id: Optional[str] = None
+    session_id: Optional[uuid.UUID] = None
     title: str
     problem_description: str
     device_type: Optional[str] = None
@@ -87,6 +89,23 @@ class InvestigationDetailResponse(BaseModel):
     candidate_causes: List[CandidateCauseItem] = Field(default_factory=list)
     recommended_actions: List[RecommendedActionItem] = Field(default_factory=list)
     report: Optional[ReportResponse] = None
+
+
+class ClaimAnonymousRequest(BaseModel):
+    """Request payload to associate an anonymous session's investigations with an authenticated user account."""
+    session_token: str = Field(
+        ...,
+        min_length=10,
+        max_length=128,
+        description="Anonymous session token to link",
+    )
+
+
+class ClaimAnonymousResponse(BaseModel):
+    """Response payload detailing claimed investigations."""
+    claimed_count: int
+    reference_ids: List[str] = Field(default_factory=list)
+    message: str
 
 
 class InvestigationProgressRequest(BaseModel):

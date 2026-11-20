@@ -322,6 +322,174 @@ async function runTests() {
     passed++;
   }
 
+  // Test 9: Supabase client initialization and Google OAuth sign-in initiation
+  {
+    let oauthProvider = null;
+    let oauthOptions = null;
+    const mockSupabase = {
+      auth: {
+        signInWithOAuth: async (opts) => {
+          oauthProvider = opts.provider;
+          oauthOptions = opts.options;
+          return { data: { provider: "google", url: "https://accounts.google.com/o/oauth2" }, error: null };
+        },
+        getSession: async () => ({ data: { session: null }, error: null }),
+        getUser: async () => ({ data: { user: null }, error: null }),
+        signOut: async () => ({ error: null }),
+        onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+      },
+    };
+
+    CluezyAPI.setSupabaseClient(mockSupabase);
+    const oauthRes = await CluezyAPI.signInWithGoogle("/investigation/");
+    assert.strictEqual(oauthProvider, "google");
+    assert.ok(oauthOptions.redirectTo.includes("/investigation/"));
+    assert.strictEqual(oauthRes.provider, "google");
+    console.log("  [PASS] 9. Supabase Google OAuth sign-in initiation");
+    passed++;
+  }
+
+  // Test 10: Automatic Bearer token injection when authenticated
+  {
+    recordedCalls.length = 0;
+    const mockSession = {
+      access_token: "mock_jwt_access_token_xyz_123",
+      user: {
+        id: "usr_9999",
+        email: "aditi@gmail.com",
+        user_metadata: { full_name: "Aditi" },
+      },
+    };
+
+    const mockSupabase = {
+      auth: {
+        getSession: async () => ({ data: { session: mockSession }, error: null }),
+        getUser: async () => ({ data: { user: mockSession.user }, error: null }),
+        signOut: async () => ({ error: null }),
+      },
+    };
+
+    CluezyAPI.setSupabaseClient(mockSupabase);
+
+    fetchResponder = async (url, opts) => {
+      assert.strictEqual(opts.headers["Authorization"], "Bearer mock_jwt_access_token_xyz_123");
+      return makeJsonResponse(200, {
+        success: true,
+        data: { items: [], total: 0 },
+      });
+    };
+
+    const isAuth = await CluezyAPI.isAuthenticated();
+    assert.strictEqual(isAuth, true);
+    const user = await CluezyAPI.getAuthUser();
+    assert.strictEqual(user.email, "aditi@gmail.com");
+
+    await CluezyAPI.listInvestigations();
+    assert.strictEqual(recordedCalls.length, 1);
+    console.log("  [PASS] 10. Automatic Bearer token injection when authenticated");
+    passed++;
+  }
+
+  // Test 11: Claiming anonymous investigations attaches session token to claim endpoint
+  {
+    recordedCalls.length = 0;
+    CluezyAPI.setSessionToken("clz_anon_to_claim_456");
+
+    fetchResponder = async (url, opts) => {
+      assert.ok(url.endsWith("/investigations/claim-anonymous"));
+      assert.strictEqual(opts.method, "POST");
+      assert.strictEqual(opts.headers["Authorization"], "Bearer mock_jwt_access_token_xyz_123");
+      const body = JSON.parse(opts.body);
+      assert.strictEqual(body.session_token, "clz_anon_to_claim_456");
+      return makeJsonResponse(200, {
+        success: true,
+        data: {
+          claimed_count: 2,
+          reference_ids: ["INV-1001", "INV-1002"],
+          message: "Linked successfully",
+        },
+      });
+    };
+
+    const claimRes = await CluezyAPI.claimAnonymousInvestigations();
+    assert.strictEqual(claimRes.claimed_count, 2);
+    assert.strictEqual(claimRes.reference_ids[0], "INV-1001");
+    console.log("  [PASS] 11. Anonymous investigation claiming and account linking");
+    passed++;
+  }
+
+  // Test 12: Sign-out invokes Supabase signOut and clears auth state
+  {
+    let signOutCalled = false;
+    const mockSupabase = {
+      auth: {
+        getSession: async () => ({ data: { session: null }, error: null }),
+        getUser: async () => ({ data: { user: null }, error: null }),
+        signOut: async () => {
+          signOutCalled = true;
+          return { error: null };
+        },
+      },
+    };
+    CluezyAPI.setSupabaseClient(mockSupabase);
+    await CluezyAPI.signOut();
+    assert.strictEqual(signOutCalled, true);
+    const tokenAfter = await CluezyAPI.getAuthToken();
+    assert.strictEqual(tokenAfter, null);
+    console.log("  [PASS] 12. Sign out flow and auth credential clearing");
+    passed++;
+  }
+
+  // Test 13: 401 token refresh retry flow
+  {
+    let refreshAttempted = false;
+    let requestCount = 0;
+    const refreshedSession = {
+      access_token: "mock_refreshed_token_777",
+      user: { id: "usr_9999", email: "aditi@gmail.com" },
+    };
+
+    let activeSession = {
+      access_token: "expired_token_111",
+      user: { id: "usr_9999", email: "aditi@gmail.com" },
+    };
+
+    const mockSupabase = {
+      auth: {
+        getSession: async () => ({ data: { session: activeSession }, error: null }),
+        getUser: async () => ({ data: { user: activeSession.user }, error: null }),
+        refreshSession: async () => {
+          refreshAttempted = true;
+          activeSession = refreshedSession;
+          return { data: { session: refreshedSession }, error: null };
+        },
+      },
+    };
+    CluezyAPI.setSupabaseClient(mockSupabase);
+
+    fetchResponder = async (url, opts) => {
+      requestCount++;
+      if (requestCount === 1) {
+        assert.strictEqual(opts.headers["Authorization"], "Bearer expired_token_111");
+        return makeJsonResponse(401, {
+          success: false,
+          error: { code: "TOKEN_EXPIRED", message: "JWT expired" },
+        });
+      }
+      assert.strictEqual(opts.headers["Authorization"], "Bearer mock_refreshed_token_777");
+      return makeJsonResponse(200, {
+        success: true,
+        data: { items: [], total: 0 },
+      });
+    };
+
+    await CluezyAPI.listInvestigations();
+    assert.strictEqual(refreshAttempted, true);
+    assert.strictEqual(requestCount, 2);
+    console.log("  [PASS] 13. Automatic 401 JWT refresh and seamless request retry");
+    passed++;
+  }
+
   console.log(`\nAll ${passed} frontend tests PASSED!`);
 }
 

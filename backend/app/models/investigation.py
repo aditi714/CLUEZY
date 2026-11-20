@@ -29,11 +29,16 @@ class Investigation(Base, UUIDMixin, TimestampMixin):
         index=True,
         nullable=False,
     )
-    session_id: Mapped[uuid.UUID] = mapped_column(
-        Uuid(as_uuid=True),
-        ForeignKey("anonymous_sessions.id", ondelete="CASCADE"),
+    user_id: Mapped[Optional[str]] = mapped_column(
+        String(64),
         index=True,
-        nullable=False,
+        nullable=True,
+    )
+    session_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        Uuid(as_uuid=True),
+        ForeignKey("anonymous_sessions.id", ondelete="SET NULL"),
+        index=True,
+        nullable=True,
     )
     title: Mapped[str] = mapped_column(
         String(255),
@@ -71,7 +76,7 @@ class Investigation(Base, UUIDMixin, TimestampMixin):
     )
 
     # Relationships
-    session: Mapped["AnonymousSession"] = relationship(
+    session: Mapped[Optional["AnonymousSession"]] = relationship(
         "AnonymousSession",
         back_populates="investigations",
     )

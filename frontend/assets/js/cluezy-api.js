@@ -23,6 +23,9 @@
     API_BASE_OVERRIDE: "cluezy_api_base_url",
   };
 
+  var SUPABASE_URL = "https://vxaupjnubimtqcuittbv.supabase.co";
+  var SUPABASE_PUBLISHABLE_KEY = "sb_publishable_OZPJ4Az7-VusxfzUqupR6w_UB-RI5WC";
+
   var SESSION_HEADER = "X-Session-Token";
   var DEFAULT_TIMEOUT_MS = 35000;
 
@@ -88,10 +91,151 @@
   // Track in-flight mutating requests to prevent duplicate submissions
   var inFlightMutations = new Set();
   var sessionInitPromise = null;
+  var supabaseInstance = null;
+
+  function getSupabaseClient() {
+    if (supabaseInstance) return supabaseInstance;
+    var supabaseLib = null;
+    if (typeof window !== "undefined") {
+      if (window.supabase && typeof window.supabase.createClient === "function") {
+        supabaseLib = window.supabase;
+      }
+    } else if (typeof globalThis !== "undefined" && globalThis.supabase) {
+      supabaseLib = globalThis.supabase;
+    }
+    if (supabaseLib && typeof supabaseLib.createClient === "function") {
+      try {
+        var url = (typeof window !== "undefined" && window.CLUEZY_CONFIG && window.CLUEZY_CONFIG.SUPABASE_URL) || SUPABASE_URL;
+        var anonKey = (typeof window !== "undefined" && window.CLUEZY_CONFIG && window.CLUEZY_CONFIG.SUPABASE_PUBLISHABLE_KEY) || SUPABASE_PUBLISHABLE_KEY;
+        supabaseInstance = supabaseLib.createClient(url, anonKey, {
+          auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: true,
+            storageKey: "cluezy_auth_token",
+          },
+        });
+      } catch (e) {
+        console.warn("Failed initializing Supabase client:", e);
+      }
+    }
+    return supabaseInstance;
+  }
 
   var CluezyAPI = {
     STORAGE_KEYS: STORAGE_KEYS,
     SESSION_HEADER: SESSION_HEADER,
+
+    getSupabase: function () {
+      return getSupabaseClient();
+    },
+
+    setSupabaseClient: function (client) {
+      supabaseInstance = client;
+    },
+
+    getAuthSession: async function () {
+      var client = this.getSupabase();
+      if (!client) return null;
+      try {
+        var res = await client.auth.getSession();
+        return (res && res.data && res.data.session) || null;
+      } catch (_e) {
+        return null;
+      }
+    },
+
+    getAuthToken: async function () {
+      var session = await this.getAuthSession();
+      return (session && session.access_token) || null;
+    },
+
+    getAuthUser: async function () {
+      var session = await this.getAuthSession();
+      if (session && session.user) return session.user;
+      var client = this.getSupabase();
+      if (!client) return null;
+      try {
+        var res = await client.auth.getUser();
+        return (res && res.data && res.data.user) || null;
+      } catch (_e) {
+        return null;
+      }
+    },
+
+    isAuthenticated: async function () {
+      var token = await this.getAuthToken();
+      return !!token;
+    },
+
+    signInWithGoogle: async function (redirectPath) {
+      var client = this.getSupabase();
+      if (!client) {
+        throw new Error("Supabase authentication is not loaded. Please verify your connection.");
+      }
+      var origin = (typeof window !== "undefined" && window.location && window.location.origin) || "";
+      var path = redirectPath || (typeof window !== "undefined" && window.location && (window.location.pathname + window.location.search)) || "/investigations/";
+      var redirectTo = origin + (path.charAt(0) === "/" ? path : "/" + path);
+
+      var res = await client.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: redirectTo,
+          queryParams: {
+            access_type: "offline",
+            prompt: "consent",
+          },
+        },
+      });
+      if (res && res.error) {
+        throw res.error;
+      }
+      return res && res.data;
+    },
+
+    signOut: async function () {
+      var client = this.getSupabase();
+      if (client) {
+        try {
+          await client.auth.signOut();
+        } catch (_e) {}
+      }
+    },
+
+    onAuthStateChange: function (callback) {
+      var client = this.getSupabase();
+      if (!client || typeof callback !== "function") {
+        return { data: { subscription: { unsubscribe: function () {} } } };
+      }
+      try {
+        return client.auth.onAuthStateChange(function (event, session) {
+          try {
+            callback(event, session);
+          } catch (err) {
+            console.error("Auth state change callback error:", err);
+          }
+        });
+      } catch (_e) {
+        return { data: { subscription: { unsubscribe: function () {} } } };
+      }
+    },
+
+    claimAnonymousInvestigations: async function () {
+      var sessionToken = this.getSessionToken();
+      if (!sessionToken) return null;
+      var authToken = await this.getAuthToken();
+      if (!authToken) return null;
+      try {
+        return await this.request("/investigations/claim-anonymous", {
+          method: "POST",
+          body: { session_token: sessionToken },
+          dedupeKey: "CLAIM_ANON",
+        });
+      } catch (err) {
+        console.warn("Could not claim anonymous investigations:", err);
+        return null;
+      }
+    },
 
     getBaseUrl: function () {
       return resolveApiBaseUrl();
@@ -182,6 +326,11 @@
           token = sess.session_token;
         }
 
+        var authToken = null;
+        try {
+          authToken = await this.getAuthToken();
+        } catch (_e) {}
+
         var url = this.getBaseUrl() + (path.charAt(0) === "/" ? path : "/" + path);
         var headers = Object.assign(
           {
@@ -195,6 +344,9 @@
         }
         if (token) {
           headers[SESSION_HEADER] = token;
+        }
+        if (authToken) {
+          headers["Authorization"] = "Bearer " + authToken;
         }
 
         var controller = typeof AbortController !== "undefined" ? new AbortController() : null;
@@ -228,16 +380,36 @@
           if (timer) clearTimeout(timer);
         }
 
-        // If 401 Unauthorized (session expired or invalid in DB), automatically re-initialize session once
-        if (response.status === 401 && requireSession && !options._retried401) {
-          this.clearSession();
-          var freshSession = await this.createSession();
-          if (freshSession && freshSession.session_token) {
-            if (dedupeKey) inFlightMutations.delete(dedupeKey);
-            return await this.request(
-              path,
-              Object.assign({}, options, { _retried401: true })
-            );
+        // If 401 Unauthorized
+        if (response.status === 401) {
+          // If auth token was passed and not yet retried, try refreshing auth token first
+          if (authToken && !options._retriedAuth401) {
+            try {
+              var supabase = this.getSupabase();
+              if (supabase && supabase.auth && typeof supabase.auth.refreshSession === "function") {
+                var refRes = await supabase.auth.refreshSession();
+                if (refRes && refRes.data && refRes.data.session) {
+                  if (dedupeKey) inFlightMutations.delete(dedupeKey);
+                  return await this.request(
+                    path,
+                    Object.assign({}, options, { _retriedAuth401: true })
+                  );
+                }
+              }
+            } catch (_refErr) {}
+          }
+
+          // If anonymous session expired or invalid in DB, automatically re-initialize session once
+          if (requireSession && !options._retried401) {
+            this.clearSession();
+            var freshSession = await this.createSession();
+            if (freshSession && freshSession.session_token) {
+              if (dedupeKey) inFlightMutations.delete(dedupeKey);
+              return await this.request(
+                path,
+                Object.assign({}, options, { _retried401: true })
+              );
+            }
           }
         }
 

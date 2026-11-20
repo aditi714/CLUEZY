@@ -39,6 +39,9 @@ def setup_test_env():
     """Configure environment variables for testing."""
     os.environ["APP_ENV"] = "testing"
     os.environ["DEBUG"] = "true"
+    os.environ["SUPABASE_JWT_SECRET"] = "test_supabase_jwt_secret_key_1234567890"
+    from app.core.config import settings
+    settings.SUPABASE_JWT_SECRET = "test_supabase_jwt_secret_key_1234567890"
 
 
 @pytest.fixture(autouse=True)
@@ -87,4 +90,42 @@ async def test_session(db_session: AsyncSession) -> AnonymousSession:
 def auth_headers(test_session: AnonymousSession) -> dict:
     """Return authorization headers with valid X-Session-Token."""
     return {SESSION_HEADER_NAME: test_session.session_token}
+
+
+def create_mock_jwt(user_id: str, email: str = "user@example.com", expires_in_seconds: int = 3600) -> str:
+    """Helper to generate signed test JWT tokens."""
+    import jwt
+    from datetime import datetime, timedelta, timezone
+    from app.core.config import settings
+
+    now = datetime.now(timezone.utc)
+    payload = {
+        "sub": user_id,
+        "email": email,
+        "role": "authenticated",
+        "aud": "authenticated",
+        "iss": f"{settings.SUPABASE_URL.rstrip('/')}/auth/v1",
+        "iat": int(now.timestamp()),
+        "exp": int((now + timedelta(seconds=expires_in_seconds)).timestamp()),
+        "user_metadata": {
+            "full_name": "Test User",
+            "avatar_url": "https://example.com/avatar.png",
+        },
+    }
+    return jwt.encode(payload, settings.SUPABASE_JWT_SECRET, algorithm="HS256")
+
+
+@pytest.fixture
+def user_a_headers() -> dict:
+    """Bearer token headers for authenticated User A."""
+    token = create_mock_jwt(user_id="usr_00000000-0000-0000-0000-00000000000a", email="user_a@cluezy.test")
+    return {"Authorization": f"Bearer {token}"}
+
+
+@pytest.fixture
+def user_b_headers() -> dict:
+    """Bearer token headers for authenticated User B."""
+    token = create_mock_jwt(user_id="usr_00000000-0000-0000-0000-00000000000b", email="user_b@cluezy.test")
+    return {"Authorization": f"Bearer {token}"}
+
 

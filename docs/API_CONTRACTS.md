@@ -12,14 +12,21 @@ The CLUEZY backend exposes a RESTful JSON API engineered with FastAPI and Pydant
 
 ## Authentication & Session Management
 
-CLUEZY utilizes lightweight, anonymous sessions to support frictionless access without mandatory sign-up while enforcing fair-use token allowances.
+CLUEZY provides seamless dual-authentication: frictionless anonymous access for new users, and permanent Google OAuth sign-in powered by Supabase Auth.
 
+### 1. Authenticated Google Sessions (Supabase Auth)
+- **Header Name**: `Authorization`
+- **Format**: `Bearer <supabase_access_token>`
+- **Signing Algorithm**: Asymmetric ECDSA `ES256` validated against Supabase JWKS (`https://<project-ref>.supabase.co/auth/v1/.well-known/jwks.json`)
+- **Features**: Permanent cloud persistence across devices, user profile derivation (name, Google avatar), multi-tenant isolation, and anonymous history claiming.
+
+### 2. Anonymous Sessions
 - **Header Name**: `X-Session-Token`
 - **Format**: `clz_<32-byte-urlsafe-token>`
 - **Token Allowance**: 200,000 tokens/day per session
 - **Default TTL**: 720 hours (30 days)
 
-Requests to protected endpoints (`/investigations/*`) must include the `X-Session-Token` header.
+Requests to protected endpoints (`/investigations/*`) accept either an `Authorization: Bearer <token>` or `X-Session-Token` header. When an anonymous user signs in via Google OAuth, their past anonymous investigations can be claimed into their permanent user account.
 
 ---
 
@@ -268,9 +275,9 @@ Creates a new troubleshooting investigation. Automatically parses problem descri
 
 #### `GET /api/v1/investigations`
 
-Lists all past investigations created within the active session.
+Lists all past investigations created within the active user account or anonymous session.
 
-- **Auth Required**: `X-Session-Token`
+- **Auth Required**: `Authorization: Bearer <token>` or `X-Session-Token`
 - **Query Parameters**:
   - `status` (string, optional): e.g. `active`, `in_progress`, `resolved`
   - `page` (int, default `1`): Page number
@@ -285,6 +292,7 @@ Lists all past investigations created within the active session.
       {
         "id": "9d906ea1-b25a-493e-a8f8-bca74e6f3b0e",
         "reference_id": "INV-2387",
+        "user_id": "usr_9999",
         "title": "Laptop can't open websites (DNS issue)",
         "problem_description": "My laptop is connected to Wi-Fi...",
         "status": "active",
@@ -300,6 +308,30 @@ Lists all past investigations created within the active session.
     "page_size": 20,
     "has_more": false
   }
+}
+```
+
+#### `POST /api/v1/investigations/claim-anonymous`
+
+Safely links previous anonymous investigations created under the provided anonymous session token to the authenticated Supabase user account. Idempotent and protected against claiming already-claimed sessions.
+
+- **Auth Required**: `Authorization: Bearer <token>`
+- **Request Body**:
+```json
+{
+  "session_token": "clz_anon_token_12345"
+}
+```
+- **Response (`200 OK`)**:
+```json
+{
+  "success": true,
+  "data": {
+    "claimed_count": 2,
+    "reference_ids": ["INV-1001", "INV-1002"],
+    "message": "Successfully associated 2 anonymous investigation(s) with account usr_9999."
+  },
+  "message": "Account linking completed successfully."
 }
 ```
 

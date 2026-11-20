@@ -38,6 +38,7 @@ CLUEZY/
 | **Backend** | FastAPI + Python 3.12+ | Async REST API, Pydantic v2, Uvicorn |
 | **ORM & Migrations** | SQLAlchemy 2.x + Alembic | Declarative mapping, AsyncSession (`asyncpg`), sync migrations |
 | **Database** | Supabase PostgreSQL | Managed PostgreSQL 15+ with SSL & connection pooling |
+| **Authentication** | Supabase Auth (Google OAuth) | Dual auth: Google OAuth (ES256 JWKS) + Anonymous sessions (`clz_...`) |
 | **AI Inference** | Groq Python SDK | Primary Model: `openai/gpt-oss-120b` |
 | **Deployment** | Vercel | Serverless Python backend (`backend/vercel.json`) |
 
@@ -67,7 +68,7 @@ erDiagram
 ### Entity Descriptions
 
 1. **`AnonymousSession`**: Manages non-authenticated user sessions, cryptographic session tokens (`clz_...`), expiration (30 days), and daily token budgets (200,000 tokens/day).
-2. **`Investigation`**: Core troubleshooting session with unique reference ID (e.g. `INV-2387`), device type, problem description, category, and lifecycle status (`active`, `testing_solution`, `resolved`).
+2. **`Investigation`**: Core troubleshooting session with unique reference ID (e.g. `INV-2387`), optional Supabase authenticated user ownership (`user_id`), anonymous session association (`session_id`), device type, problem description, category, and lifecycle status (`active`, `testing_solution`, `resolved`). Supports seamless claiming from anonymous sessions to authenticated Google accounts.
 3. **`Message`**: Sequential dialogue turns between the user and assistant, including quick-response chips.
 4. **`Evidence`**: Known verified facts and observations ("What we know"), e.g., device type, network state, symptom confirmation.
 5. **`CandidateCause`**: Potential root causes under evaluation with likelihood ranking (`High`, `Medium`, `Low`) and status (`suspected`, `testing`, `confirmed`, `ruled_out`).

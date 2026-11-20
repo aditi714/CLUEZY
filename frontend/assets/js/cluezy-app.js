@@ -705,6 +705,9 @@
         if (sess) renderTokenQuota(sess);
       })
       .catch(function () {});
+
+    // Bind authenticated Google profile or Google Sign-In button
+    bindUserProfile();
   }
 
   function renderTokenQuota(sess) {
@@ -720,6 +723,160 @@
     if (bar) {
       bar.style.width = Math.max(5, Math.min(100, pct)) + "%";
     }
+  }
+
+  /**
+   * Bind sidebar user profile container to show Google OAuth avatar, name, and account menu,
+   * or a clean "Sign in with Google" button for anonymous visitors.
+   */
+  async function bindUserProfile() {
+    var profileContainers = document.querySelectorAll('[data-framer-name="Profile"]');
+    if (!profileContainers || !profileContainers.length) return;
+
+    var user = null;
+    try {
+      user = await API.getAuthUser();
+    } catch (_e) {
+      user = null;
+    }
+
+    profileContainers.forEach(function (profileEl) {
+      // Remove any previously open dropdown
+      var oldMenu = document.getElementById("cluezy-account-dropdown");
+      if (oldMenu && oldMenu.parentNode) {
+        oldMenu.parentNode.removeChild(oldMenu);
+      }
+
+      var avatarEl = profileEl.querySelector('[data-framer-name$="avatar"], .framer-1kjjt43');
+      var nameEl = profileEl.querySelector('[data-framer-name="Aditi"] span, [data-framer-name="Aditi"] p, .framer-xxjd8o span, .framer-xxjd8o p');
+      var planEl = profileEl.querySelector('[data-framer-name="Free Plan"] span, [data-framer-name="Free Plan"] p, .framer-wp9bn7 span, .framer-wp9bn7 p');
+      var settingsIcon = profileEl.querySelector('[data-framer-name="Settings"], .framer-19bts9u');
+
+      if (user) {
+        // Authenticated user state
+        var metadata = user.user_metadata || {};
+        var displayName = metadata.full_name || metadata.name || (user.email ? user.email.split("@")[0] : "Aditi");
+        var avatarUrl = metadata.avatar_url || metadata.picture || null;
+        var email = user.email || "Google Account";
+
+        if (nameEl) {
+          nameEl.textContent = displayName;
+        }
+        if (planEl) {
+          planEl.textContent = email;
+          planEl.title = email;
+          planEl.style.overflow = "hidden";
+          planEl.style.textOverflow = "ellipsis";
+          planEl.style.whiteSpace = "nowrap";
+          planEl.style.maxWidth = "110px";
+          planEl.style.display = "block";
+        }
+        if (avatarEl) {
+          if (avatarUrl) {
+            avatarEl.innerHTML = '<img src="' + avatarUrl + '" alt="' + displayName + '" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" referrerpolicy="no-referrer" />';
+          } else {
+            var initial = (displayName.charAt(0) || "A").toUpperCase();
+            avatarEl.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font-weight: 700; color: #17251f; font-size: 15px;">' + initial + '</div>';
+          }
+        }
+
+        profileEl.style.cursor = "pointer";
+        profileEl.title = "Account options (Click to view profile or sign out)";
+        profileEl.onclick = function (e) {
+          e.stopPropagation();
+          toggleAccountDropdown(profileEl, user);
+        };
+      } else {
+        // Unauthenticated anonymous state: Show clean Google Sign-In button
+        if (nameEl) {
+          nameEl.textContent = "Sign In";
+        }
+        if (planEl) {
+          planEl.textContent = "with Google";
+        }
+        if (avatarEl) {
+          avatarEl.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"/><path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12 0 14.8s.7 5.1 1.9 7.5l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2-6.4-4.8L1.9 16.4C3.7 20.4 7.5 23 12 23z"/></svg>';
+        }
+        profileEl.style.cursor = "pointer";
+        profileEl.title = "Click to sign in with Google";
+        profileEl.onclick = function (e) {
+          e.stopPropagation();
+          API.signInWithGoogle();
+        };
+      }
+    });
+  }
+
+  function toggleAccountDropdown(anchorEl, user) {
+    var existing = document.getElementById("cluezy-account-dropdown");
+    if (existing) {
+      existing.parentNode.removeChild(existing);
+      return;
+    }
+
+    var rect = anchorEl.getBoundingClientRect();
+    var menu = document.createElement("div");
+    menu.id = "cluezy-account-dropdown";
+    menu.style.cssText =
+      "position: fixed; " +
+      "left: " + Math.max(12, rect.left) + "px; " +
+      "bottom: " + (window.innerHeight - rect.top + 8) + "px; " +
+      "width: 230px; " +
+      "background-color: #17251f; " +
+      "border: 1px solid #326049; " +
+      "border-radius: 10px; " +
+      "box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); " +
+      "z-index: 99999; " +
+      "padding: 12px; " +
+      "color: #e5ece7; " +
+      "font-family: Inter, sans-serif;";
+
+    var metadata = (user && user.user_metadata) || {};
+    var displayName = metadata.full_name || metadata.name || (user && user.email ? user.email.split("@")[0] : "Aditi");
+    var email = (user && user.email) || "";
+
+    menu.innerHTML =
+      '<div style="margin-bottom: 10px; border-bottom: 1px solid #326049; padding-bottom: 8px;">' +
+      '  <div style="font-weight: 600; font-size: 14px; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + escapeHtml(displayName) + '</div>' +
+      '  <div style="font-size: 12px; color: #9bb5a3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + escapeHtml(email) + '</div>' +
+      '</div>' +
+      '<button id="cluezy-logout-btn" style="width: 100%; background: rgba(220, 53, 69, 0.15); border: 1px solid rgba(220, 53, 69, 0.4); color: #ff8b8b; padding: 7px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; text-align: center; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.15s;">' +
+      '  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>' +
+      '  Sign Out' +
+      '</button>';
+
+    document.body.appendChild(menu);
+
+    var logoutBtn = menu.querySelector("#cluezy-logout-btn");
+    if (logoutBtn) {
+      logoutBtn.onclick = async function () {
+        logoutBtn.disabled = true;
+        logoutBtn.textContent = "Signing out...";
+        try {
+          await API.signOut();
+        } catch (_e) {}
+        if (menu.parentNode) menu.parentNode.removeChild(menu);
+        bindUserProfile();
+        // Refresh sidebar investigations
+        API.listInvestigations({ page: 1, page_size: 5 })
+          .then(function (res) {
+            if (res && Array.isArray(res.items)) {
+              renderSidebarRecentInvestigations(res.items);
+            }
+          })
+          .catch(function () {});
+      };
+    }
+
+    function onDocClick(e) {
+      if (!menu.contains(e.target) && !anchorEl.contains(e.target)) {
+        if (menu.parentNode) menu.parentNode.removeChild(menu);
+        document.removeEventListener("click", onDocClick);
+      }
+    }
+    setTimeout(function () {
+      document.addEventListener("click", onDocClick);
+    }, 10);
   }
 
   // ============================================================================
@@ -779,11 +936,28 @@
         });
       });
 
-      // Bind "Sign In" -> My Investigations
-      var signInBtns = document.querySelectorAll('[data-framer-name="Sign In"] a');
-      signInBtns.forEach(function (a) {
-        bindActionClick(a, function () {
-          navigateTo("/investigations/");
+      // Bind "Sign In" button in header
+      var signInBtns = document.querySelectorAll('[data-framer-name="Sign In"] a, [data-framer-name="Sign In"]');
+      signInBtns.forEach(function (btn) {
+        var a = btn.tagName === "A" ? btn : btn.querySelector("a");
+        var targetEl = a || btn;
+        API.isAuthenticated().then(function (auth) {
+          if (auth) {
+            var label = targetEl.querySelector("span, p");
+            if (label) label.textContent = "My Investigations";
+          }
+        }).catch(function () {});
+
+        bindActionClick(targetEl, function () {
+          API.isAuthenticated().then(function (auth) {
+            if (auth) {
+              navigateTo("/investigations/");
+            } else {
+              API.signInWithGoogle("/investigations/");
+            }
+          }).catch(function () {
+            API.signInWithGoogle("/investigations/");
+          });
         });
       });
 
@@ -2217,7 +2391,20 @@
     dataLoadStarted = true;
 
     try {
-      await API.getOrCreateSession(false);
+      var user = null;
+      try {
+        user = await API.getAuthUser();
+      } catch (_e) {}
+
+      if (user) {
+        try {
+          await API.claimAnonymousInvestigations();
+        } catch (_claimErr) {}
+      } else {
+        await API.getOrCreateSession(false);
+      }
+
+      bindUserProfile();
 
       var params = new URLSearchParams(window.location.search || "");
       var isExplicitNew = params.get("new") === "1";
@@ -2372,9 +2559,23 @@
           return;
         }
 
-        var myInvBtn = target.closest(
-          '[data-framer-name="My Investigations"], [data-framer-name="Sign In"]'
-        );
+        var signInBtn = target.closest('[data-framer-name="Sign In"]');
+        if (signInBtn) {
+          e.preventDefault();
+          e.stopPropagation();
+          API.isAuthenticated().then(function (auth) {
+            if (auth) {
+              navigateTo("/investigations/");
+            } else {
+              API.signInWithGoogle("/investigations/");
+            }
+          }).catch(function () {
+            API.signInWithGoogle("/investigations/");
+          });
+          return;
+        }
+
+        var myInvBtn = target.closest('[data-framer-name="My Investigations"]');
         if (myInvBtn) {
           e.preventDefault();
           e.stopPropagation();
@@ -2407,6 +2608,23 @@
     registerGlobalDelegatedClickHandlers();
     mountCurrentRouteDOM();
     loadInitialBackendState();
+
+    // Listen to Supabase auth state changes
+    API.onAuthStateChange(function (event, session) {
+      bindUserProfile();
+      if (event === "SIGNED_IN") {
+        API.claimAnonymousInvestigations()
+          .then(function () {
+            return API.listInvestigations({ page: 1, page_size: 5 });
+          })
+          .then(function (res) {
+            if (res && Array.isArray(res.items)) {
+              renderSidebarRecentInvestigations(res.items);
+            }
+          })
+          .catch(function () {});
+      }
+    });
 
     window.addEventListener("popstate", function () {
       dataLoadStarted = false;

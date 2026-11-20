@@ -1,16 +1,23 @@
-"""Investigation API endpoints."""
+"""Investigation API endpoints with dual authenticated user and anonymous session support."""
 
 from typing import Optional
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_session, get_db
-from app.models.session import AnonymousSession
+from app.api.deps import (
+    get_current_user,
+    get_db,
+    require_troubleshooter_identity,
+    TroubleshooterIdentity,
+)
+from app.core.auth import AuthenticatedUser
 from app.schemas.action import RecommendedActionItem
 from app.schemas.candidate_cause import CandidateCauseItem
 from app.schemas.common import APIResponse, PaginatedResponse
 from app.schemas.evidence import EvidenceItem
 from app.schemas.investigation import (
+    ClaimAnonymousRequest,
+    ClaimAnonymousResponse,
     InvestigationCreateRequest,
     InvestigationDetailResponse,
     InvestigationListItem,
@@ -29,6 +36,7 @@ def _to_detail_response(inv) -> InvestigationDetailResponse:
     return InvestigationDetailResponse(
         id=inv.id,
         reference_id=inv.reference_id,
+        user_id=inv.user_id,
         session_id=inv.session_id,
         title=inv.title,
         problem_description=inv.problem_description,
@@ -57,12 +65,13 @@ def _to_detail_response(inv) -> InvestigationDetailResponse:
 )
 async def create_investigation(
     payload: InvestigationCreateRequest,
-    session: AnonymousSession = Depends(get_current_session),
+    identity: TroubleshooterIdentity = Depends(require_troubleshooter_identity),
     db: AsyncSession = Depends(get_db),
 ):
     investigation = await investigation_service.create_investigation(
         db=db,
-        session_id=session.id,
+        session_id=identity.session_id,
+        user_id=identity.user_id,
         request=payload,
     )
 
@@ -77,18 +86,19 @@ async def create_investigation(
     "",
     response_model=APIResponse[PaginatedResponse[InvestigationListItem]],
     summary="List Investigations",
-    description="Retrieve past troubleshooting sessions associated with the current anonymous session.",
+    description="Retrieve past troubleshooting sessions associated with the current user account or anonymous session.",
 )
 async def list_investigations(
     status: Optional[str] = Query(None, description="Filter by status (e.g. active, in_progress, resolved)"),
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(20, ge=1, le=100, description="Items per page"),
-    session: AnonymousSession = Depends(get_current_session),
+    identity: TroubleshooterIdentity = Depends(require_troubleshooter_identity),
     db: AsyncSession = Depends(get_db),
 ):
     items, total = await investigation_service.list_investigations(
         db=db,
-        session_id=session.id,
+        session_id=identity.session_id,
+        user_id=identity.user_id,
         status=status,
         page=page,
         page_size=page_size,
@@ -109,6 +119,34 @@ async def list_investigations(
     )
 
 
+@router.post(
+    "/claim-anonymous",
+    response_model=APIResponse[ClaimAnonymousResponse],
+    summary="Claim Anonymous Investigations",
+    description="Safely associate previous anonymous investigations created under the given session token with the authenticated user account.",
+)
+async def claim_anonymous_investigations(
+    payload: ClaimAnonymousRequest,
+    current_user: AuthenticatedUser = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    count, refs = await investigation_service.claim_anonymous_investigations(
+        db=db,
+        user_id=current_user.id,
+        session_token=payload.session_token,
+    )
+
+    return APIResponse(
+        success=True,
+        data=ClaimAnonymousResponse(
+            claimed_count=count,
+            reference_ids=refs,
+            message=f"Successfully associated {count} anonymous investigation(s) with account {current_user.id}.",
+        ),
+        message="Account linking completed successfully.",
+    )
+
+
 @router.get(
     "/{identifier}",
     response_model=APIResponse[InvestigationDetailResponse],
@@ -117,12 +155,13 @@ async def list_investigations(
 )
 async def get_investigation(
     identifier: str,
-    session: AnonymousSession = Depends(get_current_session),
+    identity: TroubleshooterIdentity = Depends(require_troubleshooter_identity),
     db: AsyncSession = Depends(get_db),
 ):
     investigation = await investigation_service.get_investigation(
         db=db,
-        session_id=session.id,
+        session_id=identity.session_id,
+        user_id=identity.user_id,
         identifier=identifier,
     )
 
@@ -141,12 +180,13 @@ async def get_investigation(
 async def progress_investigation(
     identifier: str,
     payload: InvestigationProgressRequest,
-    session: AnonymousSession = Depends(get_current_session),
+    identity: TroubleshooterIdentity = Depends(require_troubleshooter_identity),
     db: AsyncSession = Depends(get_db),
 ):
     investigation = await investigation_service.progress_investigation(
         db=db,
-        session_id=session.id,
+        session_id=identity.session_id,
+        user_id=identity.user_id,
         identifier=identifier,
         request=payload,
     )
@@ -167,13 +207,14 @@ async def progress_investigation(
 async def resolve_investigation(
     identifier: str,
     payload: Optional[InvestigationResolveRequest] = None,
-    session: AnonymousSession = Depends(get_current_session),
+    identity: TroubleshooterIdentity = Depends(require_troubleshooter_identity),
     db: AsyncSession = Depends(get_db),
 ):
     notes = payload.user_notes if payload else None
     investigation = await investigation_service.resolve_investigation(
         db=db,
-        session_id=session.id,
+        session_id=identity.session_id,
+        user_id=identity.user_id,
         identifier=identifier,
         user_notes=notes,
     )
@@ -183,4 +224,3 @@ async def resolve_investigation(
         data=_to_detail_response(investigation),
         message="Investigation marked as resolved and report generated.",
     )
-

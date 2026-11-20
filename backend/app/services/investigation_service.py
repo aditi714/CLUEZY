@@ -91,11 +91,13 @@ class InvestigationService:
     async def create_investigation(
         self,
         db: AsyncSession,
-        session_id: uuid.UUID,
+        session_id: Optional[uuid.UUID],
         request: InvestigationCreateRequest,
+        user_id: Optional[str] = None,
     ) -> Investigation:
         """Create a new investigation, initialize starter evidence and triage dialogue."""
-        await self._charge_session_tokens(db, session_id, 600)
+        if session_id:
+            await self._charge_session_tokens(db, session_id, 600)
         ref_id = await self._generate_reference_id(db)
 
         # 1. AI Evidence Extractor and Problem Classifier
@@ -124,6 +126,7 @@ class InvestigationService:
         investigation = Investigation(
             reference_id=ref_id,
             session_id=session_id,
+            user_id=user_id,
             title=title,
             problem_description=request.problem_description,
             device_type=device_val,
@@ -367,17 +370,18 @@ class InvestigationService:
                 )
 
         await db.commit()
-        return await self.get_investigation(db, session_id, str(investigation.id))
+        return await self.get_investigation(db, session_id, str(investigation.id), user_id=user_id)
 
     async def progress_investigation(
         self,
         db: AsyncSession,
-        session_id: uuid.UUID,
+        session_id: Optional[uuid.UUID],
         identifier: str,
         request: InvestigationProgressRequest,
+        user_id: Optional[str] = None,
     ) -> Investigation:
         """Advance investigation state by recording answers, test outcomes, updating cause scores, and selecting next step."""
-        investigation = await self.get_investigation(db, session_id, identifier)
+        investigation = await self.get_investigation(db, session_id, identifier, user_id=user_id)
 
         # Infer active question_id from last assistant message if not explicitly provided
         active_question_id = request.question_id
@@ -427,7 +431,8 @@ class InvestigationService:
                 ):
                     return investigation
 
-        await self._charge_session_tokens(db, session_id, 400)
+        if session_id:
+            await self._charge_session_tokens(db, session_id, 400)
         turn_ts = datetime.now(timezone.utc)
         assistant_ts = turn_ts + timedelta(milliseconds=50)
 
@@ -548,7 +553,7 @@ class InvestigationService:
                 )
             )
             await db.commit()
-            return await self.get_investigation(db, session_id, str(investigation.id))
+            return await self.get_investigation(db, session_id, str(investigation.id), user_id=user_id)
 
         # 4. Check for explicit resolution confirmation
         # Rule: Resolution is NEVER assumed without explicit user confirmation.
@@ -636,7 +641,7 @@ class InvestigationService:
                 )
             )
             await db.commit()
-            return await self.get_investigation(db, session_id, str(investigation.id))
+            return await self.get_investigation(db, session_id, str(investigation.id), user_id=user_id)
 
         # If user reports fix is working, but hasn't explicitly confirmed resolution yet:
         if request.action_outcome == "working":
@@ -654,7 +659,7 @@ class InvestigationService:
                 )
             )
             await db.commit()
-            return await self.get_investigation(db, session_id, str(investigation.id))
+            return await self.get_investigation(db, session_id, str(investigation.id), user_id=user_id)
 
         # 5. Check Scenario Mode: Conversational vs Deterministic Wi-Fi
         scenario_ev = next((e for e in investigation.evidence if e.key.lower() == "scenario_id"), None)
@@ -725,7 +730,7 @@ class InvestigationService:
                 )
 
             await db.commit()
-            return await self.get_investigation(db, session_id, str(investigation.id))
+            return await self.get_investigation(db, session_id, str(investigation.id), user_id=user_id)
 
         # 6. Evaluate Deterministic Diagnostic Rule Engine & Cause Scoring Engine (Wi-Fi Scenario)
         await db.flush()
@@ -886,14 +891,15 @@ class InvestigationService:
             )
 
         await db.commit()
-        return await self.get_investigation(db, session_id, str(investigation.id))
+        return await self.get_investigation(db, session_id, str(investigation.id), user_id=user_id)
 
     async def resolve_investigation(
         self,
         db: AsyncSession,
-        session_id: uuid.UUID,
+        session_id: Optional[uuid.UUID],
         identifier: str,
         user_notes: Optional[str] = None,
+        user_id: Optional[str] = None,
     ) -> Investigation:
         """Explicitly resolve an investigation and generate resolution autopsy report."""
         return await self.progress_investigation(
@@ -904,18 +910,26 @@ class InvestigationService:
                 confirm_resolution=True,
                 user_message=user_notes or "Problem confirmed resolved by user.",
             ),
+            user_id=user_id,
         )
 
     async def list_investigations(
         self,
         db: AsyncSession,
-        session_id: uuid.UUID,
+        session_id: Optional[uuid.UUID] = None,
+        user_id: Optional[str] = None,
         status: Optional[str] = None,
         page: int = 1,
         page_size: int = 20,
     ) -> Tuple[List[dict], int]:
-        """List investigations belonging to the specified session."""
-        filters = [Investigation.session_id == session_id]
+        """List investigations belonging to authenticated user or anonymous session."""
+        if user_id:
+            filters = [Investigation.user_id == user_id]
+        elif session_id:
+            filters = [Investigation.session_id == session_id, Investigation.user_id.is_(None)]
+        else:
+            return [], 0
+
         if status:
             filters.append(Investigation.status == status)
 
@@ -944,6 +958,7 @@ class InvestigationService:
                 {
                     "id": inv.id,
                     "reference_id": inv.reference_id,
+                    "user_id": inv.user_id,
                     "title": inv.title,
                     "problem_description": inv.problem_description,
                     "status": inv.status,
@@ -960,10 +975,11 @@ class InvestigationService:
     async def get_investigation(
         self,
         db: AsyncSession,
-        session_id: uuid.UUID,
+        session_id: Optional[uuid.UUID],
         identifier: str,
+        user_id: Optional[str] = None,
     ) -> Investigation:
-        """Fetch full investigation details by UUID or reference ID."""
+        """Fetch full investigation details by UUID or reference ID, verifying user or session ownership."""
         is_uuid = False
         try:
             val_uuid = uuid.UUID(identifier)
@@ -971,15 +987,14 @@ class InvestigationService:
         except ValueError:
             is_uuid = False
 
-        conditions = [Investigation.session_id == session_id]
         if is_uuid:
-            conditions.append(Investigation.id == val_uuid)
+            id_condition = (Investigation.id == val_uuid)
         else:
-            conditions.append(Investigation.reference_id == identifier.upper().lstrip("#"))
+            id_condition = (Investigation.reference_id == identifier.upper().lstrip("#"))
 
         stmt = (
             select(Investigation)
-            .where(*conditions)
+            .where(id_condition)
             .options(
                 selectinload(Investigation.messages),
                 selectinload(Investigation.evidence),
@@ -995,7 +1010,54 @@ class InvestigationService:
         if not investigation:
             raise ResourceNotFoundException("Investigation", identifier)
 
+        # Authorization check:
+        # If investigation has an assigned user_id, only that user can access
+        if investigation.user_id:
+            if not user_id or investigation.user_id != user_id:
+                raise ResourceNotFoundException("Investigation", identifier)
+        # If investigation is anonymous, only the owner session can access
+        elif investigation.session_id:
+            if not session_id or investigation.session_id != session_id:
+                raise ResourceNotFoundException("Investigation", identifier)
+        elif not user_id and not session_id:
+            raise ResourceNotFoundException("Investigation", identifier)
+
         return investigation
+
+    async def claim_anonymous_investigations(
+        self,
+        db: AsyncSession,
+        user_id: str,
+        session_token: str,
+    ) -> Tuple[int, List[str]]:
+        """Safely associate anonymous investigations from a verified session token with an authenticated user account."""
+        session = await session_service.get_by_token(db, session_token)
+        if not session:
+            return 0, []
+
+        stmt = (
+            select(Investigation)
+            .where(
+                Investigation.session_id == session.id,
+                (Investigation.user_id.is_(None) | (Investigation.user_id == user_id)),
+            )
+        )
+        result = await db.execute(stmt)
+        investigations = result.scalars().all()
+
+        claimed_refs = []
+        for inv in investigations:
+            if inv.user_id != user_id:
+                inv.user_id = user_id
+                claimed_refs.append(inv.reference_id)
+            else:
+                # Already claimed by this user
+                claimed_refs.append(inv.reference_id)
+
+        if claimed_refs:
+            await db.commit()
+
+        return len(claimed_refs), claimed_refs
 
 
 investigation_service = InvestigationService()

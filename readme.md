@@ -11,7 +11,8 @@ CLUEZY/
 ├── frontend/           # Static pre-rendered application
 │   ├── assets/
 │   │   ├── js/
-│   │   │   ├── cluezy-api.js  # Frontend API client & session manager
+│   │   │   ├── supabase.js    # Official Supabase client bundle (local fallback)
+│   │   │   ├── cluezy-api.js  # Frontend API client, session & Supabase auth manager
 │   │   │   └── cluezy-app.js  # Interactive UI & DOM lifecycle controller
 │   ├── fonts/          # Embedded typography
 │   ├── images/         # Icons and graphics
@@ -83,7 +84,7 @@ CLUEZY/
 ## Database Models (Foundational Milestone)
 
 1. **Anonymous Sessions (`anonymous_sessions`)**: Temporary sessions with daily token allowances (200,000 tokens/day).
-2. **Investigations (`investigations`)**: Core troubleshooting cases with reference IDs (e.g. `INV-2387`).
+2. **Investigations (`investigations`)**: Core troubleshooting cases with reference IDs (e.g. `INV-2387`), optional Supabase authenticated user ownership (`user_id`), and session linking.
 3. **Messages (`messages`)**: Chat dialogue history between user and assistant with quick replies.
 4. **Evidence (`evidence`)**: Confirmed technical facts and observations ("What we know").
 5. **Candidate Causes (`candidate_causes`)**: Ranked root causes under investigation ("Possible causes").

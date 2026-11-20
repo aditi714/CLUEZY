@@ -75,6 +75,24 @@ class Settings(BaseSettings):
     ANONYMOUS_SESSION_TTL_HOURS: int = Field(default=720, description="Session lifespan in hours (default 30 days)")
     DAILY_TOKEN_LIMIT: int = Field(default=200000, description="Daily anonymous token allowance")
 
+    # Supabase Auth Configuration
+    SUPABASE_URL: str = Field(
+        default="https://vxaupjnubimtqcuittbv.supabase.co",
+        description="Supabase project base URL",
+    )
+    SUPABASE_JWT_SECRET: str = Field(
+        default="",
+        description="Supabase JWT secret for HMAC validation if HS256 is configured",
+    )
+    SUPABASE_JWT_ALGORITHM: str = Field(
+        default="ES256",
+        description="Expected Supabase JWT signing algorithm (ES256, RS256, or HS256)",
+    )
+    SUPABASE_JWKS_URL: str = Field(
+        default="",
+        description="Optional explicit JWKS URL override (default: {SUPABASE_URL}/auth/v1/.well-known/jwks.json)",
+    )
+
 
 settings = Settings()
 
