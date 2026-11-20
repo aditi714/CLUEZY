@@ -19,5 +19,4 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          git push -f https://aditi714:$HF_TOKEN@huggingface.co/spaces/aditi714/cluezy-backend main
-
+          git push -f https://oauth2:$HF_TOKEN@huggingface.co/spaces/Parth33/cluezy-backend main
