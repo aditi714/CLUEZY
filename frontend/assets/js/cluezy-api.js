@@ -424,7 +424,11 @@
           var errMsg =
             (payload && payload.error && payload.error.message) ||
             (payload && payload.detail) ||
-            "Request failed with status " + response.status;
+            (response.status === 503
+              ? "Backend service is currently initializing or restarting on Hugging Face. Please retry in a few moments."
+              : response.status === 502 || response.status === 504
+              ? "Gateway timeout contacting backend server. Please retry."
+              : "Request failed with status " + response.status);
           var apiErr = new Error(errMsg);
           apiErr.status = response.status;
           apiErr.code = (payload && payload.error && payload.error.code) || "API_ERROR";
