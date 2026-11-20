@@ -360,7 +360,7 @@ class ConversationalTroubleshooter:
             notes = c.get("notes", "")
 
             # Heuristic score adjustments based on answers
-            if "turn off" in reply_lower or "without warning" in reply_lower:
+            if "turn off" in reply_lower or "without warning" in reply_lower or "sudden" in reply_lower or "gaming" in reply_lower:
                 if "thermal" in title_lower or "overheat" in title_lower:
                     likelihood = "High"
                     score = min(0.95, score + 0.20)
@@ -406,18 +406,11 @@ class ConversationalTroubleshooter:
             }
 
         # Select next diagnostic question or fix recommendation
-        next_question_text = (
-            f"Based on your response, **{top_cause}** is the most likely cause. "
-            f"Does the problem happen only when running demanding applications, or even when the device is idle?"
-        )
+        next_question_text: Optional[str] = None
         suggested = ["Only during demanding apps / games", "Even when idle on desktop", "Only when on battery power"]
         action = None
 
-        if "shutdown" in active_question_id or "thermal" in top_cause.lower():
-            next_question_text = (
-                f"The symptoms strongly point toward **{top_cause}**. "
-                "How warm does the underside of the laptop feel before it turns off, and can you hear the cooling fan spinning loudly?"
-            )
+        if "shutdown" in (active_question_id or "") or "thermal" in top_cause.lower():
             suggested = ["Very hot and fan spins loudly", "Warm but fan is completely quiet", "Cool / normal temperature"]
             action = {
                 "title": "Clean dust vents and test CPU temperature with HWMonitor",
@@ -428,6 +421,63 @@ class ConversationalTroubleshooter:
                 ],
                 "expected": "Normal temperatures verify heatsink and thermal paste are functioning correctly.",
             }
+
+        # Dynamic Groq conversational completion when enabled
+        if groq_client.is_configured and user_reply:
+            try:
+                system_instruction = (
+                    "You are Cluezy, an expert AI hardware and software technical diagnostician. "
+                    "The user is actively troubleshooting a technical problem with you. "
+                    "Requirements:\n"
+                    "1. Directly answer or acknowledge the user's latest statement or question.\n"
+                    "2. Explain why their observation or symptom happens from a technical systems perspective.\n"
+                    "3. Connect it to the leading candidate cause.\n"
+                    "4. Conclude with a decisive diagnostic question inquiring about heat, temperatures, fan noise, or error details.\n"
+                    "5. Keep the reply concise (2-4 clear sentences) in professional markdown."
+                )
+
+                causes_summary = ", ".join([f"{c['title']} ({c['likelihood']} likelihood)" for c in updated_causes[:3]])
+                history_lines = [
+                    f"{m.get('sender', 'user').capitalize()}: {m.get('content', '')}"
+                    for m in (conversation_history or [])[-4:]
+                ]
+                history_text = "\n".join(history_lines) if history_lines else "None"
+
+                prompt = (
+                    f"Problem: {problem_description}\n"
+                    f"Category: {category}\n"
+                    f"Leading candidate causes: {causes_summary}\n\n"
+                    f"Recent conversation:\n{history_text}\n\n"
+                    f"User latest message: \"{user_reply}\"\n\n"
+                    f"Generate your conversational response directly addressing the user, explaining the technical reason, "
+                    f"and asking the next diagnostic question regarding heat, fan noise, or workload."
+                )
+
+                groq_resp = await groq_client.generate_chat_completion(
+                    messages=[
+                        {"role": "system", "content": system_instruction},
+                        {"role": "user", "content": prompt},
+                    ],
+                    temperature=0.3,
+                    max_tokens=300,
+                )
+                if groq_resp and len(groq_resp.strip()) > 15:
+                    next_question_text = groq_resp.strip()
+            except Exception as e:
+                logger.warning(f"Groq dialogue generation encountered error, falling back to rulebook: {e}")
+
+        # Deterministic fallback if Groq not available or not configured
+        if not next_question_text:
+            if "shutdown" in (active_question_id or "") or "thermal" in top_cause.lower():
+                next_question_text = (
+                    f"The symptoms strongly point toward **{top_cause}**. "
+                    "How warm does the underside of the laptop feel before it turns off, and can you hear the cooling fan spinning loudly?"
+                )
+            else:
+                next_question_text = (
+                    f"Based on your response, **{top_cause}** is the most likely cause. "
+                    f"Does the problem happen only when running demanding applications, or even when the device is idle?"
+                )
 
         return {
             "reply_text": next_question_text,

@@ -302,7 +302,7 @@
     getOrCreateSession: async function (forceRefresh) {
       var token = this.getSessionToken();
       if (!token) {
-        return await this.createSession("Parth");
+        return await this.createSession("Aditi");
       }
       if (!forceRefresh) {
         var cached = this.getCachedSessionData();
@@ -316,7 +316,7 @@
         return data;
       } catch (_e) {
         this.clearSession();
-        return await this.createSession("Parth");
+        return await this.createSession("Aditi");
       }
     },
 
