@@ -151,22 +151,46 @@
     style.textContent = [
       ".cluezy-chat-textarea {",
       "  width: 100%;",
-      "  min-height: 22px;",
-      "  max-height: 90px;",
+      "  min-height: 24px;",
+      "  max-height: 150px;",
       "  border: none;",
       "  outline: none;",
       "  background: transparent;",
-      "  font-family: 'Inter', 'Inter Placeholder', sans-serif;",
-      "  font-size: 13px;",
+      "  font-family: 'Inter', 'Inter Placeholder', -apple-system, BlinkMacSystemFont, sans-serif;",
+      "  font-size: 13.5px;",
       "  line-height: 1.5;",
       "  color: var(--token-vfjxZCpBY, #17251f);",
       "  resize: none;",
-      "  padding: 0;",
+      "  padding: 3px 0;",
       "  margin: 0;",
       "  display: block;",
+      "  box-sizing: border-box;",
+      "  overflow-y: hidden;",
+      "  overflow-x: hidden;",
+      "  field-sizing: content;",
       "}",
       ".cluezy-chat-textarea::placeholder {",
       "  color: var(--token-z7x8e0_dE, #58655e);",
+      "}",
+      "[data-framer-name='Reply composer'] {",
+      "  align-items: flex-end !important;",
+      "  min-height: 48px !important;",
+      "  padding: 10px 14px !important;",
+      "  gap: 12px !important;",
+      "}",
+      "[data-framer-name='Reply composer'] svg[data-framer-name='Paperclip'] {",
+      "  margin-bottom: 5px !important;",
+      "  flex-shrink: 0 !important;",
+      "}",
+      "[data-framer-name='Reply composer'] [data-framer-name='Send reply'] {",
+      "  margin-bottom: 2px !important;",
+      "  flex-shrink: 0 !important;",
+      "}",
+      "[data-framer-name='Reply composer'] [data-framer-name='Type your reply...'] {",
+      "  flex: 1 1 auto !important;",
+      "  min-width: 0 !important;",
+      "  display: flex !important;",
+      "  align-items: center !important;",
       "}",
       ".cluezy-search-input {",
       "  width: 100%;",
@@ -1023,6 +1047,10 @@
           : "Describe your technical issue in detail (e.g., Wi-Fi connected on Windows laptop, websites won't open)…";
         textarea.setAttribute("aria-label", "Message input");
 
+        textarea.addEventListener("input", function () {
+          autoResizeChatTextarea(textarea);
+        });
+
         textarea.addEventListener("keydown", function (e) {
           if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
@@ -1030,11 +1058,13 @@
           }
         });
         replyBox.appendChild(textarea);
+        autoResizeChatTextarea(textarea);
       } else if (textarea) {
         textarea.placeholder = inv
           ? "Type your reply or test result (Enter to send, Shift+Enter for newline)…"
           : "Describe your technical issue in detail (e.g., Wi-Fi connected on Windows laptop, websites won't open)…";
         textarea.disabled = appState.isSubmitting;
+        autoResizeChatTextarea(textarea);
       }
 
       if (sendBtn) {
@@ -1450,6 +1480,25 @@
   }
 
   /**
+   * Automatically resize the chat reply composer textarea as the user types,
+   * up to a max-height limit of 150px (approx 6-7 visible lines).
+   */
+  function autoResizeChatTextarea(el) {
+    if (!el) return;
+    el.style.height = "auto";
+    var scrollH = el.scrollHeight;
+    var maxHeight = 150;
+    var minHeight = 24;
+    if (scrollH > maxHeight) {
+      el.style.height = maxHeight + "px";
+      el.style.overflowY = "auto";
+    } else {
+      el.style.height = Math.max(scrollH, minHeight) + "px";
+      el.style.overflowY = "hidden";
+    }
+  }
+
+  /**
    * Handle submitting a message from the reply composer textarea.
    */
   async function handleComposerSubmit(textarea) {
@@ -1477,6 +1526,7 @@
 
     var savedDraft = rawText;
     textarea.value = "";
+    autoResizeChatTextarea(textarea);
     appState.isSubmitting = true;
     appState.errorBannerMessage = null;
     renderInvestigationView();
@@ -1487,6 +1537,7 @@
     } catch (err) {
       // Restore user draft so it is never lost on network/API failure
       textarea.value = savedDraft;
+      autoResizeChatTextarea(textarea);
       appState.errorBannerMessage = err.message || "Failed to send message. Please try again.";
     } finally {
       appState.isSubmitting = false;
@@ -1508,6 +1559,7 @@
 
     if (textareaToRestore) {
       textareaToRestore.value = "";
+      autoResizeChatTextarea(textareaToRestore);
     }
     appState.isSubmitting = true;
     appState.errorBannerMessage = null;
@@ -1526,6 +1578,7 @@
     } catch (err) {
       if (textareaToRestore) {
         textareaToRestore.value = text;
+        autoResizeChatTextarea(textareaToRestore);
       }
       appState.errorBannerMessage = err.message || "Could not start investigation. Please retry.";
     } finally {
