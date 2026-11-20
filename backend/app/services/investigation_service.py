@@ -379,9 +379,6 @@ class InvestigationService:
         """Advance investigation state by recording answers, test outcomes, updating cause scores, and selecting next step."""
         investigation = await self.get_investigation(db, session_id, identifier)
 
-        if investigation.status == "resolved":
-            return investigation
-
         # Infer active question_id from last assistant message if not explicitly provided
         active_question_id = request.question_id
         if not active_question_id and not request.action_outcome and not request.confirm_resolution:
@@ -402,6 +399,14 @@ class InvestigationService:
                 "partial": "Partially working",
             }
             user_text = outcome_labels.get(request.action_outcome, f"Action outcome: {request.action_outcome}")
+
+        if investigation.status == "resolved":
+            # Reopen investigation if user actively sends a follow-up reply or action
+            if user_text or request.action_outcome:
+                investigation.status = "in_progress"
+                investigation.resolved_at = None
+            else:
+                return investigation
 
         # Duplicate submission guard: if the latest user message within the last 3 seconds has identical content & parameters
         if user_text and investigation.messages:

@@ -245,6 +245,123 @@
       ".cluezy-typing-indicator {",
       "  animation: cluezyPulse 1.4s infinite ease-in-out;",
       "}",
+      "/* Quick-reply chip hover: only turn solid green on hover */",
+      ".cluezy-quick-reply-btn {",
+      "  background-color: rgb(252, 251, 249) !important;",
+      "  border: 1px solid var(--token-aW35IeuAs, #145c38) !important;",
+      "  border-radius: 9px !important;",
+      "  cursor: pointer !important;",
+      "  transition: background-color 0.16s ease, color 0.16s ease !important;",
+      "}",
+      ".cluezy-quick-reply-btn:hover {",
+      "  background-color: var(--token-aW35IeuAs, #145c38) !important;",
+      "}",
+      ".cluezy-quick-reply-btn:hover * {",
+      "  color: #ffffff !important;",
+      "  --framer-text-color: #ffffff !important;",
+      "  --extracted-1w3ko1f: #ffffff !important;",
+      "  --extracted-r6o4lv: #ffffff !important;",
+      "  --variable-reference-Fq3N0eamG-ezvJGKDD1: #ffffff !important;",
+      "}",
+      "/* Remove Knowledge Base and Saved Fixes from sidebar navigation */",
+      "[data-framer-name='Knowledge Base'], [data-framer-name='Saved Fixes'] {",
+      "  display: none !important;",
+      "}",
+      "/* Sidebar Recent Investigations */",
+      ".cluezy-sidebar-recent {",
+      "  margin-top: 14px;",
+      "  width: 100%;",
+      "  padding: 0 4px;",
+      "}",
+      ".cluezy-recent-header {",
+      "  display: flex;",
+      "  align-items: center;",
+      "  justify-content: space-between;",
+      "  padding: 8px 10px;",
+      "  cursor: pointer;",
+      "  color: #ffffff;",
+      "  font-family: 'Inter', sans-serif;",
+      "  font-size: 13px;",
+      "  font-weight: 600;",
+      "  border-radius: 8px;",
+      "  transition: background 0.15s ease;",
+      "  user-select: none;",
+      "}",
+      ".cluezy-recent-header:hover {",
+      "  background: rgba(255, 255, 255, 0.08);",
+      "}",
+      ".cluezy-recent-list {",
+      "  display: flex;",
+      "  flex-direction: column;",
+      "  gap: 2px;",
+      "  margin-top: 4px;",
+      "}",
+      ".cluezy-recent-item {",
+      "  display: flex;",
+      "  align-items: center;",
+      "  justify-content: space-between;",
+      "  padding: 6px 10px;",
+      "  border-radius: 6px;",
+      "  color: #d1dcd4;",
+      "  text-decoration: none;",
+      "  font-family: 'Inter', sans-serif;",
+      "  font-size: 12px;",
+      "  line-height: 1.4;",
+      "  transition: background 0.15s ease, color 0.15s ease;",
+      "  cursor: pointer;",
+      "}",
+      ".cluezy-recent-item:hover {",
+      "  background: rgba(255, 255, 255, 0.14) !important;",
+      "  color: #ffffff !important;",
+      "}",
+      ".cluezy-recent-item .cluezy-dot {",
+      "  color: #22c55e;",
+      "  font-size: 8px;",
+      "  margin-right: 6px;",
+      "  flex-shrink: 0;",
+      "}",
+      ".cluezy-recent-item .cluezy-title {",
+      "  overflow: hidden;",
+      "  text-overflow: ellipsis;",
+      "  white-space: nowrap;",
+      "  max-width: 110px;",
+      "}",
+      ".cluezy-recent-item .cluezy-time {",
+      "  font-size: 11px;",
+      "  opacity: 0.7;",
+      "  margin-left: 6px;",
+      "  flex-shrink: 0;",
+      "}",
+      "/* My Investigations Category Tabs */",
+      ".cluezy-category-tabs {",
+      "  display: inline-flex;",
+      "  gap: 8px;",
+      "  align-items: center;",
+      "}",
+      ".cluezy-category-tab {",
+      "  font-family: 'Inter', sans-serif;",
+      "  font-size: 12.5px;",
+      "  font-weight: 600;",
+      "  padding: 6px 14px;",
+      "  border-radius: 8px;",
+      "  cursor: pointer;",
+      "  border: 1px solid transparent;",
+      "  transition: all 0.16s ease;",
+      "}",
+      ".cluezy-category-tab.active {",
+      "  background-color: var(--token-aW35IeuAs, #145c38) !important;",
+      "  color: #ffffff !important;",
+      "  border-color: var(--token-aW35IeuAs, #145c38) !important;",
+      "}",
+      ".cluezy-category-tab:not(.active) {",
+      "  background-color: rgb(252, 251, 249) !important;",
+      "  color: var(--token-vfjxZCpBY, #17251f) !important;",
+      "  border: 1px solid var(--token-CrOEkw8uh, #dfe5de) !important;",
+      "}",
+      ".cluezy-category-tab:not(.active):hover {",
+      "  border-color: var(--token-aW35IeuAs, #145c38) !important;",
+      "  background-color: #f0f5ee !important;",
+      "}",
     ].join("\n");
     document.head.appendChild(style);
   }
@@ -296,6 +413,113 @@
   }
 
   /**
+   * Format an ISO timestamp into a concise relative time string (e.g., "2m", "1h", "2d").
+   */
+  function formatRelativeTime(isoString) {
+    if (!isoString) return "";
+    try {
+      var d = new Date(isoString);
+      var diffMs = Date.now() - d.getTime();
+      if (diffMs < 0) diffMs = 0;
+      var mins = Math.floor(diffMs / (1000 * 60));
+      if (mins < 60) return (mins || 1) + "m";
+      var hours = Math.floor(mins / 60);
+      if (hours < 24) return hours + "h";
+      var days = Math.floor(hours / 24);
+      if (days < 7) return days + "d";
+      var weeks = Math.floor(days / 7);
+      return weeks + "w";
+    } catch (_e) {
+      return "";
+    }
+  }
+
+  /**
+   * Render the expandable/collapsible Recent Investigations section on the sidebar.
+   */
+  function renderSidebarRecentInvestigations(items) {
+    var sidebars = document.querySelectorAll('[data-framer-name="Sidebar"]');
+    if (!sidebars || sidebars.length === 0) return;
+
+    var recentItems = Array.isArray(items) ? items.slice(0, 5) : [];
+
+    sidebars.forEach(function (sidebar) {
+      var nav = sidebar.querySelector('[data-framer-name="Workspace navigation"]');
+      if (!nav) return;
+
+      var existingRecent = sidebar.querySelector(".cluezy-sidebar-recent");
+      if (existingRecent) {
+        existingRecent.parentNode.removeChild(existingRecent);
+      }
+
+      var recentSection = document.createElement("div");
+      recentSection.className = "cluezy-sidebar-recent";
+
+      var header = document.createElement("div");
+      header.className = "cluezy-recent-header";
+      header.innerHTML =
+        '<div style="display:flex;align-items:center;gap:8px;">' +
+        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>' +
+        '<span>Recent</span>' +
+        '</div>' +
+        '<svg class="cluezy-recent-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition:transform 0.2s;"><polyline points="6 9 12 15 18 9"></polyline></svg>';
+
+      var list = document.createElement("div");
+      list.className = "cluezy-recent-list";
+
+      header.addEventListener("click", function () {
+        var isHidden = list.style.display === "none";
+        list.style.display = isHidden ? "flex" : "none";
+        var chevron = header.querySelector(".cluezy-recent-chevron");
+        if (chevron) {
+          chevron.style.transform = isHidden ? "rotate(0deg)" : "rotate(-90deg)";
+        }
+      });
+
+      if (recentItems.length === 0) {
+        var emptyEl = document.createElement("div");
+        emptyEl.style.cssText = "font-size:11px;color:#a3b2a8;padding:6px 10px;font-style:italic;";
+        emptyEl.textContent = "No recent investigations";
+        list.appendChild(emptyEl);
+      } else {
+        recentItems.forEach(function (item) {
+          var rawTitle = (item.title || item.problem_description || item.reference_id || "Investigation").trim();
+          var displayTitle = rawTitle.length > 20 ? rawTitle.slice(0, 18) + "…" : rawTitle;
+          var relTime = formatRelativeTime(item.created_at || item.updated_at);
+
+          var a = document.createElement("a");
+          a.className = "cluezy-recent-item";
+          a.setAttribute("href", "/investigation/?id=" + encodeURIComponent(item.reference_id));
+          a.innerHTML =
+            '<div style="display:flex;align-items:center;gap:6px;overflow:hidden;">' +
+            '<span class="cluezy-dot">●</span>' +
+            '<span class="cluezy-title" title="' + rawTitle.replace(/"/g, "&quot;") + '">' + displayTitle + '</span>' +
+            '</div>' +
+            '<span class="cluezy-time">' + relTime + '</span>';
+
+          bindActionClick(a, function () {
+            API.setCurrentInvestigationId(item.reference_id);
+            navigateTo("/investigation/", { id: item.reference_id });
+          });
+
+          list.appendChild(a);
+        });
+      }
+
+      recentSection.appendChild(header);
+      recentSection.appendChild(list);
+
+      // Append directly after My Investigations or at end of nav
+      var myInvAnchor = nav.querySelector('[data-framer-name="My Investigations"]');
+      if (myInvAnchor && myInvAnchor.nextSibling) {
+        nav.insertBefore(recentSection, myInvAnchor.nextSibling);
+      } else {
+        nav.appendChild(recentSection);
+      }
+    });
+  }
+
+  /**
    * Update the sidebar token usage display and global sidebar navigation links.
    */
   function bindSidebarAndSessionQuota() {
@@ -320,23 +544,14 @@
       }
     });
 
-    var kbLinks = document.querySelectorAll('[data-framer-name="Sidebar"] [data-framer-name="Knowledge Base"]');
-    kbLinks.forEach(function (el) {
-      var anchor = el.tagName === "A" ? el : el.closest("a");
-      if (anchor) {
-        bindActionClick(anchor, function () {
-          navigateTo("/knowledge-base/");
-        });
-      }
-    });
-
-    var savedFixesLinks = document.querySelectorAll('[data-framer-name="Sidebar"] [data-framer-name="Saved Fixes"]');
-    savedFixesLinks.forEach(function (el) {
-      var anchor = el.tagName === "A" ? el : el.closest("a");
-      if (anchor) {
-        bindActionClick(anchor, function () {
-          navigateTo("/investigations/", { filter: "resolved" });
-        });
+    // Remove Knowledge Base and Saved Fixes navigation links from sidebar
+    var deprecatedLinks = document.querySelectorAll(
+      '[data-framer-name="Sidebar"] [data-framer-name="Knowledge Base"], [data-framer-name="Sidebar"] [data-framer-name="Saved Fixes"]'
+    );
+    deprecatedLinks.forEach(function (el) {
+      var container = el.closest(".framer-u8w30") || el;
+      if (container && container.parentNode) {
+        container.parentNode.removeChild(container);
       }
     });
 
@@ -349,6 +564,15 @@
         });
       }
     });
+
+    // Fetch and render Recent Investigations in the sidebar (max 5 items)
+    API.listInvestigations({ page: 1, page_size: 5 })
+      .then(function (res) {
+        if (res && Array.isArray(res.items)) {
+          renderSidebarRecentInvestigations(res.items);
+        }
+      })
+      .catch(function () {});
 
     // Update token quota widget
     var sessionData = API.getCachedSessionData();
@@ -581,15 +805,16 @@
     container.setAttribute("data-framer-name", label);
 
     var a = document.createElement("a");
-    a.className = "framer-6VCSX framer-ntMaH framer-9jeig7 framer-v-9jeig7 framer-tkxn9d";
+    a.className = "framer-6VCSX framer-ntMaH framer-9jeig7 framer-v-9jeig7 framer-tkxn9d cluezy-quick-reply-btn";
     a.setAttribute("data-border", "true");
     a.setAttribute("data-framer-name", "Default");
-    a.setAttribute("href", "#");
+    a.setAttribute("href", "javascript:void(0)");
     a.setAttribute("role", "button");
     a.style.cssText =
       "--border-bottom-width: 1px; --border-color: var(--token-aW35IeuAs); --border-left-width: 1px; " +
       "--border-right-width: 1px; --border-style: solid; --border-top-width: 1px; border-radius: 9px; opacity: 1; " +
-      (isPrimary ? "background-color: rgb(20, 92, 56);" : "background-color: rgb(252, 251, 249);");
+      (isPrimary ? "background-color: rgb(20, 92, 56);" : "background-color: rgb(252, 251, 249);") +
+      "cursor: pointer;";
 
     var labelDiv = document.createElement("div");
     labelDiv.className = "framer-182kob9";
@@ -620,6 +845,22 @@
     labelDiv.appendChild(p);
     a.appendChild(labelDiv);
     container.appendChild(a);
+
+    // Hover effect: only turn solid green on hover
+    if (!isPrimary) {
+      a.addEventListener("mouseenter", function () {
+        a.style.backgroundColor = "rgb(20, 92, 56)";
+        span.style.setProperty("--framer-text-color", "rgb(255, 255, 255)");
+        p.style.setProperty("--framer-text-color", "rgb(255, 255, 255)");
+        span.style.color = "rgb(255, 255, 255)";
+      });
+      a.addEventListener("mouseleave", function () {
+        a.style.backgroundColor = "rgb(252, 251, 249)";
+        span.style.setProperty("--framer-text-color", "rgb(23, 37, 31)");
+        p.style.setProperty("--framer-text-color", "rgb(23, 37, 31)");
+        span.style.color = "rgb(23, 37, 31)";
+      });
+    }
 
     if (appState.isSubmitting) {
       a.classList.add("cluezy-disabled");
@@ -700,13 +941,21 @@
       }
 
       if (sendBtn) {
+        sendBtn.removeAttribute("href");
+        sendBtn.setAttribute("href", "javascript:void(0)");
+        sendBtn.setAttribute("role", "button");
         if (appState.isSubmitting) {
           sendBtn.classList.add("cluezy-disabled");
         } else {
           sendBtn.classList.remove("cluezy-disabled");
         }
-        bindActionClick(sendBtn, function () {
-          if (textarea) handleComposerSubmit(textarea);
+        bindActionClick(sendBtn, function (e) {
+          if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+          var currentTa = replyBox ? replyBox.querySelector("textarea.cluezy-chat-textarea") : textarea;
+          if (currentTa) handleComposerSubmit(currentTa);
         });
       }
 
@@ -792,8 +1041,8 @@
                 "My Windows laptop is connected to Wi-Fi with no internet access. I ran ipconfig and my IPv4 address starts with 169.254.",
             },
           ];
-          starterPrompts.forEach(function (sp, idx) {
-            var btn = createQuickReplyButtonDOM(sp.label, idx === 0, function () {
+          starterPrompts.forEach(function (sp) {
+            var btn = createQuickReplyButtonDOM(sp.label, false, function () {
               startNewInvestigation(sp.prompt);
             });
             answersContainer.appendChild(btn);
@@ -816,8 +1065,8 @@
               ? lastAssistantMsg.extra_data.question_id
               : null;
 
-          suggestions.forEach(function (label, idx) {
-            var chip = createQuickReplyButtonDOM(label, idx === 0, function () {
+          suggestions.forEach(function (label) {
+            var chip = createQuickReplyButtonDOM(label, false, function () {
               handleQuickReplyClick(inv, label, qId);
             });
             answersContainer.appendChild(chip);
@@ -1607,24 +1856,37 @@
         searchBox.appendChild(sInput);
       }
 
-      // 2. Interactive Status Filter Button
-      var statusFilterBtn = root.querySelector('[data-framer-name="Status All Status"]');
-      if (statusFilterBtn) {
-        var filterSpan = statusFilterBtn.querySelector("span, p");
-        var labelMap = {
-          all: "All Status",
-          active: "Active / In Progress",
-          resolved: "Resolved",
-        };
-        if (filterSpan) {
-          filterSpan.textContent = labelMap[appState.statusFilter] || "All Status";
-        }
-        bindActionClick(statusFilterBtn, function () {
-          var order = ["all", "active", "resolved"];
-          var nextIdx = (order.indexOf(appState.statusFilter) + 1) % order.length;
-          appState.statusFilter = order[nextIdx];
+      // 2. Two Categories: In Progress and Completed
+      var statusContainer = root.querySelector('[data-framer-name="Status All Status"]');
+      if (statusContainer) {
+        statusContainer.innerHTML = "";
+        statusContainer.style.background = "transparent";
+        statusContainer.style.border = "none";
+        statusContainer.style.padding = "0";
+
+        var tabsDiv = document.createElement("div");
+        tabsDiv.className = "cluezy-category-tabs";
+
+        var inProgBtn = document.createElement("button");
+        var isInProg = appState.statusFilter !== "resolved";
+        inProgBtn.className = "cluezy-category-tab" + (isInProg ? " active" : "");
+        inProgBtn.textContent = "In Progress";
+        bindActionClick(inProgBtn, function () {
+          appState.statusFilter = "active";
           renderInvestigationsListView();
         });
+
+        var compBtn = document.createElement("button");
+        compBtn.className = "cluezy-category-tab" + (!isInProg ? " active" : "");
+        compBtn.textContent = "Completed";
+        bindActionClick(compBtn, function () {
+          appState.statusFilter = "resolved";
+          renderInvestigationsListView();
+        });
+
+        tabsDiv.appendChild(inProgBtn);
+        tabsDiv.appendChild(compBtn);
+        statusContainer.appendChild(tabsDiv);
       }
 
       // 3. New Investigation Button
@@ -1811,6 +2073,7 @@
         var listData = await API.listInvestigations({ page: 1, page_size: 50 });
         appState.investigationsList = (listData && listData.items) || [];
         renderInvestigationsListView();
+        renderSidebarRecentInvestigations(appState.investigationsList);
         return;
       }
 
@@ -1822,7 +2085,12 @@
           return;
         }
 
-        var targetId = !isExplicitNew ? API.getCurrentInvestigationId() : null;
+        var urlId = params.get("id");
+        var targetId = !isExplicitNew ? (urlId || API.getCurrentInvestigationId()) : null;
+        if (urlId) {
+          API.setCurrentInvestigationId(urlId);
+        }
+
         if (!targetId && !isExplicitNew) {
           // Check if the user has a recent investigation in Supabase
           try {
@@ -1838,6 +2106,7 @@
           try {
             var inv = await API.getInvestigation(targetId);
             appState.currentInvestigation = inv;
+            API.setCurrentInvestigationId(inv.reference_id);
           } catch (_notFoundErr) {
             API.setCurrentInvestigationId(null);
             appState.currentInvestigation = null;
@@ -1961,6 +2230,17 @@
     registerGlobalDelegatedClickHandlers();
     mountCurrentRouteDOM();
     loadInitialBackendState();
+
+    window.addEventListener("popstate", function () {
+      dataLoadStarted = false;
+      loadInitialBackendState();
+    });
+    window.addEventListener("pageshow", function (event) {
+      if (event && event.persisted) {
+        dataLoadStarted = false;
+        loadInitialBackendState();
+      }
+    });
 
     // Watch #main so if Framer's hydration script replaces DOM nodes on startup or breakpoint changes,
     // our controller immediately re-binds and re-renders the live backend state without flicker.

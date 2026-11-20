@@ -428,12 +428,12 @@ class ConversationalTroubleshooter:
                 system_instruction = (
                     "You are Cluezy, an expert AI hardware and software technical diagnostician. "
                     "The user is actively troubleshooting a technical problem with you. "
-                    "Requirements:\n"
-                    "1. Directly answer or acknowledge the user's latest statement or question.\n"
-                    "2. Explain why their observation or symptom happens from a technical systems perspective.\n"
-                    "3. Connect it to the leading candidate cause.\n"
-                    "4. Conclude with a decisive diagnostic question inquiring about heat, temperatures, fan noise, or error details.\n"
-                    "5. Keep the reply concise (2-4 clear sentences) in professional markdown."
+                    "Analyze the user's latest statement, technical problem, and candidate causes. "
+                    "Always output valid JSON with this exact schema:\n"
+                    "{\n"
+                    '  "reply_text": "Markdown formatted technical response: directly address user observation, explain why it happens from a systems/hardware/software perspective, connect to top cause, and ask a decisive follow-up diagnostic question inquiring about temperatures, heat, fans, or error logs (2-4 clear sentences)",\n'
+                    '  "suggested_responses": ["2 to 4 concise, context-specific quick-reply choices tailored to the exact question you just asked"]\n'
+                    "}"
                 )
 
                 causes_summary = ", ".join([f"{c['title']} ({c['likelihood']} likelihood)" for c in updated_causes[:3]])
@@ -449,8 +449,7 @@ class ConversationalTroubleshooter:
                     f"Leading candidate causes: {causes_summary}\n\n"
                     f"Recent conversation:\n{history_text}\n\n"
                     f"User latest message: \"{user_reply}\"\n\n"
-                    f"Generate your conversational response directly addressing the user, explaining the technical reason, "
-                    f"and asking the next diagnostic question regarding heat, fan noise, or workload."
+                    f"Return JSON with 'reply_text' and 'suggested_responses' tailored to the diagnostic question you asked."
                 )
 
                 groq_resp = await groq_client.generate_chat_completion(
@@ -458,11 +457,26 @@ class ConversationalTroubleshooter:
                         {"role": "system", "content": system_instruction},
                         {"role": "user", "content": prompt},
                     ],
-                    temperature=0.3,
-                    max_tokens=300,
+                    temperature=0.2,
+                    max_tokens=800,
+                    response_format={"type": "json_object"},
                 )
-                if groq_resp and len(groq_resp.strip()) > 15:
-                    next_question_text = groq_resp.strip()
+                if groq_resp:
+                    clean_resp = groq_resp.strip()
+                    if clean_resp.startswith("```"):
+                        lines = clean_resp.split("\n")
+                        if lines[0].startswith("```"):
+                            lines = lines[1:]
+                        if lines and lines[-1].startswith("```"):
+                            lines = lines[:-1]
+                        clean_resp = "\n".join(lines).strip()
+                    data = json.loads(clean_resp)
+                    r_text = data.get("reply_text")
+                    s_resp = data.get("suggested_responses")
+                    if r_text and len(r_text.strip()) > 15:
+                        next_question_text = r_text.strip()
+                    if s_resp and isinstance(s_resp, list) and len(s_resp) >= 2:
+                        suggested = [str(opt).strip() for opt in s_resp[:4]]
             except Exception as e:
                 logger.warning(f"Groq dialogue generation encountered error, falling back to rulebook: {e}")
 
