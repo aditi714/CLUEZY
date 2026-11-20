@@ -188,14 +188,111 @@
       "  font-size: 12px;",
       "  color: var(--token-vfjxZCpBY, #17251f);",
       "}",
-      "[data-framer-name='Conversation'] {",
+      /* Prevent website/window vertical scrolling on app workspace pages */
+      "html.cluezy-no-page-scroll,",
+      "body.cluezy-no-page-scroll {",
+      "  height: 100% !important;",
+      "  max-height: 100vh !important;",
+      "  overflow: hidden !important;",
+      "}",
+      "body.cluezy-no-page-scroll [data-layout-template='true'] {",
+      "  height: 100vh !important;",
+      "  max-height: 100vh !important;",
+      "  overflow: hidden !important;",
+      "}",
+      /* Left sidebar navigation */
+      "[data-framer-name='Sidebar'] {",
+      "  height: 100vh !important;",
+      "  max-height: 100vh !important;",
       "  overflow-y: auto !important;",
-      "  max-height: 540px;",
+      "  overflow-x: hidden !important;",
+      "}",
+      /* Main content layout */
+      "[data-framer-name='investigation content'],",
+      "[data-framer-name='solution content'],",
+      "[data-framer-name='resolved content'] {",
+      "  height: 100vh !important;",
+      "  max-height: 100vh !important;",
+      "  overflow: hidden !important;",
+      "  box-sizing: border-box !important;",
+      "  display: flex !important;",
+      "  flex-direction: column !important;",
+      "}",
+      "[data-framer-name='Conversation and context'] {",
+      "  flex: 1 1 0px !important;",
+      "  min-height: 0 !important;",
+      "  height: 100% !important;",
+      "  overflow: hidden !important;",
+      "  align-items: stretch !important;",
+      "}",
+      /* Conversation chat column */
+      "[data-framer-name='Conversation'] {",
+      "  flex: 1 1 0px !important;",
+      "  min-height: 0 !important;",
+      "  height: 100% !important;",
+      "  max-height: 100% !important;",
+      "  overflow-y: auto !important;",
+      "  padding-right: 10px !important;",
       "  scroll-behavior: smooth;",
       "}",
+      /* Right-hand Investigation context card */
       "[data-framer-name='Investigation context'] {",
+      "  width: 290px !important;",
+      "  flex: none !important;",
+      "  max-height: 100% !important;",
+      "  height: fit-content !important;",
       "  overflow-y: auto !important;",
-      "  max-height: 640px;",
+      "  overflow-x: hidden !important;",
+      "  background-color: #ffffff !important;",
+      "  border: 1px solid var(--token-CrOEkw8uh, #dfe5de) !important;",
+      "  border-radius: 14px !important;",
+      "  box-sizing: border-box !important;",
+      "  padding: 20px !important;",
+      "  display: flex !important;",
+      "  flex-direction: column !important;",
+      "  gap: 16px !important;",
+      "}",
+      /* Disable Framer pseudo border that detaches and cuts off on scroll */
+      "[data-framer-name='Investigation context']::after {",
+      "  display: none !important;",
+      "}",
+      /* Ensure candidate causes stay inside the card cleanly */
+      "[data-framer-name='Investigation context'] .framer-15lhbe8,",
+      "[data-framer-name='Investigation context'] .framer-1dc4w9q,",
+      "[data-framer-name='Investigation context'] .framer-9syjr7 {",
+      "  width: 100% !important;",
+      "  flex-wrap: nowrap !important;",
+      "  align-items: flex-start !important;",
+      "  gap: 8px !important;",
+      "}",
+      "[data-framer-name='Investigation context'] .framer-ku9eke,",
+      "[data-framer-name='Investigation context'] .framer-1brbmjb,",
+      "[data-framer-name='Investigation context'] .framer-yk78ty {",
+      "  flex: 1 1 auto !important;",
+      "  min-width: 0 !important;",
+      "  word-break: break-word !important;",
+      "}",
+      /* Sleek custom scrollbars */
+      "[data-framer-name='Investigation context']::-webkit-scrollbar,",
+      "[data-framer-name='Conversation']::-webkit-scrollbar,",
+      "[data-framer-name='Sidebar']::-webkit-scrollbar {",
+      "  width: 5px;",
+      "}",
+      "[data-framer-name='Investigation context']::-webkit-scrollbar-track,",
+      "[data-framer-name='Conversation']::-webkit-scrollbar-track,",
+      "[data-framer-name='Sidebar']::-webkit-scrollbar-track {",
+      "  background: transparent;",
+      "}",
+      "[data-framer-name='Investigation context']::-webkit-scrollbar-thumb,",
+      "[data-framer-name='Conversation']::-webkit-scrollbar-thumb,",
+      "[data-framer-name='Sidebar']::-webkit-scrollbar-thumb {",
+      "  background: rgba(23, 37, 31, 0.18);",
+      "  border-radius: 4px;",
+      "}",
+      "[data-framer-name='Investigation context']::-webkit-scrollbar-thumb:hover,",
+      "[data-framer-name='Conversation']::-webkit-scrollbar-thumb:hover,",
+      "[data-framer-name='Sidebar']::-webkit-scrollbar-thumb:hover {",
+      "  background: rgba(23, 37, 31, 0.35);",
       "}",
       ".cluezy-disabled {",
       "  opacity: 0.55 !important;",
@@ -1211,12 +1308,18 @@
     var row = document.createElement("div");
     row.className = "framer-1sacewz";
     row.setAttribute("data-framer-name", ev.key || "Evidence");
+    row.style.width = "100%";
+    row.style.display = "flex";
+    row.style.alignItems = "flex-start";
+    row.style.gap = "8px";
 
     var iconSpec = pickEvidenceIconHref(ev);
     var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.setAttribute("class", iconSpec.cls);
     svg.setAttribute("viewBox", "0 0 24 24");
     svg.setAttribute("role", "presentation");
+    svg.style.flexShrink = "0";
+    svg.style.marginTop = "2px";
     var use = document.createElementNS("http://www.w3.org/2000/svg", "use");
     use.setAttribute("href", iconSpec.href);
     svg.appendChild(use);
@@ -1226,6 +1329,9 @@
     textDiv.className = "framer-1wzs70";
     textDiv.setAttribute("data-framer-component-type", "RichTextContainer");
     textDiv.style.transform = "none";
+    textDiv.style.flex = "1 1 auto";
+    textDiv.style.minWidth = "0";
+    textDiv.style.wordBreak = "break-word";
 
     var p = document.createElement("p");
     p.className = "framer-text framer-styles-preset-150qgy0";
@@ -1248,13 +1354,19 @@
     var row = document.createElement("div");
     row.className = "framer-15lhbe8";
     row.setAttribute("data-framer-name", cause.title || "Candidate Cause");
-    row.style.flexWrap = "wrap";
+    row.style.width = "100%";
+    row.style.display = "flex";
+    row.style.alignItems = "flex-start";
+    row.style.justifyContent = "space-between";
+    row.style.gap = "8px";
 
     var leftDiv = document.createElement("div");
     leftDiv.className = "framer-ku9eke";
     leftDiv.setAttribute("data-framer-component-type", "RichTextContainer");
     leftDiv.style.transform = "none";
-    leftDiv.style.flex = "1 1 65%";
+    leftDiv.style.flex = "1 1 auto";
+    leftDiv.style.minWidth = "0";
+    leftDiv.style.wordBreak = "break-word";
 
     var p = document.createElement("p");
     p.className = "framer-text framer-styles-preset-150qgy0";
@@ -1309,6 +1421,9 @@
     var badgeDiv = document.createElement("div");
     badgeDiv.className = badgeClass;
     badgeDiv.setAttribute("data-framer-name", "Status " + likelihood);
+    badgeDiv.style.flexShrink = "0";
+    badgeDiv.style.alignSelf = "flex-start";
+    badgeDiv.style.marginTop = "2px";
 
     var badgeInner = document.createElement("div");
     badgeInner.className = "framer-vaquvj";
@@ -2135,16 +2250,25 @@
     }
 
     var invEl = document.querySelector('[data-framer-name="investigation content"]');
+    var solEl = document.querySelector('[data-framer-name="solution content"]');
+    var resEl = document.querySelector('[data-framer-name="resolved content"]');
+
+    if (invEl || solEl || resEl) {
+      document.documentElement.classList.add("cluezy-no-page-scroll");
+      document.body.classList.add("cluezy-no-page-scroll");
+    } else {
+      document.documentElement.classList.remove("cluezy-no-page-scroll");
+      document.body.classList.remove("cluezy-no-page-scroll");
+    }
+
     if (invEl) {
       renderInvestigationView();
     }
 
-    var solEl = document.querySelector('[data-framer-name="solution content"]');
     if (solEl) {
       renderSolutionView();
     }
 
-    var resEl = document.querySelector('[data-framer-name="resolved content"]');
     if (resEl) {
       renderResolvedView();
     }
