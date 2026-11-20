@@ -54,3 +54,4 @@ def test_verify_missing_token():
     with pytest.raises(HTTPException) as exc_info:
         supabase_auth_verifier.verify_token("")
     assert exc_info.value.status_code == 401
+

@@ -181,3 +181,4 @@ class SupabaseAuthVerifier:
 
 
 supabase_auth_verifier = SupabaseAuthVerifier()
+

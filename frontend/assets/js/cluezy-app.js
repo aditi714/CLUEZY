@@ -483,6 +483,78 @@
       "  border-color: var(--token-aW35IeuAs, #145c38) !important;",
       "  background-color: #f0f5ee !important;",
       "}",
+      "/* Google Sign-in & Profile in Navigation Header */",
+      ".cluezy-google-btn {",
+      "  display: inline-flex !important;",
+      "  align-items: center !important;",
+      "  justify-content: center !important;",
+      "  gap: 10px !important;",
+      "  background-color: #ffffff !important;",
+      "  color: #17251f !important;",
+      "  border: 1px solid #c2d6ca !important;",
+      "  border-radius: 9px !important;",
+      "  padding: 10px 18px !important;",
+      "  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;",
+      "  font-size: 14px !important;",
+      "  font-weight: 600 !important;",
+      "  cursor: pointer !important;",
+      "  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;",
+      "  transition: all 0.2s ease !important;",
+      "  text-decoration: none !important;",
+      "  line-height: 1 !important;",
+      "  box-sizing: border-box !important;",
+      "}",
+      ".cluezy-google-btn:hover {",
+      "  background-color: #f6faf7 !important;",
+      "  border-color: #145c38 !important;",
+      "  color: #145c38 !important;",
+      "  box-shadow: 0 2px 8px rgba(20, 92, 56, 0.12) !important;",
+      "}",
+      ".cluezy-google-btn:active {",
+      "  transform: translateY(1px) !important;",
+      "}",
+      ".cluezy-header-profile-pill {",
+      "  display: inline-flex !important;",
+      "  align-items: center !important;",
+      "  gap: 9px !important;",
+      "  background-color: #ffffff !important;",
+      "  border: 1px solid #c2d6ca !important;",
+      "  border-radius: 9px !important;",
+      "  padding: 6px 14px 6px 8px !important;",
+      "  cursor: pointer !important;",
+      "  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;",
+      "  transition: all 0.2s ease !important;",
+      "  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;",
+      "  font-size: 13.5px !important;",
+      "  font-weight: 600 !important;",
+      "  color: #17251f !important;",
+      "  user-select: none !important;",
+      "}",
+      ".cluezy-header-profile-pill:hover {",
+      "  border-color: #145c38 !important;",
+      "  background-color: #f6faf7 !important;",
+      "  box-shadow: 0 2px 8px rgba(20, 92, 56, 0.12) !important;",
+      "}",
+      ".cluezy-header-avatar {",
+      "  width: 28px !important;",
+      "  height: 28px !important;",
+      "  border-radius: 50% !important;",
+      "  display: flex !important;",
+      "  align-items: center !important;",
+      "  justify-content: center !important;",
+      "  background-color: #e2ede5 !important;",
+      "  color: #145c38 !important;",
+      "  font-weight: 700 !important;",
+      "  font-size: 13px !important;",
+      "  flex-shrink: 0 !important;",
+      "  overflow: hidden !important;",
+      "}",
+      ".cluezy-header-avatar img {",
+      "  width: 100% !important;",
+      "  height: 100% !important;",
+      "  border-radius: 50% !important;",
+      "  object-fit: cover !important;",
+      "}",
     ].join("\n");
     document.head.appendChild(style);
   }
@@ -879,6 +951,160 @@
     }, 10);
   }
 
+  /**
+   * Bind Google authentication button or profile menu in landing page navigation header
+   */
+  async function bindLandingHeaderAuth() {
+    var container = document.getElementById("cluezy-header-auth-container");
+    if (!container) {
+      var actEl = document.querySelector('[data-framer-name="Account actions"]');
+      if (actEl) {
+        container = actEl.querySelector("#cluezy-header-auth-container") || actEl;
+      }
+    }
+    if (!container) return;
+
+    var user = null;
+    try {
+      user = await API.getAuthUser();
+    } catch (_e) {
+      user = null;
+    }
+
+    // Remove any currently open header dropdown
+    var oldMenu = document.getElementById("cluezy-header-account-dropdown");
+    if (oldMenu && oldMenu.parentNode) oldMenu.parentNode.removeChild(oldMenu);
+
+    if (user) {
+      var metadata = user.user_metadata || {};
+      var displayName = metadata.full_name || metadata.name || (user.email ? user.email.split("@")[0] : "Account");
+      var avatarUrl = metadata.avatar_url || metadata.picture || null;
+      var email = user.email || "";
+
+      var avatarHtml = avatarUrl
+        ? '<img src="' + avatarUrl + '" alt="' + escapeHtml(displayName) + '" referrerpolicy="no-referrer" />'
+        : '<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-weight:700;color:#145c38;font-size:13px;">' + (displayName.charAt(0) || "U").toUpperCase() + '</div>';
+
+      container.innerHTML =
+        '<div class="cluezy-header-profile-pill" id="cluezy-header-profile-btn" role="button" tabindex="0" title="Account menu">' +
+        '  <div class="cluezy-header-avatar">' + avatarHtml + '</div>' +
+        '  <span class="cluezy-header-name">' + escapeHtml(displayName) + '</span>' +
+        '  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color:#58655e;margin-left:2px;"><polyline points="6 9 12 15 18 9"></polyline></svg>' +
+        '</div>';
+
+      var profileBtn = container.querySelector("#cluezy-header-profile-btn");
+      if (profileBtn) {
+        profileBtn.onclick = function (e) {
+          e.stopPropagation();
+          toggleLandingHeaderDropdown(profileBtn, user);
+        };
+        profileBtn.onkeydown = function (e) {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            toggleLandingHeaderDropdown(profileBtn, user);
+          }
+        };
+      }
+    } else {
+      container.innerHTML =
+        '<button type="button" id="cluezy-header-google-btn" class="cluezy-google-btn" title="Sign in with Google">' +
+        '  <svg class="cluezy-google-icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex-shrink:0;">' +
+        '    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>' +
+        '    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>' +
+        '    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>' +
+        '    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>' +
+        '  </svg>' +
+        '  <span class="cluezy-google-btn-text">Sign in with Google</span>' +
+        '</button>';
+
+      var googleBtn = container.querySelector("#cluezy-header-google-btn");
+      if (googleBtn) {
+        googleBtn.onclick = function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          googleBtn.disabled = true;
+          var textSpan = googleBtn.querySelector(".cluezy-google-btn-text");
+          if (textSpan) textSpan.textContent = "Connecting...";
+          API.signInWithGoogle("/investigation/");
+        };
+      }
+    }
+  }
+
+  function toggleLandingHeaderDropdown(anchorEl, user) {
+    var existing = document.getElementById("cluezy-header-account-dropdown");
+    if (existing) {
+      existing.parentNode.removeChild(existing);
+      return;
+    }
+
+    var rect = anchorEl.getBoundingClientRect();
+    var menu = document.createElement("div");
+    menu.id = "cluezy-header-account-dropdown";
+    menu.style.cssText =
+      "position: fixed; " +
+      "right: " + Math.max(16, window.innerWidth - rect.right) + "px; " +
+      "top: " + (rect.bottom + 8) + "px; " +
+      "width: 240px; " +
+      "background-color: #17251f; " +
+      "border: 1px solid #326049; " +
+      "border-radius: 10px; " +
+      "box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); " +
+      "z-index: 999999; " +
+      "padding: 12px; " +
+      "color: #e5ece7; " +
+      "font-family: 'Inter', -apple-system, sans-serif;";
+
+    var metadata = (user && user.user_metadata) || {};
+    var displayName = metadata.full_name || metadata.name || (user && user.email ? user.email.split("@")[0] : "Account");
+    var email = (user && user.email) || "";
+
+    menu.innerHTML =
+      '<div style="margin-bottom: 10px; border-bottom: 1px solid #326049; padding-bottom: 8px;">' +
+      '  <div style="font-weight: 600; font-size: 14px; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + escapeHtml(displayName) + '</div>' +
+      '  <div style="font-size: 12px; color: #9bb5a3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + escapeHtml(email) + '</div>' +
+      '</div>' +
+      '<div style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px;">' +
+      '  <a href="/investigation/" style="display: flex; align-items: center; gap: 8px; color: #e5ece7; font-size: 13px; text-decoration: none; padding: 7px 8px; border-radius: 6px; transition: background 0.15s;" onmouseover="this.style.background=\'rgba(255,255,255,0.08)\'" onmouseout="this.style.background=\'transparent\'">' +
+      '    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>' +
+      '    New Investigation' +
+      '  </a>' +
+      '  <a href="/investigations/" style="display: flex; align-items: center; gap: 8px; color: #e5ece7; font-size: 13px; text-decoration: none; padding: 7px 8px; border-radius: 6px; transition: background 0.15s;" onmouseover="this.style.background=\'rgba(255,255,255,0.08)\'" onmouseout="this.style.background=\'transparent\'">' +
+      '    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>' +
+      '    My Investigations' +
+      '  </a>' +
+      '</div>' +
+      '<button id="cluezy-header-logout-btn" style="width: 100%; background: rgba(220, 53, 69, 0.15); border: 1px solid rgba(220, 53, 69, 0.4); color: #ff8b8b; padding: 7px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; text-align: center; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.15s;">' +
+      '  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>' +
+      '  Sign Out' +
+      '</button>';
+
+    document.body.appendChild(menu);
+
+    var logoutBtn = menu.querySelector("#cluezy-header-logout-btn");
+    if (logoutBtn) {
+      logoutBtn.onclick = async function () {
+        logoutBtn.disabled = true;
+        logoutBtn.textContent = "Signing out...";
+        try {
+          await API.signOut();
+        } catch (_e) {}
+        if (menu.parentNode) menu.parentNode.removeChild(menu);
+        bindLandingHeaderAuth();
+      };
+    }
+
+    function onDocClick(e) {
+      if (!menu.contains(e.target) && !anchorEl.contains(e.target)) {
+        if (menu.parentNode) menu.parentNode.removeChild(menu);
+        document.removeEventListener("click", onDocClick);
+      }
+    }
+    setTimeout(function () {
+      document.addEventListener("click", onDocClick);
+    }, 10);
+  }
+
   // ============================================================================
   // 1. LANDING PAGE CONTROLLER (/index.html)
   // ============================================================================
@@ -921,11 +1147,12 @@
         }
       }
 
-      // Bind "Start Troubleshooting" & "Get Started" buttons
+      // Bind "Start Troubleshooting" button in hero
       var startBtns = document.querySelectorAll(
-        '[data-framer-name="Start Troubleshooting"] a, [data-framer-name="Get Started"] a'
+        '[data-framer-name="Start Troubleshooting"] a, [data-framer-name="Start Troubleshooting"]'
       );
-      startBtns.forEach(function (a) {
+      startBtns.forEach(function (btn) {
+        var a = btn.tagName === "A" ? btn : (btn.querySelector("a") || btn);
         bindActionClick(a, function () {
           var heroInp = document.querySelector(".cluezy-hero-input");
           if (heroInp && heroInp.value.trim()) {
@@ -936,30 +1163,8 @@
         });
       });
 
-      // Bind "Sign In" button in header
-      var signInBtns = document.querySelectorAll('[data-framer-name="Sign In"] a, [data-framer-name="Sign In"]');
-      signInBtns.forEach(function (btn) {
-        var a = btn.tagName === "A" ? btn : btn.querySelector("a");
-        var targetEl = a || btn;
-        API.isAuthenticated().then(function (auth) {
-          if (auth) {
-            var label = targetEl.querySelector("span, p");
-            if (label) label.textContent = "My Investigations";
-          }
-        }).catch(function () {});
-
-        bindActionClick(targetEl, function () {
-          API.isAuthenticated().then(function (auth) {
-            if (auth) {
-              navigateTo("/investigations/");
-            } else {
-              API.signInWithGoogle("/investigations/");
-            }
-          }).catch(function () {
-            API.signInWithGoogle("/investigations/");
-          });
-        });
-      });
+      // Bind Google Sign-in button or authenticated profile pill in header
+      bindLandingHeaderAuth();
 
       // Bind "See How It Works" -> scrolls to Features or opens Knowledge Base
       var howBtns = document.querySelectorAll('[data-framer-name="See How It Works"] a');
@@ -2559,6 +2764,17 @@
           return;
         }
 
+        var googleSignInBtn = target.closest('#cluezy-header-google-btn, .cluezy-google-btn');
+        if (googleSignInBtn) {
+          e.preventDefault();
+          e.stopPropagation();
+          var textSpan = googleSignInBtn.querySelector(".cluezy-google-btn-text");
+          if (textSpan) textSpan.textContent = "Connecting...";
+          googleSignInBtn.disabled = true;
+          API.signInWithGoogle("/investigation/");
+          return;
+        }
+
         var signInBtn = target.closest('[data-framer-name="Sign In"]');
         if (signInBtn) {
           e.preventDefault();
@@ -2608,10 +2824,12 @@
     registerGlobalDelegatedClickHandlers();
     mountCurrentRouteDOM();
     loadInitialBackendState();
+    bindLandingHeaderAuth();
 
     // Listen to Supabase auth state changes
     API.onAuthStateChange(function (event, session) {
       bindUserProfile();
+      bindLandingHeaderAuth();
       if (event === "SIGNED_IN") {
         API.claimAnonymousInvestigations()
           .then(function () {
