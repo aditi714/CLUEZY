@@ -1,4 +1,6 @@
 {
+  "version": 2,
+  "cleanUrls": true,
   "headers": [
     {
       "source": "/(.*)\\.mjs",
@@ -8,6 +10,12 @@
           "value": "application/javascript"
         }
       ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/v1/:path*",
+      "destination": "https://aditi714-cluezy-backend.hf.space/api/v1/:path*"
     }
   ]
 }

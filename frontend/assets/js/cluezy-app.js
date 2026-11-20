@@ -192,6 +192,154 @@
       "  display: flex !important;",
       "  align-items: center !important;",
       "}",
+      ".cluezy-input-bar-enhanced {",
+      "  border-radius: 16px !important;",
+      "  border: 1.5px solid var(--token-CrOEkw8uh, #dfe5de) !important;",
+      "  background: #ffffff !important;",
+      "  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04) !important;",
+      "  transition: border-color 0.15s ease, box-shadow 0.15s ease !important;",
+      "}",
+      ".cluezy-input-bar-enhanced:focus-within {",
+      "  border-color: var(--token-aW35IeuAs, #145c38) !important;",
+      "  box-shadow: 0 0 0 3px rgba(20, 92, 56, 0.12), 0 4px 16px rgba(20, 92, 56, 0.08) !important;",
+      "}",
+      ".cluezy-new-investigation-layout {",
+      "  display: flex !important;",
+      "  flex-direction: column !important;",
+      "  justify-content: center !important;",
+      "  align-items: center !important;",
+      "  min-height: 100% !important;",
+      "  padding: 24px 20px 40px !important;",
+      "  box-sizing: border-box !important;",
+      "}",
+      ".cluezy-new-investigation-layout [data-framer-name='Reply composer'],",
+      ".cluezy-new-investigation-layout .framer-sz1ut5 {",
+      "  margin-top: 0 !important;",
+      "  margin-bottom: 0 !important;",
+      "  max-width: 680px !important;",
+      "}",
+      ".cluezy-hero-welcome-section {",
+      "  text-align: center !important;",
+      "  max-width: 680px !important;",
+      "  width: 100% !important;",
+      "  margin-bottom: 22px !important;",
+      "}",
+      ".cluezy-hero-badge {",
+      "  display: inline-flex !important;",
+      "  align-items: center !important;",
+      "  gap: 6px !important;",
+      "  padding: 4px 12px !important;",
+      "  border-radius: 20px !important;",
+      "  background: #ecf6e8 !important;",
+      "  color: #145c38 !important;",
+      "  font-family: 'Inter', sans-serif !important;",
+      "  font-size: 11.5px !important;",
+      "  font-weight: 700 !important;",
+      "  letter-spacing: 0.03em !important;",
+      "  text-transform: uppercase !important;",
+      "  margin-bottom: 12px !important;",
+      "}",
+      ".cluezy-hero-title {",
+      "  font-family: 'Inter', sans-serif !important;",
+      "  font-size: 26px !important;",
+      "  font-weight: 800 !important;",
+      "  letter-spacing: -0.025em !important;",
+      "  color: #17251f !important;",
+      "  margin: 0 0 8px 0 !important;",
+      "  line-height: 1.25 !important;",
+      "}",
+      ".cluezy-hero-subtitle {",
+      "  font-family: 'Inter', sans-serif !important;",
+      "  font-size: 13.5px !important;",
+      "  color: #58655e !important;",
+      "  margin: 0 !important;",
+      "  line-height: 1.5 !important;",
+      "}",
+      ".cluezy-starter-categories {",
+      "  display: flex !important;",
+      "  flex-wrap: wrap !important;",
+      "  gap: 8px !important;",
+      "  justify-content: center !important;",
+      "  max-width: 680px !important;",
+      "  width: 100% !important;",
+      "  margin-top: 18px !important;",
+      "  margin-bottom: 14px !important;",
+      "}",
+      ".cluezy-category-pill {",
+      "  padding: 6px 14px !important;",
+      "  border-radius: 20px !important;",
+      "  font-size: 12px !important;",
+      "  font-weight: 500 !important;",
+      "  font-family: 'Inter', sans-serif !important;",
+      "  border: 1px solid #dfe5de !important;",
+      "  background: #ffffff !important;",
+      "  color: #58655e !important;",
+      "  cursor: pointer !important;",
+      "  transition: all 0.15s ease !important;",
+      "  white-space: nowrap !important;",
+      "}",
+      ".cluezy-category-pill:hover {",
+      "  background: #ecf6e8 !important;",
+      "  color: #145c38 !important;",
+      "  border-color: #b5dda9 !important;",
+      "}",
+      ".cluezy-category-pill.active {",
+      "  background: #145c38 !important;",
+      "  color: #ffffff !important;",
+      "  border-color: #145c38 !important;",
+      "  font-weight: 600 !important;",
+      "}",
+      ".cluezy-new-investigation-layout [data-framer-name='Diagnostic answers'] {",
+      "  display: flex !important;",
+      "  flex-direction: column !important;",
+      "  gap: 8px !important;",
+      "  max-width: 680px !important;",
+      "  width: 100% !important;",
+      "  margin: 0 auto !important;",
+      "}",
+      ".cluezy-starter-card {",
+      "  display: flex !important;",
+      "  align-items: center !important;",
+      "  justify-content: space-between !important;",
+      "  background: #fcfbf9 !important;",
+      "  border: 1px solid #dfe5de !important;",
+      "  border-radius: 12px !important;",
+      "  padding: 10px 14px !important;",
+      "  cursor: pointer !important;",
+      "  text-decoration: none !important;",
+      "  transition: all 0.15s ease !important;",
+      "  box-sizing: border-box !important;",
+      "  width: 100% !important;",
+      "  gap: 12px !important;",
+      "}",
+      ".cluezy-starter-card:hover {",
+      "  background: #ecf6e8 !important;",
+      "  border-color: #145c38 !important;",
+      "  transform: translateY(-1px) !important;",
+      "  box-shadow: 0 3px 10px rgba(20, 92, 56, 0.08) !important;",
+      "}",
+      ".cluezy-starter-card-label {",
+      "  font-family: 'Inter', sans-serif !important;",
+      "  font-size: 13px !important;",
+      "  font-weight: 500 !important;",
+      "  color: #17251f !important;",
+      "  text-align: left !important;",
+      "  line-height: 1.4 !important;",
+      "}",
+      ".cluezy-starter-card:hover .cluezy-starter-card-label {",
+      "  color: #145c38 !important;",
+      "}",
+      ".cluezy-starter-card-arrow {",
+      "  color: #58655e !important;",
+      "  display: flex !important;",
+      "  align-items: center !important;",
+      "  flex-shrink: 0 !important;",
+      "  transition: transform 0.15s ease, color 0.15s ease !important;",
+      "}",
+      ".cluezy-starter-card:hover .cluezy-starter-card-arrow {",
+      "  color: #145c38 !important;",
+      "  transform: translateX(3px) !important;",
+      "}",
       ".cluezy-search-input {",
       "  width: 100%;",
       "  border: none;",
@@ -218,65 +366,378 @@
       "  height: 100% !important;",
       "  max-height: 100vh !important;",
       "  overflow: hidden !important;",
+      "  margin: 0 !important;",
+      "  padding: 0 !important;",
       "}",
-      "body.cluezy-no-page-scroll [data-layout-template='true'] {",
+      "body.cluezy-no-page-scroll [data-layout-template='true'],",
+      ".framer-sbem9.framer-n22pd4 {",
+      "  width: 100vw !important;",
+      "  max-width: 100vw !important;",
       "  height: 100vh !important;",
       "  max-height: 100vh !important;",
-      "  overflow: hidden !important;",
-      "}",
-      /* Left sidebar navigation */
-      "[data-framer-name='Sidebar'] {",
-      "  height: 100vh !important;",
-      "  max-height: 100vh !important;",
-      "  overflow-y: auto !important;",
-      "  overflow-x: hidden !important;",
-      "}",
-      /* Main content layout */
-      "[data-framer-name='investigation content'],",
-      "[data-framer-name='solution content'],",
-      "[data-framer-name='resolved content'] {",
-      "  height: 100vh !important;",
-      "  max-height: 100vh !important;",
+      "  padding: 0 0 0 230px !important;",
+      "  margin: 0 !important;",
       "  overflow: hidden !important;",
       "  box-sizing: border-box !important;",
       "  display: flex !important;",
+      "  flex-direction: row !important;",
+      "  align-items: stretch !important;",
+      "}",
+      "/* Left sidebar pinned fixed full height */",
+      "[data-framer-name='Sidebar'],",
+      ".framer-sbem9 .framer-r5haeu {",
+      "  position: fixed !important;",
+      "  left: 0 !important;",
+      "  top: 0 !important;",
+      "  bottom: 0 !important;",
+      "  width: 230px !important;",
+      "  min-width: 230px !important;",
+      "  max-width: 230px !important;",
+      "  height: 100vh !important;",
+      "  max-height: 100vh !important;",
+      "  background-color: var(--token-cPoBWZDTB, #073b27) !important;",
+      "  display: flex !important;",
+      "  flex-direction: column !important;",
+      "  justify-content: space-between !important;",
+      "  padding: 18px 12px 14px 12px !important;",
+      "  box-sizing: border-box !important;",
+      "  z-index: 9999 !important;",
+      "  overflow: hidden !important;",
+      "  gap: 8px !important;",
+      "}",
+      "[data-framer-name='Cluezy brand'] {",
+      "  flex: none !important;",
+      "  margin-bottom: 6px !important;",
+      "}",
+      "[data-framer-name='Workspace navigation'] {",
+      "  flex: 1 1 auto !important;",
+      "  min-height: 0 !important;",
+      "  overflow-y: auto !important;",
+      "  overflow-x: hidden !important;",
+      "  display: flex !important;",
+      "  flex-direction: column !important;",
+      "  gap: 4px !important;",
+      "  margin-bottom: 6px !important;",
+      "  padding-right: 2px !important;",
+      "}",
+      "[data-framer-name='Sidebar space'] {",
+      "  display: none !important;",
+      "}",
+      "[data-framer-name='Free plan usage'],",
+      ".framer-we2i1d {",
+      "  display: block !important;",
+      "  flex: none !important;",
+      "  width: 100% !important;",
+      "  margin-top: auto !important;",
+      "  margin-bottom: 8px !important;",
+      "  padding: 10px 12px !important;",
+      "  box-sizing: border-box !important;",
+      "  border-radius: 9px !important;",
+      "  background: rgba(255, 255, 255, 0.05) !important;",
+      "  border: 1px solid rgba(255, 255, 255, 0.08) !important;",
+      "}",
+      "[data-framer-name='Profile'],",
+      ".framer-6i2sda {",
+      "  display: flex !important;",
+      "  flex: none !important;",
+      "  width: 100% !important;",
+      "  align-items: center !important;",
+      "  justify-content: space-between !important;",
+      "  padding: 8px 10px !important;",
+      "  box-sizing: border-box !important;",
+      "  border-radius: 9px !important;",
+      "  background: rgba(255, 255, 255, 0.06) !important;",
+      "  border: 1px solid rgba(255, 255, 255, 0.1) !important;",
+      "  min-height: 48px !important;",
+      "  gap: 8px !important;",
+      "}",
+      ".hidden-1wt4h8m[data-framer-name='Free plan usage'],",
+      ".hidden-1wt4h8m[data-framer-name='Profile'] {",
+      "  display: flex !important;",
+      "}",
+      ".cluezy-sidebar-logout-btn {",
+      "  background: rgba(220, 53, 69, 0.15) !important;",
+      "  border: 1px solid rgba(220, 53, 69, 0.35) !important;",
+      "  color: #ff9b9b !important;",
+      "  border-radius: 6px !important;",
+      "  padding: 4px 7px !important;",
+      "  cursor: pointer !important;",
+      "  display: inline-flex !important;",
+      "  align-items: center !important;",
+      "  justify-content: center !important;",
+      "  gap: 4px !important;",
+      "  font-family: 'Inter', -apple-system, sans-serif !important;",
+      "  font-size: 11px !important;",
+      "  font-weight: 600 !important;",
+      "  transition: all 0.15s ease !important;",
+      "  flex-shrink: 0 !important;",
+      "  margin-left: auto !important;",
+      "}",
+      ".cluezy-sidebar-logout-btn:hover {",
+      "  background: rgba(220, 53, 69, 0.35) !important;",
+      "  color: #ffffff !important;",
+      "  border-color: rgba(220, 53, 69, 0.7) !important;",
+      "}",
+      ".cluezy-nav-logout-btn {",
+      "  display: flex !important;",
+      "  align-items: center !important;",
+      "  gap: 10px !important;",
+      "  padding: 8px 12px !important;",
+      "  border-radius: 8px !important;",
+      "  color: #ff9b9b !important;",
+      "  background: rgba(220, 53, 69, 0.12) !important;",
+      "  border: 1px solid rgba(220, 53, 69, 0.28) !important;",
+      "  text-decoration: none !important;",
+      "  font-family: 'Inter', sans-serif !important;",
+      "  font-size: 13px !important;",
+      "  font-weight: 600 !important;",
+      "  cursor: pointer !important;",
+      "  margin-top: 8px !important;",
+      "  transition: all 0.15s ease !important;",
+      "  width: 100% !important;",
+      "  box-sizing: border-box !important;",
+      "}",
+      ".cluezy-nav-logout-btn:hover {",
+      "  background: rgba(220, 53, 69, 0.28) !important;",
+      "  color: #ffffff !important;",
+      "  border-color: rgba(220, 53, 69, 0.6) !important;",
+      "}",
+      ".cluezy-nav-logout-btn:hover p,",
+      ".cluezy-nav-logout-btn:hover span {",
+      "  color: #ffffff !important;",
+      "  --framer-text-color: #ffffff !important;",
+      "}",
+      ".cluezy-sidebar-signin-btn {",
+      "  background: #ffffff !important;",
+      "  border: 1px solid #dfe5de !important;",
+      "  color: #17251f !important;",
+      "  border-radius: 6px !important;",
+      "  padding: 7px 10px !important;",
+      "  cursor: pointer !important;",
+      "  display: inline-flex !important;",
+      "  align-items: center !important;",
+      "  justify-content: center !important;",
+      "  gap: 6px !important;",
+      "  font-family: 'Inter', -apple-system, sans-serif !important;",
+      "  font-size: 12px !important;",
+      "  font-weight: 600 !important;",
+      "  width: 100% !important;",
+      "  box-sizing: border-box !important;",
+      "  transition: background 0.15s ease !important;",
+      "}",
+      ".cluezy-sidebar-signin-btn:hover {",
+      "  background: #f0f4f1 !important;",
+      "}",
+      "/* Main content stretch - eliminate 1200px limit & empty margins */",
+      ".framer-xyKMK.framer-ypbln3,",
+      ".framer-BxVAd.framer-1g3woon,",
+      ".framer-EQe3b.framer-3ap5fj,",
+      ".framer-fnZmG.framer-1remmab,",
+      "[data-framer-root] {",
+      "  width: 100% !important;",
+      "  max-width: 100% !important;",
+      "  height: 100vh !important;",
+      "  max-height: 100vh !important;",
+      "  flex: 1 1 auto !important;",
+      "  margin: 0 !important;",
+      "  padding: 0 !important;",
+      "  box-sizing: border-box !important;",
+      "  overflow: hidden !important;",
+      "  background-color: #ffffff !important;",
+      "  display: flex !important;",
       "  flex-direction: column !important;",
       "}",
-      "[data-framer-name='Conversation and context'] {",
+      "[data-framer-name='investigation content'],",
+      "[data-framer-name='solution content'],",
+      "[data-framer-name='resolved content'],",
+      ".framer-xyKMK .framer-nbz4r4 {",
+      "  width: 100% !important;",
+      "  max-width: 100% !important;",
+      "  height: 100vh !important;",
+      "  max-height: 100vh !important;",
+      "  padding: 16px 28px 16px 28px !important;",
+      "  margin: 0 !important;",
+      "  box-sizing: border-box !important;",
+      "  display: flex !important;",
+      "  flex-direction: column !important;",
+      "  gap: 12px !important;",
+      "  overflow: hidden !important;",
+      "}",
+      "[data-framer-name='Investigation heading'],",
+      ".framer-xyKMK .framer-1yyitid {",
+      "  width: 100% !important;",
+      "  display: flex !important;",
+      "  flex-direction: row !important;",
+      "  justify-content: space-between !important;",
+      "  align-items: center !important;",
+      "  flex: none !important;",
+      "  margin-bottom: 2px !important;",
+      "}",
+      ".cluezy-heading-actions {",
+      "  display: flex !important;",
+      "  align-items: center !important;",
+      "  gap: 12px !important;",
+      "  margin-left: auto !important;",
+      "  flex-shrink: 0 !important;",
+      "}",
+      ".cluezy-header-auth-pill {",
+      "  display: flex !important;",
+      "  align-items: center !important;",
+      "  gap: 8px !important;",
+      "  background: var(--token-gMr3EOQJF, #f5f6f3) !important;",
+      "  border: 1px solid var(--token-CrOEkw8uh, #dfe5de) !important;",
+      "  border-radius: 20px !important;",
+      "  padding: 4px 10px 4px 6px !important;",
+      "  font-family: 'Inter', sans-serif !important;",
+      "  font-size: 12px !important;",
+      "  color: var(--token-vfjxZCpBY, #17251f) !important;",
+      "}",
+      ".cluezy-header-avatar {",
+      "  width: 22px !important;",
+      "  height: 22px !important;",
+      "  border-radius: 50% !important;",
+      "  object-fit: cover !important;",
+      "}",
+      ".cluezy-header-avatar-initial {",
+      "  width: 22px !important;",
+      "  height: 22px !important;",
+      "  border-radius: 50% !important;",
+      "  background: var(--token-aW35IeuAs, #145c38) !important;",
+      "  color: #ffffff !important;",
+      "  display: flex !important;",
+      "  align-items: center !important;",
+      "  justify-content: center !important;",
+      "  font-size: 11px !important;",
+      "  font-weight: 700 !important;",
+      "}",
+      ".cluezy-header-user-name {",
+      "  font-weight: 600 !important;",
+      "  max-width: 130px !important;",
+      "  white-space: nowrap !important;",
+      "  overflow: hidden !important;",
+      "  text-overflow: ellipsis !important;",
+      "}",
+      ".cluezy-header-logout-btn {",
+      "  background: transparent !important;",
+      "  border: none !important;",
+      "  color: #c93b3b !important;",
+      "  font-family: 'Inter', sans-serif !important;",
+      "  font-size: 11.5px !important;",
+      "  font-weight: 600 !important;",
+      "  cursor: pointer !important;",
+      "  padding: 2px 6px !important;",
+      "  border-radius: 4px !important;",
+      "  transition: background 0.15s ease !important;",
+      "  display: flex !important;",
+      "  align-items: center !important;",
+      "  gap: 4px !important;",
+      "}",
+      ".cluezy-header-logout-btn:hover {",
+      "  background: rgba(201, 59, 59, 0.12) !important;",
+      "}",
+      ".cluezy-header-signin-btn {",
+      "  background: var(--token-aW35IeuAs, #145c38) !important;",
+      "  color: #ffffff !important;",
+      "  border: none !important;",
+      "  border-radius: 20px !important;",
+      "  padding: 5px 12px !important;",
+      "  font-family: 'Inter', sans-serif !important;",
+      "  font-size: 12px !important;",
+      "  font-weight: 600 !important;",
+      "  cursor: pointer !important;",
+      "  display: flex !important;",
+      "  align-items: center !important;",
+      "  gap: 6px !important;",
+      "  transition: opacity 0.15s ease !important;",
+      "}",
+      ".cluezy-header-signin-btn:hover {",
+      "  opacity: 0.9 !important;",
+      "}",
+      "[data-framer-name='Conversation and context'],",
+      ".framer-xyKMK .framer-1voc2cp {",
+      "  width: 100% !important;",
+      "  max-width: 100% !important;",
       "  flex: 1 1 0px !important;",
       "  min-height: 0 !important;",
       "  height: 100% !important;",
-      "  overflow: hidden !important;",
+      "  display: flex !important;",
+      "  flex-direction: row !important;",
+      "  gap: 22px !important;",
       "  align-items: stretch !important;",
+      "  overflow: hidden !important;",
       "}",
-      /* Conversation chat column */
-      "[data-framer-name='Conversation'] {",
+      "/* Conversation chat column takes remaining space */",
+      "[data-framer-name='Conversation'],",
+      ".framer-xyKMK .framer-1f6swql {",
       "  flex: 1 1 0px !important;",
-      "  min-height: 0 !important;",
+      "  min-width: 0 !important;",
+      "  width: auto !important;",
       "  height: 100% !important;",
       "  max-height: 100% !important;",
       "  overflow-y: auto !important;",
+      "  overflow-x: hidden !important;",
+      "  display: flex !important;",
+      "  flex-direction: column !important;",
       "  padding-right: 10px !important;",
+      "  gap: 16px !important;",
       "  scroll-behavior: smooth;",
       "}",
-      /* Right-hand Investigation context card */
-      "[data-framer-name='Investigation context'] {",
-      "  width: 290px !important;",
-      "  flex: none !important;",
+      "/* Right-hand Investigation context card */",
+      "[data-framer-name='Investigation context'],",
+      ".framer-xyKMK .framer-1qpwm9z {",
+      "  width: 320px !important;",
+      "  min-width: 320px !important;",
+      "  max-width: 320px !important;",
+      "  flex: 0 0 320px !important;",
+      "  height: 100% !important;",
       "  max-height: 100% !important;",
-      "  height: fit-content !important;",
       "  overflow-y: auto !important;",
       "  overflow-x: hidden !important;",
       "  background-color: #ffffff !important;",
       "  border: 1px solid var(--token-CrOEkw8uh, #dfe5de) !important;",
       "  border-radius: 14px !important;",
       "  box-sizing: border-box !important;",
-      "  padding: 20px !important;",
+      "  padding: 18px !important;",
       "  display: flex !important;",
       "  flex-direction: column !important;",
-      "  gap: 16px !important;",
+      "  gap: 14px !important;",
       "}",
-      /* Disable Framer pseudo border that detaches and cuts off on scroll */
+      "/* Message bubbles */",
+      ".framer-xyKMK .framer-vu1os6 {",
+      "  width: fit-content !important;",
+      "  max-width: 80% !important;",
+      "  margin-left: auto !important;",
+      "  align-self: flex-end !important;",
+      "  padding: 14px 18px !important;",
+      "  border-radius: 14px 14px 2px 14px !important;",
+      "  background-color: var(--token-TpfI9O28F, #ecf6e8) !important;",
+      "  border: 1px solid var(--token-CrOEkw8uh, #dfe5de) !important;",
+      "  box-sizing: border-box !important;",
+      "  word-break: break-word !important;",
+      "}",
+      ".framer-xyKMK .framer-wvffk8 {",
+      "  width: 100% !important;",
+      "  max-width: 100% !important;",
+      "  padding: 18px 20px !important;",
+      "  box-sizing: border-box !important;",
+      "  border-radius: 14px 14px 14px 2px !important;",
+      "  word-break: break-word !important;",
+      "}",
+      ".framer-xyKMK .framer-e0rgel {",
+      "  width: 100% !important;",
+      "  display: flex !important;",
+      "  flex-wrap: wrap !important;",
+      "  gap: 8px !important;",
+      "  margin-top: 6px !important;",
+      "}",
+      "[data-framer-name='Reply composer'],",
+      ".framer-xyKMK .framer-sz1ut5 {",
+      "  width: 100% !important;",
+      "  max-width: 100% !important;",
+      "  margin-top: auto !important;",
+      "  box-sizing: border-box !important;",
+      "}",
+      "/* Disable Framer pseudo border that detaches and cuts off on scroll */",
       "[data-framer-name='Investigation context']::after {",
       "  display: none !important;",
       "}",
@@ -488,27 +949,29 @@
       "  display: inline-flex !important;",
       "  align-items: center !important;",
       "  justify-content: center !important;",
-      "  gap: 10px !important;",
+      "  gap: 12px !important;",
       "  background-color: #ffffff !important;",
       "  color: #17251f !important;",
-      "  border: 1px solid #c2d6ca !important;",
-      "  border-radius: 9px !important;",
-      "  padding: 10px 18px !important;",
+      "  border: 1.5px solid #145c38 !important;",
+      "  border-radius: 6px !important;",
+      "  padding: 12px 28px !important;",
+      "  min-width: 220px !important;",
       "  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;",
-      "  font-size: 14px !important;",
+      "  font-size: 15px !important;",
       "  font-weight: 600 !important;",
       "  cursor: pointer !important;",
-      "  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;",
+      "  box-shadow: 0 2px 6px rgba(20, 92, 56, 0.08) !important;",
       "  transition: all 0.2s ease !important;",
       "  text-decoration: none !important;",
       "  line-height: 1 !important;",
       "  box-sizing: border-box !important;",
       "}",
       ".cluezy-google-btn:hover {",
-      "  background-color: #f6faf7 !important;",
-      "  border-color: #145c38 !important;",
-      "  color: #145c38 !important;",
-      "  box-shadow: 0 2px 8px rgba(20, 92, 56, 0.12) !important;",
+      "  background-color: #f4f8f5 !important;",
+      "  border-color: #0d4227 !important;",
+      "  color: #0d4227 !important;",
+      "  box-shadow: 0 4px 14px rgba(20, 92, 56, 0.16) !important;",
+      "  transform: translateY(-1px) !important;",
       "}",
       ".cluezy-google-btn:active {",
       "  transform: translateY(1px) !important;",
@@ -516,28 +979,31 @@
       ".cluezy-header-profile-pill {",
       "  display: inline-flex !important;",
       "  align-items: center !important;",
-      "  gap: 9px !important;",
+      "  justify-content: space-between !important;",
+      "  gap: 12px !important;",
       "  background-color: #ffffff !important;",
-      "  border: 1px solid #c2d6ca !important;",
-      "  border-radius: 9px !important;",
-      "  padding: 6px 14px 6px 8px !important;",
+      "  border: 1.5px solid #145c38 !important;",
+      "  border-radius: 6px !important;",
+      "  padding: 8px 18px 8px 12px !important;",
+      "  min-width: 210px !important;",
       "  cursor: pointer !important;",
-      "  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;",
+      "  box-shadow: 0 2px 6px rgba(20, 92, 56, 0.08) !important;",
       "  transition: all 0.2s ease !important;",
       "  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;",
-      "  font-size: 13.5px !important;",
+      "  font-size: 14.5px !important;",
       "  font-weight: 600 !important;",
       "  color: #17251f !important;",
       "  user-select: none !important;",
       "}",
       ".cluezy-header-profile-pill:hover {",
-      "  border-color: #145c38 !important;",
-      "  background-color: #f6faf7 !important;",
-      "  box-shadow: 0 2px 8px rgba(20, 92, 56, 0.12) !important;",
+      "  border-color: #0d4227 !important;",
+      "  background-color: #f4f8f5 !important;",
+      "  box-shadow: 0 4px 14px rgba(20, 92, 56, 0.16) !important;",
+      "  transform: translateY(-1px) !important;",
       "}",
       ".cluezy-header-avatar {",
-      "  width: 28px !important;",
-      "  height: 28px !important;",
+      "  width: 30px !important;",
+      "  height: 30px !important;",
       "  border-radius: 50% !important;",
       "  display: flex !important;",
       "  align-items: center !important;",
@@ -545,7 +1011,7 @@
       "  background-color: #e2ede5 !important;",
       "  color: #145c38 !important;",
       "  font-weight: 700 !important;",
-      "  font-size: 13px !important;",
+      "  font-size: 14px !important;",
       "  flex-shrink: 0 !important;",
       "  overflow: hidden !important;",
       "}",
@@ -710,6 +1176,8 @@
         nav.appendChild(recentSection);
       }
     });
+
+    renderSidebarLogoutButton();
   }
 
   /**
@@ -756,6 +1224,17 @@
           navigateTo("/");
         });
       }
+      if (el.closest('[data-framer-name="Sidebar"]') && !el.querySelector(".cluezy-sidebar-brand-img")) {
+        var svg = el.querySelector("svg");
+        var textContainer = el.querySelector('[data-framer-name="CLUEZY"]');
+        if (svg) svg.style.display = "none";
+        if (textContainer) textContainer.style.display = "none";
+        var wrap = document.createElement("div");
+        wrap.className = "cluezy-sidebar-brand-img";
+        wrap.style.cssText = "display: flex; align-items: center; gap: 8px;";
+        wrap.innerHTML = '<img src="/images/logo.png" alt="CLUEZY" style="height: 28px; width: auto; object-fit: contain; filter: brightness(0) invert(1); flex-shrink: 0;" /><img src="/images/text.png" alt="CLUEZY" style="height: 18px; width: auto; object-fit: contain; filter: brightness(0) invert(1); flex-shrink: 0;" />';
+        el.appendChild(wrap);
+      }
     });
 
     // Fetch and render Recent Investigations in the sidebar (max 5 items)
@@ -780,6 +1259,43 @@
 
     // Bind authenticated Google profile or Google Sign-In button
     bindUserProfile();
+
+    // Render dedicated Logout button in sidebar navigation
+    renderSidebarLogoutButton();
+  }
+
+  /**
+   * Render a dedicated, unmissable Logout button in the sidebar navigation.
+   */
+  function renderSidebarLogoutButton() {
+    var navs = document.querySelectorAll('[data-framer-name="Workspace navigation"]');
+    navs.forEach(function (nav) {
+      if (nav.querySelector(".cluezy-nav-logout-btn")) return;
+      var logoutLink = document.createElement("a");
+      logoutLink.className = "cluezy-nav-logout-btn framer-u8w30";
+      logoutLink.href = "#";
+      logoutLink.setAttribute("data-framer-name", "Logout");
+      logoutLink.title = "Log out of Cluezy";
+      logoutLink.innerHTML =
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>' +
+        '<div style="transform: none;"><p class="framer-text framer-styles-preset-1hewirz" data-styles-preset="Z1BYkLRW1" dir="auto" style="--framer-text-color: #ff9b9b;"><span class="framer-text" style="--framer-text-color: #ff9b9b;">Log Out</span></p></div>';
+
+      bindActionClick(logoutLink, async function () {
+        logoutLink.style.opacity = "0.5";
+        var textEl = logoutLink.querySelector("span");
+        if (textEl) textEl.textContent = "Logging out...";
+        try {
+          await API.signOut();
+        } catch (_e) {}
+        try {
+          localStorage.removeItem("cluezy_anonymous_session_token");
+          localStorage.removeItem("cluezy_anonymous_session_id");
+          localStorage.removeItem("sb-" + API.SUPABASE_PROJECT_ID + "-auth-token");
+        } catch (_e) {}
+        window.location.href = "/";
+      });
+      nav.appendChild(logoutLink);
+    });
   }
 
   function renderTokenQuota(sess) {
@@ -799,7 +1315,7 @@
 
   /**
    * Bind sidebar user profile container to show Google OAuth avatar, name, and account menu,
-   * or a clean "Sign in with Google" button for anonymous visitors.
+   * with an explicit Logout button, or a clean "Sign in with Google" button for anonymous visitors.
    */
   async function bindUserProfile() {
     var profileContainers = document.querySelectorAll('[data-framer-name="Profile"]');
@@ -819,64 +1335,211 @@
         oldMenu.parentNode.removeChild(oldMenu);
       }
 
-      var avatarEl = profileEl.querySelector('[data-framer-name$="avatar"], .framer-1kjjt43');
-      var nameEl = profileEl.querySelector('[data-framer-name="Aditi"] span, [data-framer-name="Aditi"] p, .framer-xxjd8o span, .framer-xxjd8o p');
-      var planEl = profileEl.querySelector('[data-framer-name="Free Plan"] span, [data-framer-name="Free Plan"] p, .framer-wp9bn7 span, .framer-wp9bn7 p');
-      var settingsIcon = profileEl.querySelector('[data-framer-name="Settings"], .framer-19bts9u');
+      profileEl.style.display = "flex";
 
       if (user) {
-        // Authenticated user state
+        // Authenticated user state: show compact profile card + explicit Logout button
         var metadata = user.user_metadata || {};
         var displayName = metadata.full_name || metadata.name || (user.email ? user.email.split("@")[0] : "Aditi");
         var avatarUrl = metadata.avatar_url || metadata.picture || null;
         var email = user.email || "Google Account";
+        var initial = (displayName.charAt(0) || "A").toUpperCase();
 
-        if (nameEl) {
-          nameEl.textContent = displayName;
-        }
-        if (planEl) {
-          planEl.textContent = email;
-          planEl.title = email;
-          planEl.style.overflow = "hidden";
-          planEl.style.textOverflow = "ellipsis";
-          planEl.style.whiteSpace = "nowrap";
-          planEl.style.maxWidth = "110px";
-          planEl.style.display = "block";
-        }
-        if (avatarEl) {
-          if (avatarUrl) {
-            avatarEl.innerHTML = '<img src="' + avatarUrl + '" alt="' + displayName + '" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" referrerpolicy="no-referrer" />';
-          } else {
-            var initial = (displayName.charAt(0) || "A").toUpperCase();
-            avatarEl.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font-weight: 700; color: #17251f; font-size: 15px;">' + initial + '</div>';
-          }
+        var avatarHtml = avatarUrl
+          ? '<img src="' + avatarUrl + '" alt="' + escapeHtml(displayName) + '" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" referrerpolicy="no-referrer" />'
+          : '<div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font-weight: 700; color: #ffffff; background: #145c38; border-radius: 50%; font-size: 13px;">' + initial + '</div>';
+
+        profileEl.innerHTML =
+          '<div class="cluezy-profile-card-inner" style="display: flex; align-items: center; gap: 8px; flex: 1 1 0px; min-width: 0; cursor: pointer;" title="Account details">' +
+            '<div style="width: 28px; height: 28px; min-width: 28px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center;">' +
+              avatarHtml +
+            '</div>' +
+            '<div style="flex: 1 1 0px; min-width: 0; display: flex; flex-direction: column; justify-content: center;">' +
+              '<div style="font-weight: 600; font-size: 12px; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2;">' + escapeHtml(displayName) + '</div>' +
+              '<div style="font-size: 10.5px; color: #9bb5a3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; margin-top: 2px;">' + escapeHtml(email) + '</div>' +
+            '</div>' +
+          '</div>' +
+          '<button class="cluezy-sidebar-logout-btn" title="Log out" aria-label="Log out" type="button">' +
+            '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+              '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>' +
+              '<polyline points="16 17 21 12 16 7"></polyline>' +
+              '<line x1="21" y1="12" x2="9" y2="12"></line>' +
+            '</svg>' +
+            '<span>Logout</span>' +
+          '</button>';
+
+        var cardInner = profileEl.querySelector(".cluezy-profile-card-inner");
+        if (cardInner) {
+          cardInner.onclick = function (e) {
+            e.stopPropagation();
+            toggleAccountDropdown(profileEl, user);
+          };
         }
 
-        profileEl.style.cursor = "pointer";
-        profileEl.title = "Account options (Click to view profile or sign out)";
-        profileEl.onclick = function (e) {
-          e.stopPropagation();
-          toggleAccountDropdown(profileEl, user);
-        };
+        var logoutBtn = profileEl.querySelector(".cluezy-sidebar-logout-btn");
+        if (logoutBtn) {
+          logoutBtn.onclick = async function (e) {
+            e.stopPropagation();
+            logoutBtn.disabled = true;
+            logoutBtn.innerHTML = '<span>...</span>';
+            try {
+              await API.signOut();
+            } catch (_e) {}
+            bindUserProfile();
+            var invRoot = document.querySelector('[data-framer-name="investigation content"]');
+            if (invRoot) renderInvestigationHeadingAuth(invRoot);
+            API.listInvestigations({ page: 1, page_size: 5 })
+              .then(function (res) {
+                if (res && Array.isArray(res.items)) {
+                  renderSidebarRecentInvestigations(res.items);
+                }
+              })
+              .catch(function () {});
+          };
+        }
       } else {
         // Unauthenticated anonymous state: Show clean Google Sign-In button
-        if (nameEl) {
-          nameEl.textContent = "Sign In";
+        profileEl.innerHTML =
+          '<button class="cluezy-sidebar-signin-btn" title="Sign in with Google" type="button">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"/><path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12 0 14.8s.7 5.1 1.9 7.5l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2-6.4-4.8L1.9 16.4C3.7 20.4 7.5 23 12 23z"/></svg>' +
+            '<span>Sign in with Google</span>' +
+          '</button>';
+
+        var signinBtn = profileEl.querySelector(".cluezy-sidebar-signin-btn");
+        if (signinBtn) {
+          signinBtn.onclick = function (e) {
+            e.stopPropagation();
+            API.signInWithGoogle();
+          };
         }
-        if (planEl) {
-          planEl.textContent = "with Google";
-        }
-        if (avatarEl) {
-          avatarEl.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"/><path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12 0 14.8s.7 5.1 1.9 7.5l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2-6.4-4.8L1.9 16.4C3.7 20.4 7.5 23 12 23z"/></svg>';
-        }
-        profileEl.style.cursor = "pointer";
-        profileEl.title = "Click to sign in with Google";
-        profileEl.onclick = function (e) {
+      }
+    });
+
+    var invRoot = document.querySelector('[data-framer-name="investigation content"]');
+    if (invRoot) {
+      renderInvestigationHeadingAuth(invRoot);
+    }
+  }
+
+  /**
+   * Render or update the small profile / logout indicator in the Investigation header bar.
+   */
+  async function renderInvestigationHeadingAuth(root) {
+    if (!root) return;
+    var headingEl = root.querySelector('[data-framer-name="Investigation heading"]');
+    if (!headingEl) return;
+
+    var statusBadge = headingEl.querySelector('[data-framer-name="Status Active"]');
+    var actionsContainer = headingEl.querySelector(".cluezy-heading-actions");
+    if (!actionsContainer) {
+      actionsContainer = document.createElement("div");
+      actionsContainer.className = "cluezy-heading-actions";
+      if (statusBadge) {
+        headingEl.appendChild(actionsContainer);
+        actionsContainer.appendChild(statusBadge);
+      } else {
+        headingEl.appendChild(actionsContainer);
+      }
+    }
+
+    var authSlot = actionsContainer.querySelector(".cluezy-header-auth-slot");
+    if (!authSlot) {
+      authSlot = document.createElement("div");
+      authSlot.className = "cluezy-header-auth-slot";
+      actionsContainer.appendChild(authSlot);
+    }
+
+    var user = null;
+    try {
+      user = await API.getAuthUser();
+    } catch (_e) {
+      user = null;
+    }
+
+    if (user) {
+      var metadata = user.user_metadata || {};
+      var displayName = metadata.full_name || metadata.name || (user.email ? user.email.split("@")[0] : "User");
+      var avatarUrl = metadata.avatar_url || metadata.picture || null;
+      var initial = (displayName.charAt(0) || "U").toUpperCase();
+      var avatarHtml = avatarUrl
+        ? '<img class="cluezy-header-avatar" src="' + avatarUrl + '" alt="' + escapeHtml(displayName) + '" referrerpolicy="no-referrer" />'
+        : '<div class="cluezy-header-avatar-initial">' + escapeHtml(initial) + '</div>';
+
+      authSlot.innerHTML =
+        '<div class="cluezy-header-auth-pill">' +
+          avatarHtml +
+          '<span class="cluezy-header-user-name">' + escapeHtml(displayName) + '</span>' +
+          '<button class="cluezy-header-logout-btn" title="Log out" type="button">' +
+            '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+              '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>' +
+              '<polyline points="16 17 21 12 16 7"></polyline>' +
+              '<line x1="21" y1="12" x2="9" y2="12"></line>' +
+            '</svg>' +
+            '<span>Logout</span>' +
+          '</button>' +
+        '</div>';
+
+      var logoutBtn = authSlot.querySelector(".cluezy-header-logout-btn");
+      if (logoutBtn) {
+        logoutBtn.onclick = async function (e) {
+          e.stopPropagation();
+          logoutBtn.disabled = true;
+          logoutBtn.innerHTML = "<span>...</span>";
+          try {
+            await API.signOut();
+          } catch (_e) {}
+          bindUserProfile();
+          renderInvestigationHeadingAuth(root);
+          API.listInvestigations({ page: 1, page_size: 5 })
+            .then(function (res) {
+              if (res && Array.isArray(res.items)) {
+                renderSidebarRecentInvestigations(res.items);
+              }
+            })
+            .catch(function () {});
+        };
+      }
+    } else {
+      authSlot.innerHTML =
+        '<div style="display: flex; align-items: center; gap: 8px;">' +
+          '<button class="cluezy-header-signin-btn" title="Sign in with Google" type="button">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"/><path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12 0 14.8s.7 5.1 1.9 7.5l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2-6.4-4.8L1.9 16.4C3.7 20.4 7.5 23 12 23z"/></svg>' +
+            '<span>Sign In</span>' +
+          '</button>' +
+          '<button class="cluezy-header-logout-btn" title="Log out / Exit" type="button" style="border: 1px solid rgba(220,53,69,0.3); background: rgba(220,53,69,0.08); padding: 5px 10px; border-radius: 6px;">' +
+            '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+              '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>' +
+              '<polyline points="16 17 21 12 16 7"></polyline>' +
+              '<line x1="21" y1="12" x2="9" y2="12"></line>' +
+            '</svg>' +
+            '<span>Logout</span>' +
+          '</button>' +
+        '</div>';
+
+      var signinBtn = authSlot.querySelector(".cluezy-header-signin-btn");
+      if (signinBtn) {
+        signinBtn.onclick = function (e) {
           e.stopPropagation();
           API.signInWithGoogle();
         };
       }
-    });
+      var headerLogoutBtn = authSlot.querySelector(".cluezy-header-logout-btn");
+      if (headerLogoutBtn) {
+        headerLogoutBtn.onclick = async function (e) {
+          e.stopPropagation();
+          headerLogoutBtn.disabled = true;
+          headerLogoutBtn.innerHTML = "<span>...</span>";
+          try {
+            await API.signOut();
+          } catch (_e) {}
+          try {
+            localStorage.removeItem("cluezy_anonymous_session_token");
+            localStorage.removeItem("cluezy_anonymous_session_id");
+          } catch (_e) {}
+          window.location.href = "/";
+        };
+      }
+    }
   }
 
   function toggleAccountDropdown(anchorEl, user) {
@@ -1370,6 +2033,169 @@
     return container;
   }
 
+  var STARTER_CATEGORIES = [
+    { id: "all", label: "🌟 Popular" },
+    { id: "network", label: "🌐 Network & Wi-Fi" },
+    { id: "hardware", label: "💻 Hardware & System" },
+    { id: "audio", label: "🎙️ Audio & Video" },
+    { id: "software", label: "⚡ Software & Apps" },
+    { id: "dev", label: "🗄️ Dev & Database" },
+  ];
+
+  var STARTER_PROMPTS_BY_CATEGORY = {
+    all: [
+      {
+        label: "Wi-Fi connected but websites won't open (phone works)",
+        prompt:
+          "My Windows laptop is connected to Wi-Fi but websites aren't opening, though my phone works fine on the same network.",
+      },
+      {
+        label: "Zoom / Teams does not recognize USB microphone",
+        prompt:
+          "Zoom says no microphone detected, but my USB microphone is plugged in and works in other apps.",
+      },
+      {
+        label: "Laptop freezing randomly with 100% Disk / CPU usage",
+        prompt:
+          "My laptop keeps freezing and Task Manager shows 100% disk and CPU usage even when no apps are running.",
+      },
+      {
+        label: "PostgreSQL connection refused: ECONNREFUSED on port 5432",
+        prompt:
+          "My backend application cannot connect to the PostgreSQL database, showing connection refused on 127.0.0.1:5432.",
+      },
+    ],
+    network: [
+      {
+        label: "Wi-Fi says No Internet (IPv4 starts with 169.254 APIPA)",
+        prompt:
+          "My Windows laptop is connected to Wi-Fi with no internet access. I ran ipconfig and my IPv4 address starts with 169.254.",
+      },
+      {
+        label: "DNS server not responding on Windows / Mac",
+        prompt:
+          "Websites won't load and Windows network troubleshooter reports 'Your computer appears to be correctly configured, but the device or resource (DNS server) is not responding'.",
+      },
+      {
+        label: "All devices on Wi-Fi have no internet access",
+        prompt:
+          "My laptop and all other devices and phones on the Wi-Fi have no internet. The router lights are blinking amber/orange.",
+      },
+      {
+        label: "Ethernet connected but says Unidentified Network",
+        prompt:
+          "My PC is plugged in via Ethernet cable, but Windows shows 'Unidentified Network - No Internet Access'.",
+      },
+    ],
+    hardware: [
+      {
+        label: "Laptop shuts down automatically when running heavy apps",
+        prompt:
+          "My laptop suddenly shuts off without warning when gaming or running intensive applications. The bottom fan feels extremely hot.",
+      },
+      {
+        label: "External monitor not detected over HDMI / USB-C",
+        prompt:
+          "Windows Display Settings says 'Didn't detect another display' when plugging in my external monitor via HDMI.",
+      },
+      {
+        label: "Laptop battery draining fast even in sleep mode",
+        prompt:
+          "My laptop battery drops 40% overnight even when the lid is closed and the computer is in sleep mode.",
+      },
+      {
+        label: "High memory / RAM usage causing system freeze",
+        prompt:
+          "Task Manager shows 95% RAM in use even with only a few browser tabs open, causing the entire computer to lag.",
+      },
+    ],
+    audio: [
+      {
+        label: "Zoom / Teams says 'No microphone detected'",
+        prompt:
+          "During Zoom meetings, the microphone is muted and settings say 'Cannot detect your microphone' even though permissions are granted.",
+      },
+      {
+        label: "Bluetooth headphones paired but audio plays through speakers",
+        prompt:
+          "My Bluetooth headphones are connected in Windows settings, but audio still comes out of the laptop speakers.",
+      },
+      {
+        label: "Microphone volume is extremely low or muffled",
+        prompt:
+          "Other people in Discord and Google Meet can barely hear me because my microphone volume is too low despite max volume in settings.",
+      },
+      {
+        label: "USB audio device not recognized (Device Descriptor Failed)",
+        prompt:
+          "When plugging in my USB headset/mic, Windows says 'USB device not recognized (Device Descriptor Request Failed)'.",
+      },
+    ],
+    software: [
+      {
+        label: "Application crashes immediately on launch with no error",
+        prompt:
+          "When I click to open my application, the loading spinner appears for two seconds and then disappears without opening or showing an error.",
+      },
+      {
+        label: "Software installer fails with error 2503 / 2502",
+        prompt:
+          "Running the installer fails with 'The installer has encountered an unexpected error installing this package. Code 2503 / 2502'.",
+      },
+      {
+        label: "Windows Update stuck downloading or installing at 100%",
+        prompt:
+          "Windows Update has been stuck at 100% installing for over two hours and restarting doesn't fix it.",
+      },
+      {
+        label: "Browser shows ERR_CONNECTION_REFUSED on all pages",
+        prompt:
+          "Every website I try to open in Chrome shows ERR_CONNECTION_REFUSED, even after clearing cache and cookies.",
+      },
+    ],
+    dev: [
+      {
+        label: "Database connection refused: 127.0.0.1:5432",
+        prompt:
+          "My local development server cannot connect to PostgreSQL on port 5432, throwing ECONNREFUSED.",
+      },
+      {
+        label: "Port 3000 / 8080 already in use by another process",
+        prompt:
+          "Running npm run dev fails with 'Error: listen EADDRINUSE: address already in use :::3000'.",
+      },
+      {
+        label: "Git push rejected (non-fast-forward / merge conflict)",
+        prompt:
+          "Git push origin main is rejected with 'error: failed to push some refs ... Updates were rejected because the remote contains work'.",
+      },
+      {
+        label: "Docker daemon not running / cannot connect to docker.sock",
+        prompt:
+          "Docker CLI returns 'Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?'",
+      },
+    ],
+  };
+
+  /**
+   * Helper to visually update the send button state based on text length and submission status.
+   */
+  function updateSendButtonVisual(ta, btn) {
+    if (!btn) return;
+    var hasText = ta && ta.value && ta.value.trim().length > 0;
+    if (appState.isSubmitting) {
+      btn.style.opacity = "0.5";
+      btn.style.cursor = "wait";
+    } else if (hasText) {
+      btn.style.opacity = "1";
+      btn.style.cursor = "pointer";
+      btn.style.backgroundColor = "var(--token-aW35IeuAs, #145c38)";
+    } else {
+      btn.style.opacity = "0.5";
+      btn.style.cursor = "pointer";
+    }
+  }
+
   /**
    * Render the Investigation Page DOM based on `appState.currentInvestigation`.
    */
@@ -1410,11 +2236,52 @@
         }
       }
 
+      // Small profile section and explicit logout button in heading
+      renderInvestigationHeadingAuth(root);
+
       // 2. Ensure Reply Composer has an interactive <textarea>
       var composer = root.querySelector('[data-framer-name="Reply composer"]');
       var replyBox = composer ? composer.querySelector('[data-framer-name="Type your reply..."]') : null;
       var sendBtn = composer ? composer.querySelector('[data-framer-name="Send reply"]') : null;
       var textarea = replyBox ? replyBox.querySelector("textarea.cluezy-chat-textarea") : null;
+
+      if (composer) {
+        composer.classList.add("cluezy-input-bar-enhanced");
+
+        // Paperclip attachment handling
+        var paperclip = composer.querySelector('[data-framer-name="Paperclip"], svg');
+        if (paperclip && !paperclip.dataset.bound) {
+          paperclip.dataset.bound = "true";
+          paperclip.style.cursor = "pointer";
+          paperclip.setAttribute("title", "Attach log, error screenshot, or system info");
+          var fileInp = document.getElementById("cluezy-composer-file-input");
+          if (!fileInp) {
+            fileInp = document.createElement("input");
+            fileInp.type = "file";
+            fileInp.id = "cluezy-composer-file-input";
+            fileInp.style.display = "none";
+            fileInp.accept = ".txt,.log,.json,.csv,image/*";
+            document.body.appendChild(fileInp);
+            fileInp.addEventListener("change", function () {
+              if (fileInp.files && fileInp.files[0]) {
+                var file = fileInp.files[0];
+                var ta = composer.querySelector("textarea.cluezy-chat-textarea");
+                if (ta) {
+                  var note = "[Attached: " + file.name + " (" + Math.round(file.size / 1024) + " KB)]\n";
+                  ta.value = note + (ta.value || "");
+                  autoResizeChatTextarea(ta);
+                  updateSendButtonVisual(ta, sendBtn);
+                  ta.focus();
+                }
+              }
+            });
+          }
+          paperclip.addEventListener("click", function (e) {
+            e.preventDefault();
+            fileInp.click();
+          });
+        }
+      }
 
       if (replyBox && !textarea) {
         replyBox.innerHTML = "";
@@ -1423,11 +2290,12 @@
         textarea.rows = 1;
         textarea.placeholder = inv
           ? "Type your reply or test result (Enter to send, Shift+Enter for newline)…"
-          : "Describe your technical issue in detail (e.g., Wi-Fi connected on Windows laptop, websites won't open)…";
+          : "Describe your technical issue in detail (e.g., laptop shuts down, Wi-Fi no internet, app crash)…";
         textarea.setAttribute("aria-label", "Message input");
 
         textarea.addEventListener("input", function () {
           autoResizeChatTextarea(textarea);
+          updateSendButtonVisual(textarea, sendBtn);
         });
 
         textarea.addEventListener("keydown", function (e) {
@@ -1438,12 +2306,14 @@
         });
         replyBox.appendChild(textarea);
         autoResizeChatTextarea(textarea);
+        updateSendButtonVisual(textarea, sendBtn);
       } else if (textarea) {
         textarea.placeholder = inv
           ? "Type your reply or test result (Enter to send, Shift+Enter for newline)…"
-          : "Describe your technical issue in detail (e.g., Wi-Fi connected on Windows laptop, websites won't open)…";
+          : "Describe your technical issue in detail (e.g., laptop shuts down, Wi-Fi no internet, app crash)…";
         textarea.disabled = appState.isSubmitting;
         autoResizeChatTextarea(textarea);
+        updateSendButtonVisual(textarea, sendBtn);
       }
 
       if (sendBtn) {
@@ -1483,7 +2353,6 @@
         });
 
         // Optional error banner if last request failed
-        var anchorBefore = answersContainer.parentNode === convContainer ? answersContainer : composer;
         if (appState.errorBannerMessage) {
           var errBanner = document.createElement("div");
           errBanner.className = "cluezy-banner-error";
@@ -1499,62 +2368,99 @@
           });
           errBanner.appendChild(errSpan);
           errBanner.appendChild(dismissBtn);
-          convContainer.insertBefore(errBanner, anchorBefore);
+          convContainer.insertBefore(errBanner, convContainer.firstChild);
         }
 
-        if (inv && Array.isArray(inv.messages) && inv.messages.length > 0) {
-          inv.messages.forEach(function (msg) {
-            var bubble = createChatBubbleDOM(msg.sender, msg.content, formatTime(msg.created_at));
-            convContainer.insertBefore(bubble, anchorBefore);
+        var isNewInvestigation = !inv || !Array.isArray(inv.messages) || inv.messages.length === 0;
+
+        if (isNewInvestigation) {
+          // Centered Middle Layout for New Investigation
+          convContainer.classList.add("cluezy-new-investigation-layout");
+
+          // 1. Hero welcome section
+          var heroSection = document.createElement("div");
+          heroSection.className = "cluezy-hero-welcome-section";
+          heroSection.innerHTML =
+            '<div class="cluezy-hero-badge">' +
+              '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:4px;"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>' +
+              'AI Diagnostic Assistant' +
+            '</div>' +
+            '<h1 class="cluezy-hero-title">Describe your technical problem</h1>' +
+            '<p class="cluezy-hero-subtitle">Type your issue below or choose a scenario to start a step-by-step diagnostic investigation.</p>';
+          convContainer.appendChild(heroSection);
+
+          // 2. Reply composer placed in the middle
+          if (composer) {
+            convContainer.appendChild(composer);
+          }
+
+          // 3. Category Filter Pills
+          var categoriesContainer = document.createElement("div");
+          categoriesContainer.className = "cluezy-starter-categories";
+          var currentCategory = appState.selectedStarterCategory || "all";
+          STARTER_CATEGORIES.forEach(function (cat) {
+            var pill = document.createElement("button");
+            pill.type = "button";
+            pill.className = "cluezy-category-pill" + (cat.id === currentCategory ? " active" : "");
+            pill.textContent = cat.label;
+            pill.addEventListener("click", function () {
+              appState.selectedStarterCategory = cat.id;
+              renderInvestigationView();
+            });
+            categoriesContainer.appendChild(pill);
           });
-        } else if (!inv && !appState.isSubmitting) {
-          // Empty / New Investigation Welcome State
-          var welcomeCard = createChatBubbleDOM(
-            "assistant",
-            "Welcome to Cluezy! Describe any technical issue below (or click one of the common scenarios) to start a structured, evidence-based investigation.",
-            "Now"
-          );
-          convContainer.insertBefore(welcomeCard, anchorBefore);
-        }
+          convContainer.appendChild(categoriesContainer);
 
-        if (appState.isSubmitting) {
-          var loadingBubble = createChatBubbleDOM(
-            "assistant",
-            "Analyzing evidence and evaluating diagnostic rules…",
-            "Working…"
-          );
-          loadingBubble.classList.add("cluezy-typing-indicator");
-          convContainer.insertBefore(loadingBubble, anchorBefore);
-        }
-
-        // Populate quick-reply buttons
-        answersContainer.innerHTML = "";
-        if (!inv) {
-          var starterPrompts = [
-            {
-              label: "Wi-Fi connected, websites not opening (phone works)",
-              prompt:
-                "My Windows laptop is connected to Wi-Fi but websites aren't opening, though my phone works fine on the same network.",
-            },
-            {
-              label: "All devices on Wi-Fi have no internet",
-              prompt:
-                "My laptop is connected to Wi-Fi with no internet, and no other devices or phones on the Wi-Fi can open websites either.",
-            },
-            {
-              label: "Wi-Fi says No Internet (IP starts with 169.254)",
-              prompt:
-                "My Windows laptop is connected to Wi-Fi with no internet access. I ran ipconfig and my IPv4 address starts with 169.254.",
-            },
-          ];
-          starterPrompts.forEach(function (sp) {
-            var btn = createQuickReplyButtonDOM(sp.label, false, function () {
+          // 4. Starter suggestions for active category
+          answersContainer.innerHTML = "";
+          var prompts = STARTER_PROMPTS_BY_CATEGORY[currentCategory] || STARTER_PROMPTS_BY_CATEGORY["all"];
+          prompts.forEach(function (sp) {
+            var card = document.createElement("a");
+            card.href = "javascript:void(0)";
+            card.className = "cluezy-starter-card";
+            card.innerHTML =
+              '<span class="cluezy-starter-card-label">' + escapeHtml(sp.label) + '</span>' +
+              '<span class="cluezy-starter-card-arrow">' +
+                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>' +
+              '</span>';
+            bindActionClick(card, function (e) {
+              if (e) e.preventDefault();
               startNewInvestigation(sp.prompt);
             });
-            answersContainer.appendChild(btn);
+            answersContainer.appendChild(card);
           });
+          convContainer.appendChild(answersContainer);
+
+          if (appState.isSubmitting) {
+            var loadingBubble = createChatBubbleDOM(
+              "assistant",
+              "Analyzing evidence and evaluating diagnostic rules…",
+              "Working…"
+            );
+            loadingBubble.classList.add("cluezy-typing-indicator");
+            convContainer.appendChild(loadingBubble);
+          }
         } else {
-          // Determine suggested responses from the latest assistant message
+          // Active Investigation Conversation Mode
+          convContainer.classList.remove("cluezy-new-investigation-layout");
+
+          inv.messages.forEach(function (msg) {
+            var bubble = createChatBubbleDOM(msg.sender, msg.content, formatTime(msg.created_at));
+            convContainer.appendChild(bubble);
+          });
+
+          if (appState.isSubmitting) {
+            var activeLoadingBubble = createChatBubbleDOM(
+              "assistant",
+              "Analyzing evidence and evaluating diagnostic rules…",
+              "Working…"
+            );
+            activeLoadingBubble.classList.add("cluezy-typing-indicator");
+            convContainer.appendChild(activeLoadingBubble);
+          }
+
+          // Populate quick-reply buttons from latest assistant message
+          answersContainer.innerHTML = "";
           var lastAssistantMsg = null;
           for (var i = inv.messages.length - 1; i >= 0; i--) {
             if (inv.messages[i].sender === "assistant") {
@@ -1577,14 +2483,19 @@
             });
             answersContainer.appendChild(chip);
           });
-        }
 
-        if (answersContainer.parentNode !== convContainer) {
-          convContainer.insertBefore(answersContainer, composer);
-        }
+          if (answersContainer.children.length > 0) {
+            convContainer.appendChild(answersContainer);
+          }
 
-        // Auto-scroll conversation to bottom
-        convContainer.scrollTop = convContainer.scrollHeight;
+          // Pin composer at bottom
+          if (composer) {
+            convContainer.appendChild(composer);
+          }
+
+          // Auto-scroll conversation to bottom
+          convContainer.scrollTop = convContainer.scrollHeight;
+        }
       }
 
       // 4. Render Sidebar Context ("What we know", "Possible causes", "Next step")

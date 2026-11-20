@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="lensGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e9f8ef" stop-opacity="0.95"/>
+      <stop offset="50%" stop-color="#bfe8ce" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#7fc89d" stop-opacity="0.75"/>
+    </linearGradient>
+    <linearGradient id="rimGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1b7a4a"/>
+      <stop offset="50%" stop-color="#145c38"/>
+      <stop offset="100%" stop-color="#0b3821"/>
+    </linearGradient>
+    <linearGradient id="handleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2d4237"/>
+      <stop offset="50%" stop-color="#17251f"/>
+      <stop offset="100%" stop-color="#0a120e"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ecd078"/>
+      <stop offset="50%" stop-color="#c59b27"/>
+      <stop offset="100%" stop-color="#8d6812"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="1" dy="2" stdDeviation="1.5" flood-color="#000" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Detective Handle -->
+  <g filter="url(#shadow)">
+    <!-- Handle wood grip -->
+    <path d="M38 38 L55 55" stroke="url(#handleGrad)" stroke-width="7" stroke-linecap="round"/>
+    <!-- Handle gold ferrule ring -->
+    <path d="M37 37 L43 43" stroke="url(#goldGrad)" stroke-width="8" stroke-linecap="butt"/>
+    <!-- Handle end pommel ring -->
+    <circle cx="55" cy="55" r="3.5" fill="url(#goldGrad)"/>
+    <circle cx="55" cy="55" r="2" fill="#17251f"/>
+  </g>
+
+  <!-- Glass Rim & Lens -->
+  <g filter="url(#shadow)">
+    <!-- Outer Rim -->
+    <circle cx="26" cy="26" r="19" fill="none" stroke="url(#rimGrad)" stroke-width="4.5"/>
+    <!-- Gold accent rim -->
+    <circle cx="26" cy="26" r="17" fill="none" stroke="url(#goldGrad)" stroke-width="1"/>
+    <!-- Glass Lens interior -->
+    <circle cx="26" cy="26" r="16.5" fill="url(#lensGrad)"/>
+    <!-- Glass reflection highlight -->
+    <path d="M15 22 A 12 12 0 0 1 25 14" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity="0.85"/>
+    <circle cx="15" cy="24" r="1.2" fill="#ffffff" opacity="0.75"/>
+  </g>
+</svg>
+

@@ -9,6 +9,8 @@
 	<title>CLUEZY · AI-Powered Technical Problem Solving</title><meta name="description" content="A conversational assistant that understands your issue, asks the right questions, tests possible fixes and helps you resolve it.">
     <meta name="framer-search-index" content="/assets/searchIndex.json">
     <meta name="framer-search-index-fallback" content="/assets/searchIndex-fallback.json">
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+    <link rel="alternate icon" href="/favicon.ico">
     <link href="/images/default-favicon-light.v1.png" rel="icon" media="(prefers-color-scheme: light)">
     <link href="/images/default-favicon-dark.v1.png" rel="icon" media="(prefers-color-scheme: dark)">
     <link rel="apple-touch-icon" href="/images/default-touch-icon.v3.png">
@@ -305,61 +307,153 @@ svg.framer-1t4jxnv { width: 20px !important; height: 20px !important; }
 svg.framer-3frd2, svg.framer-1sza9n4, svg.framer-5d5b9n { width: 30px !important; height: 30px !important; }
 svg.framer-17nuelo, svg.framer-ty2p5p, svg.framer-1sh8un9 { width: 18px !important; height: 18px !important; }
 
-/* Google Sign-in & Profile in Navigation Header */
+/* ==========================================================================
+   Full-Screen Layout Optimization & No-Scroll Guarantee
+   ========================================================================== */
+html, body {
+  width: 100% !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background-color: #ffffff !important;
+}
+
+#main,
+.framer-8kiHx.framer-da9gk2,
+[data-layout-template="true"] {
+  width: 100% !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  box-sizing: border-box !important;
+}
+
+.framer-TUnar.framer-72rtr7,
+.framer-TUnar .framer-1k5d4r9 {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: calc(100vh - 74px) !important;
+  max-height: calc(100vh - 74px) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  box-sizing: border-box !important;
+}
+
+/* Navigation bar: compact height, large brand and clear nav */
+.framer-8kiHx .framer-15hwoiw {
+  flex: 0 0 74px !important;
+  height: 74px !important;
+  min-height: 74px !important;
+  max-height: 74px !important;
+  width: 100% !important;
+  max-width: 1680px !important;
+  margin: 0 auto !important;
+  padding: 14px 64px !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.framer-8kiHx .framer-o7hoit {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  text-decoration: none !important;
+}
+
+.framer-8kiHx .framer-krramk {
+  gap: 40px !important;
+}
+
+.framer-8kiHx .framer-1ytts1e p,
+.framer-8kiHx .framer-u1406l p,
+.framer-8kiHx .framer-1o2suav p {
+  font-size: 15.5px !important;
+  font-weight: 600 !important;
+  color: #2b3d32 !important;
+  transition: color 0.15s ease !important;
+}
+
+.framer-8kiHx .framer-hcmxne:hover p,
+.framer-8kiHx .framer-1nzr6yy:hover p,
+.framer-8kiHx .framer-4u1l5p:hover p {
+  color: #145c38 !important;
+}
+
+/* Long Rectangular Google Sign-In Button */
 .cluezy-google-btn {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 10px !important;
+  gap: 12px !important;
   background-color: #ffffff !important;
   color: #17251f !important;
-  border: 1px solid #c2d6ca !important;
-  border-radius: 9px !important;
-  padding: 10px 18px !important;
+  border: 1.5px solid #145c38 !important;
+  border-radius: 6px !important; /* crisp rectangular edges */
+  padding: 11px 26px !important;
+  min-width: 220px !important; /* long rectangular button */
+  width: auto !important;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
-  font-size: 14px !important;
+  font-size: 14.5px !important;
   font-weight: 600 !important;
   cursor: pointer !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 2px 6px rgba(20, 92, 56, 0.08) !important;
   transition: all 0.2s ease !important;
   text-decoration: none !important;
   line-height: 1 !important;
   box-sizing: border-box !important;
 }
 .cluezy-google-btn:hover {
-  background-color: #f6faf7 !important;
-  border-color: #145c38 !important;
-  color: #145c38 !important;
-  box-shadow: 0 2px 8px rgba(20, 92, 56, 0.12) !important;
+  background-color: #f4f8f5 !important;
+  border-color: #0d4227 !important;
+  color: #0d4227 !important;
+  box-shadow: 0 4px 14px rgba(20, 92, 56, 0.16) !important;
+  transform: translateY(-1px) !important;
 }
 .cluezy-google-btn:active {
   transform: translateY(1px) !important;
 }
+
 .cluezy-header-profile-pill {
   display: inline-flex !important;
   align-items: center !important;
-  gap: 9px !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
   background-color: #ffffff !important;
-  border: 1px solid #c2d6ca !important;
-  border-radius: 9px !important;
-  padding: 6px 14px 6px 8px !important;
+  border: 1.5px solid #145c38 !important;
+  border-radius: 6px !important; /* matching rectangular profile pill */
+  padding: 8px 18px 8px 12px !important;
+  min-width: 210px !important;
   cursor: pointer !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 2px 6px rgba(20, 92, 56, 0.08) !important;
   transition: all 0.2s ease !important;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
-  font-size: 13.5px !important;
+  font-size: 14px !important;
   font-weight: 600 !important;
   color: #17251f !important;
   user-select: none !important;
 }
 .cluezy-header-profile-pill:hover {
-  border-color: #145c38 !important;
-  background-color: #f6faf7 !important;
-  box-shadow: 0 2px 8px rgba(20, 92, 56, 0.12) !important;
+  border-color: #0d4227 !important;
+  background-color: #f4f8f5 !important;
+  box-shadow: 0 4px 14px rgba(20, 92, 56, 0.16) !important;
+  transform: translateY(-1px) !important;
 }
 .cluezy-header-avatar {
-  width: 28px !important;
-  height: 28px !important;
+  width: 30px !important;
+  height: 30px !important;
   border-radius: 50% !important;
   display: flex !important;
   align-items: center !important;
@@ -367,7 +461,7 @@ svg.framer-17nuelo, svg.framer-ty2p5p, svg.framer-1sh8un9 { width: 18px !importa
   background-color: #e2ede5 !important;
   color: #145c38 !important;
   font-weight: 700 !important;
-  font-size: 13px !important;
+  font-size: 14px !important;
   flex-shrink: 0 !important;
   overflow: hidden !important;
 }
@@ -377,6 +471,203 @@ svg.framer-17nuelo, svg.framer-ty2p5p, svg.framer-1sh8un9 { width: 18px !importa
   border-radius: 50% !important;
   object-fit: cover !important;
 }
+
+/* ==========================================================================
+   Hero Section: Centered, Proportional & Fully Filling
+   ========================================================================== */
+.framer-TUnar .framer-iwz5lk {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  width: 100% !important;
+  max-width: 1680px !important;
+  margin: 0 auto !important;
+  padding: 8px 64px !important;
+  gap: 48px !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  overflow: hidden !important;
+}
+
+/* Hero left column */
+.framer-TUnar .framer-xml8iz {
+  flex: 1.25 0 0px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 18px !important;
+  max-width: 720px !important;
+}
+
+/* Hero Title: large, impressive typography */
+.framer-TUnar .framer-lgk7od h1 {
+  font-size: clamp(36px, 3.5vw, 54px) !important;
+  line-height: 1.08 !important;
+  letter-spacing: -0.04em !important;
+  font-weight: 800 !important;
+  margin: 0 !important;
+}
+
+/* Hero Description */
+.framer-TUnar .framer-8lhi3e p {
+  font-size: clamp(15px, 1.2vw, 17.5px) !important;
+  line-height: 1.55 !important;
+  max-width: 620px !important;
+  color: #495e52 !important;
+  margin: 0 !important;
+}
+
+/* Hero Action Buttons */
+.framer-TUnar .framer-9fd05w {
+  display: flex !important;
+  gap: 16px !important;
+  margin-top: 4px !important;
+}
+
+.framer-TUnar .framer-142crrb-container a,
+.framer-TUnar .framer-1s95o7a-container a {
+  padding: 13px 28px !important;
+  border-radius: 8px !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+  transition: all 0.2s ease !important;
+}
+
+.framer-TUnar .framer-142crrb-container a:hover {
+  box-shadow: 0 4px 16px rgba(20, 92, 56, 0.25) !important;
+  transform: translateY(-1px) !important;
+}
+
+.framer-TUnar .framer-1s95o7a-container a:hover {
+  background-color: #f2f7f3 !important;
+  border-color: #145c38 !important;
+  transform: translateY(-1px) !important;
+}
+
+.framer-TUnar .framer-182kob9 p {
+  font-size: 15px !important;
+  font-weight: 600 !important;
+}
+
+/* Hero Right Column: Laptop Illustration */
+.framer-TUnar .framer-ynmtwr {
+  flex: 1 0 0px !important;
+  height: 100% !important;
+  max-height: 400px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+}
+
+/* Backdrop glow behind laptop */
+.framer-TUnar .framer-1lwd1d4 {
+  width: clamp(380px, 34vw, 540px) !important;
+  height: clamp(280px, 25vw, 400px) !important;
+  left: -10px !important;
+  top: -10px !important;
+}
+
+/* Laptop screen */
+.framer-TUnar .framer-1aeb716 {
+  width: clamp(370px, 29vw, 450px) !important;
+  height: clamp(225px, 18.5vw, 280px) !important;
+  padding: 18px 22px !important;
+  border-width: 12px !important;
+  border-radius: 16px !important;
+  box-shadow: 0px 20px 40px rgba(14, 51, 28, 0.2) !important;
+  gap: 10px !important;
+  justify-content: center !important;
+}
+
+.framer-TUnar .framer-7s7dzm p {
+  font-size: 15px !important;
+}
+
+/* Laptop Prompt container */
+.framer-TUnar .framer-qgv8zk {
+  padding: 10px 14px !important;
+  border-radius: 8px !important;
+}
+
+.framer-TUnar .framer-dvzimr p,
+.cluezy-hero-input {
+  font-size: 14px !important;
+}
+
+.framer-TUnar .framer-n16ic8 {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+/* Laptop base */
+.framer-TUnar .framer-17vx2y0 {
+  width: clamp(410px, 33vw, 500px) !important;
+  height: 16px !important;
+  border-bottom-left-radius: 40px !important;
+  border-bottom-right-radius: 40px !important;
+}
+
+/* ==========================================================================
+   Features Section: Docked at Bottom with Perfect Balance
+   ========================================================================== */
+.framer-TUnar .framer-1n8j05n {
+  flex: 0 0 auto !important;
+  width: 100% !important;
+  max-width: 1680px !important;
+  margin: 0 auto !important;
+  padding: 14px 64px 22px 64px !important;
+  gap: 20px !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  border-top: 1px solid rgba(20, 92, 56, 0.08) !important;
+}
+
+.framer-TUnar .framer-r2nvad,
+.framer-TUnar .framer-atl610,
+.framer-TUnar .framer-kw4om,
+.framer-TUnar .framer-9x1ues,
+.framer-TUnar .framer-qlywa4 {
+  flex: 1 1 0px !important;
+  gap: 4px !important;
+  text-align: center !important;
+  align-items: center !important;
+}
+
+.framer-TUnar .framer-h7vf3l,
+.framer-TUnar .framer-197srpv,
+.framer-TUnar .framer-1f1ep1a,
+.framer-TUnar .framer-1dceevk,
+.framer-TUnar .framer-1jiw0z3 {
+  width: 26px !important;
+  height: 26px !important;
+  margin-bottom: 2px !important;
+}
+
+.framer-TUnar .framer-w197fi p,
+.framer-TUnar .framer-u3k7tm p,
+.framer-TUnar .framer-1pj7rtw p,
+.framer-TUnar .framer-vto337 p,
+.framer-TUnar .framer-bhk4to p {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: #17251f !important;
+}
+
+.framer-TUnar .framer-wnmomo p,
+.framer-TUnar .framer-1kgefe7 p,
+.framer-TUnar .framer-z9re7g p,
+.framer-TUnar .framer-1cgwrlg p,
+.framer-TUnar .framer-k1qk3y p {
+  font-size: 12.5px !important;
+  line-height: 1.4 !important;
+  color: #556b5e !important;
+}
 </style>
 </head>
 <body>
@@ -385,7 +676,7 @@ svg.framer-17nuelo, svg.framer-ty2p5p, svg.framer-1sh8un9 { width: 18px !importa
     
     <!-- End of bodyStart -->
 	
-	<div id="main" data-framer-hydrate-v2="{&quot;routeId&quot;:&quot;augiA20Il&quot;,&quot;localeId&quot;:&quot;default&quot;,&quot;breakpoints&quot;:[{&quot;hash&quot;:&quot;72rtr7&quot;,&quot;mediaQuery&quot;:&quot;(min-width: 1200px)&quot;},{&quot;hash&quot;:&quot;gl62q9&quot;,&quot;mediaQuery&quot;:&quot;(min-width: 810px) and (max-width: 1199.98px)&quot;},{&quot;hash&quot;:&quot;1jnz3rc&quot;,&quot;mediaQuery&quot;:&quot;(max-width: 809.98px)&quot;},{&quot;hash&quot;:&quot;da9gk2&quot;,&quot;mediaQuery&quot;:&quot;(min-width: 1200px)&quot;},{&quot;hash&quot;:&quot;1emjcn1&quot;,&quot;mediaQuery&quot;:&quot;(min-width: 810px) and (max-width: 1199.98px)&quot;},{&quot;hash&quot;:&quot;87vn6v&quot;,&quot;mediaQuery&quot;:&quot;(max-width: 809.98px)&quot;}]}" data-framer-ssr-released-at="2026-11-16T18:32:46.632Z" data-framer-page-optimized-at="2026-11-18T11:59:17.797Z" data-framer-generated-page=""><!--$--><style data-framer-html-style="">:root body { background: var(--token-Xk2oUMTnS); }</style><div class="framer-8kiHx framer-2veIr framer-ntMaH framer-da9gk2" data-layout-template="true" style="min-height:100vh;width:auto"><nav class="framer-15hwoiw" data-framer-name="Main navigation"><!--$--><a class="framer-o7hoit framer-1owaeoi" data-framer-name="CLUEZY logo" href="index.html" data-framer-page-link-current="true"><svg data-framer-name="Search" class="framer-4is15 framer-1j3f2zk" role="presentation" viewBox="0 0 24 24"><use href="#1952988144"></use></svg><div class="framer-9ds0qe" data-framer-name="CLUEZY" data-framer-component-type="RichTextContainer" style="transform:none"><h2 class="framer-text framer-styles-preset-1q8oahp" data-styles-preset="MHzn0Xd6D" dir="auto">CLUEZY</h2></div></a><!--/$--><div class="framer-krramk" data-framer-name="Site links"><!--$--><a class="framer-hcmxne framer-1owaeoi" data-framer-name="Home" href="index.html" data-framer-page-link-current="true"><div class="framer-1ytts1e" data-framer-name="Home" data-framer-component-type="RichTextContainer" style="transform:none"><p class="framer-text framer-styles-preset-1hewirz" data-styles-preset="Z1BYkLRW1" dir="auto">Home</p></div></a><!--/$--><!--$--><a class="framer-1nzr6yy framer-1owaeoi" data-framer-name="Knowledge Base" href="/knowledge-base/"><div class="framer-u1406l" data-framer-name="Knowledge Base" data-framer-component-type="RichTextContainer" style="transform:none"><p class="framer-text framer-styles-preset-1hewirz" data-styles-preset="Z1BYkLRW1" dir="auto">Knowledge Base</p></div></a><!--/$--><!--$--><a class="framer-4u1l5p framer-1owaeoi" data-framer-name="Features" href="index.html#features"><div class="framer-1o2suav" data-framer-name="Features" data-framer-component-type="RichTextContainer" style="transform:none"><p class="framer-text framer-styles-preset-1hewirz" data-styles-preset="Z1BYkLRW1" dir="auto">Features</p></div></a><!--/$--></div><div class="framer-1yyoi4g hidden-87vn6v" data-framer-name="Account actions"><div class="ssr-variant" id="cluezy-header-auth-container"><button type="button" id="cluezy-header-google-btn" class="cluezy-google-btn" title="Sign in with Google"><svg class="cluezy-google-icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex-shrink:0"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg><span class="cluezy-google-btn-text">Sign in with Google</span></button></div></div></nav><style data-framer-html-style="">html body { background: rgb(255, 255, 255); }</style><div data-framer-root="" class="framer-TUnar framer-IvaMD framer-WW2yX framer-2veIr framer-O1ECl framer-ntMaH framer-72rtr7" style="min-height:100vh;width:auto;display:contents"><div class="framer-1k5d4r9" data-framer-name="Landing content"><div class="framer-iwz5lk" data-framer-name="Troubleshooting hero"><div class="framer-xml8iz" data-framer-name="Hero copy"><div class="ssr-variant hidden-gl62q9 hidden-1jnz3rc"><div class="framer-lgk7od" data-framer-component-type="RichTextContainer" style="transform:none"><h1 class="framer-text framer-styles-preset-162tg2d" data-styles-preset="On0sDNXvd" dir="auto"></h1><h1 class="framer-text framer-styles-preset-162tg2d" data-styles-preset="On0sDNXvd" dir="auto">Troubleshoot Technical Problems with AI, <span style="--framer-text-color:var(--token-aW35IeuAs)" class="framer-text">Step by Step.</span></h1></div></div><div class="framer-8lhi3e" data-framer-name="A conversational assistant that understa" data-framer-component-type="RichTextContainer" style="transform:none"><p class="framer-text framer-styles-preset-g5gvkz" data-styles-preset="HNZA9_QSM" dir="auto" style="--framer-text-color:var(--token-z7x8e0_dE)"><span style="--framer-text-color:var(--token-z7x8e0_dE)" class="framer-text">A conversational assistant that understands your issue, asks the right questions, tests possible fixes and helps you resolve it — not just guess the answer.</span></p></div><div class="framer-9fd05w" data-framer-name="Hero actions"><!--$--><div class="framer-142crrb-container" data-framer-name="Start Troubleshooting" name="Start Troubleshooting"><!--$--><a name="Start Troubleshooting" class="framer-6VCSX framer-ntMaH framer-9jeig7 framer-v-9jeig7 framer-tkxn9d" data-border="true" data-framer-name="Default" href="/investigation/" tabindex="0" style="--border-bottom-width:1px;--border-color:var(--token-aW35IeuAs);--border-left-width:1px;--border-right-width:1px;--border-style:solid;--border-top-width:1px;background-color:rgb(20, 92, 56);border-bottom-left-radius:9px;border-bottom-right-radius:9px;border-top-left-radius:9px;border-top-right-radius:9px;opacity:1"><div class="framer-182kob9" data-framer-name="Label" data-framer-component-type="RichTextContainer" style="--extracted-1w3ko1f: var(--variable-reference-Fq3N0eamG-ezvJGKDD1); --extracted-r6o4lv: var(--variable-reference-Fq3N0eamG-ezvJGKDD1); --variable-reference-Fq3N0eamG-ezvJGKDD1: rgb(255, 255, 255); transform: none; opacity: 1;"><p class="framer-text framer-styles-preset-1hewirz" data-styles-preset="Z1BYkLRW1" dir="auto" style="--framer-text-color:var(--extracted-r6o4lv, var(--variable-reference-Fq3N0eamG-ezvJGKDD1))"><span class="framer-text" style="--framer-text-color:var(--extracted-1w3ko1f, var(--variable-reference-Fq3N0eamG-ezvJGKDD1))">Start Troubleshooting</span></p></div></a><!--/$--></div><!--/$--><!--$--><div class="framer-1s95o7a-container" data-framer-name="See How It Works" name="See How It Works"><!--$--><a name="See How It Works" class="framer-6VCSX framer-ntMaH framer-9jeig7 framer-v-9jeig7 framer-tkxn9d" data-border="true" data-framer-name="Default" href="/solution/" tabindex="0" style="--border-bottom-width:1px;--border-color:var(--token-aW35IeuAs);--border-left-width:1px;--border-right-width:1px;--border-style:solid;--border-top-width:1px;background-color:rgb(252, 251, 249);border-bottom-left-radius:9px;border-bottom-right-radius:9px;border-top-left-radius:9px;border-top-right-radius:9px;opacity:1"><div class="framer-182kob9" data-framer-name="Label" data-framer-component-type="RichTextContainer" style="--extracted-1w3ko1f: var(--variable-reference-Fq3N0eamG-ezvJGKDD1); --extracted-r6o4lv: var(--variable-reference-Fq3N0eamG-ezvJGKDD1); --variable-reference-Fq3N0eamG-ezvJGKDD1: rgb(23, 37, 31); transform: none; opacity: 1;"><p class="framer-text framer-styles-preset-1hewirz" data-styles-preset="Z1BYkLRW1" dir="auto" style="--framer-text-color:var(--extracted-r6o4lv, var(--variable-reference-Fq3N0eamG-ezvJGKDD1))"><span class="framer-text" style="--framer-text-color:var(--extracted-1w3ko1f, var(--variable-reference-Fq3N0eamG-ezvJGKDD1))">See How It Works</span></p></div></a><!--/$--></div><!--/$--></div></div><div class="framer-ynmtwr" data-framer-name="Laptop illustration"><div class="ssr-variant hidden-1jnz3rc"><div data-framer-component-type="SVG" data-framer-name="Mint backdrop" class="framer-1lwd1d4" aria-hidden="true" style="image-rendering:pixelated;flex-shrink:0;background-size:100% 100%;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 xmlns:xlink=%22http://www.w3.org/1999/xlink%22 viewBox=%220 0 520 390%22 overflow=%22visible%22><path d=%22M 260 0 C 403.594 0 520 87.304 520 195 C 520 302.696 403.594 390 260 390 C 116.406 390 0 302.696 0 195 C 0 87.304 116.406 0 260 0 Z%22 fill=%22%23DFEEDB%22></path></svg>');transform:rotate(-15deg)"></div></div><div class="framer-1aeb716" data-border="true" data-framer-name="Laptop display" style="transform:rotate(-6deg) skewX(-8deg)"><svg data-framer-name="Search" class="framer-4is15 framer-1cr6i5q" role="presentation" viewBox="0 0 24 24"><use href="#1952988144"></use></svg><div class="framer-1xsnb7b" data-framer-name="CLUEZY" data-framer-component-type="RichTextContainer" style="transform:none"><h2 class="framer-text framer-styles-preset-1q8oahp" data-styles-preset="MHzn0Xd6D" dir="auto" style="--framer-text-alignment:center;--framer-text-color:var(--token-I3uub_v4E)"><span style="--framer-text-color:var(--token-I3uub_v4E)" class="framer-text">CLUEZY</span></h2></div><div class="framer-7s7dzm" data-framer-name="How can I help you today?" data-framer-component-type="RichTextContainer" style="transform:none"><p class="framer-text framer-styles-preset-150qgy0" data-styles-preset="LwAm2Brje" dir="auto" style="--framer-text-alignment:center;--framer-text-color:var(--token-I3uub_v4E)"><span style="--framer-text-color:var(--token-I3uub_v4E)" class="framer-text">How can I help you today?</span></p></div><div class="framer-qgv8zk" data-framer-name="Laptop prompt"><div class="framer-dvzimr" data-framer-name="My laptop is very slow..." data-framer-component-type="RichTextContainer" style="transform:none"><p class="framer-text framer-styles-preset-150qgy0" data-styles-preset="LwAm2Brje" dir="auto">My laptop is very slow…</p></div><svg data-framer-name="Send" class="framer-o99Un framer-n16ic8" role="presentation" viewBox="0 0 24 24"><use href="#2033914333"></use></svg></div></div><div class="framer-17vx2y0" data-framer-name="Laptop base" style="transform:rotate(-3deg)"></div></div></div><div class="framer-1n8j05n" data-framer-name="Features" id="features"><div class="framer-r2nvad" data-framer-name="Chat Naturally"><svg data-framer-name="Monitor" class="framer-QhhDJ framer-h7vf3l" role="presentation" viewBox="0 0 24 24"><use href="#4199002263"></use></svg><div class="framer-w197fi" data-framer-name="Chat Naturally" data-framer-component-type="RichTextContainer" style="transform:none"><p class="framer-text framer-styles-preset-1hewirz" data-styles-preset="Z1BYkLRW1" dir="auto" style="--framer-text-alignment:center">Chat Naturally</p></div><div class="framer-wnmomo" data-framer-name="Describe your problem in your own words" data-framer-component-type="RichTextContainer" style="transform:none"><p class="framer-text framer-styles-preset-150qgy0" data-styles-preset="LwAm2Brje" dir="auto" style="--framer-text-alignment:center">Describe your problem in your own words</p></div></div><div class="framer-atl610" data-framer-name="Investigate &amp; Test"><svg data-framer-name="Layers" class="framer-CxKJY framer-197srpv" role="presentation" viewBox="0 0 24 24"><use href="#2039305298"></use></svg><div class="framer-u3k7tm" data-framer-name="Investigate &amp; Test" data-framer-component-type="RichTextContainer" style="transform:none"><p class="framer-text framer-styles-preset-1hewirz" data-styles-preset="Z1BYkLRW1" dir="auto" style="--framer-text-alignment:center">Investigate &amp; Test</p></div><div class="framer-1kgefe7" data-framer-name="Ask smart questions and guide you with c" data-framer-component-type="RichTextContainer" style="transform:none"><p class="framer-text framer-styles-preset-150qgy0" data-styles-preset="LwAm2Brje" dir="auto" style="--framer-text-alignment:center">Ask smart questions and guide you with checks</p></div></div><div class="framer-kw4om" data-framer-name="Multiple Possibilities"><svg data-framer-name="Zap" class="framer-t9b6j framer-1f1ep1a" role="presentation" viewBox="0 0 24 24"><use href="#3408069395"></use></svg><div class="framer-1pj7rtw" data-framer-name="Multiple Possibilities" data-framer-component-type="RichTextContainer" style="transform:none"><p class="framer-text framer-styles-preset-1hewirz" data-styles-preset="Z1BYkLRW1" dir="auto" style="--framer-text-alignment:center">Multiple Possibilities</p></div><div class="framer-z9re7g" data-framer-name="Explore and test possible causes step by" data-framer-component-type="RichTextContainer" style="transform:none"><p class="framer-text framer-styles-preset-150qgy0" data-styles-preset="LwAm2Brje" dir="auto" style="--framer-text-alignment:center">Explore and test possible causes step by step</p></div></div><div class="framer-9x1ues" data-framer-name="Verified Solutions"><svg data-framer-name="Check" class="framer-FCBgc framer-1dceevk" role="presentation" viewBox="0 0 24 24"><use href="#3338047389"></use></svg><div class="framer-vto337" data-framer-name="Verified Solutions" data-framer-component-type="RichTextContainer" style="transform:none"><p class="framer-text framer-styles-preset-1hewirz" data-styles-preset="Z1BYkLRW1" dir="auto" style="--framer-text-alignment:center">Verified Solutions</p></div><div class="framer-1cgwrlg" data-framer-name="Recommended fixes from trusted technical" data-framer-component-type="RichTextContainer" style="transform:none"><p class="framer-text framer-styles-preset-150qgy0" data-styles-preset="LwAm2Brje" dir="auto" style="--framer-text-alignment:center">Recommended fixes from trusted technical sources</p></div></div><div class="framer-qlywa4" data-framer-name="Keep Going"><svg data-framer-name="Activity" class="framer-Mv0fb framer-1jiw0z3" role="presentation" viewBox="0 0 24 24"><use href="#3261614140"></use></svg><div class="framer-bhk4to" data-framer-name="Keep Going" data-framer-component-type="RichTextContainer" style="transform:none"><p class="framer-text framer-styles-preset-1hewirz" data-styles-preset="Z1BYkLRW1" dir="auto" style="--framer-text-alignment:center">Keep Going</p></div><div class="framer-k1qk3y" data-framer-name="Keep going until your problem is resolve" data-framer-component-type="RichTextContainer" style="transform:none"><p class="framer-text framer-styles-preset-150qgy0" data-styles-preset="LwAm2Brje" dir="auto" style="--framer-text-alignment:center">Keep going until your problem is resolved</p></div></div></div></div></div><div id="overlay"></div><div class="framer-1ie4q0e"></div></div><div id="template-overlay"></div><!--/$--></div>
+	<div id="main" data-framer-hydrate-v2="{&quot;routeId&quot;:&quot;augiA20Il&quot;,&quot;localeId&quot;:&quot;default&quot;,&quot;breakpoints&quot;:[{&quot;hash&quot;:&quot;72rtr7&quot;,&quot;mediaQuery&quot;:&quot;(min-width: 1200px)&quot;},{&quot;hash&quot;:&quot;gl62q9&quot;,&quot;mediaQuery&quot;:&quot;(min-width: 810px) and (max-width: 1199.98px)&quot;},{&quot;hash&quot;:&quot;1jnz3rc&quot;,&quot;mediaQuery&quot;:&quot;(max-width: 809.98px)&quot;},{&quot;hash&quot;:&quot;da9gk2&quot;,&quot;mediaQuery&quot;:&quot;(min-width: 1200px)&quot;},{&quot;hash&quot;:&quot;1emjcn1&quot;,&quot;mediaQuery&quot;:&quot;(min-width: 810px) and (max-width: 1199.98px)&quot;},{&quot;hash&quot;:&quot;87vn6v&quot;,&quot;mediaQuery&quot;:&quot;(max-width: 809.98px)&quot;}]}" data-framer-ssr-released-at="2026-11-16T18:32:46.632Z" data-framer-page-optimized-at="2026-11-18T11:59:17.797Z" data-framer-generated-page=""><!--$--><style data-framer-html-style="">:root body { background: var(--token-Xk2oUMTnS); }</style><div class="framer-8kiHx framer-2veIr framer-ntMaH framer-da9gk2" data-layout-template="true" style="min-height:100vh;width:auto"><nav class="framer-15hwoiw" data-framer-name="Main navigation"><!--$--><a class="framer-o7hoit framer-1owaeoi" data-framer-name="CLUEZY logo" href="index.html" data-framer-page-link-current="true" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;"><img src="/images/logo.png" alt="CLUEZY logo" style="height:36px;width:auto;object-fit:contain;flex-shrink:0;"><img src="/images/text.png" alt="CLUEZY" style="height:24px;width:auto;object-fit:contain;flex-shrink:0;"></a><!--/$--><div class="framer-krramk" data-framer-name="Site links"><!--$--><a class="framer-hcmxne framer-1owaeoi" data-framer-name="Home" href="index.html" data-framer-page-link-current="true"><div class="framer-1ytts1e" data-framer-name="Home" data-framer-component-type="RichTextContainer" style="transform:none"><p class="framer-text framer-styles-preset-1hewirz" data-styles-preset="Z1BYkLRW1" dir="auto">Home</p></div></a><!--/$--><!--$--><a class="framer-1nzr6yy framer-1owaeoi" data-framer-name="Knowledge Base" href="/knowledge-base/"><div class="framer-u1406l" data-framer-name="Knowledge Base" data-framer-component-type="RichTextContainer" style="transform:none"><p class="framer-text framer-styles-preset-1hewirz" data-styles-preset="Z1BYkLRW1" dir="auto">Knowledge Base</p></div></a><!--/$--><!--$--><a class="framer-4u1l5p framer-1owaeoi" data-framer-name="Features" href="index.html#features"><div class="framer-1o2suav" data-framer-name="Features" data-framer-component-type="RichTextContainer" style="transform:none"><p class="framer-text framer-styles-preset-1hewirz" data-styles-preset="Z1BYkLRW1" dir="auto">Features</p></div></a><!--/$--></div><div class="framer-1yyoi4g hidden-87vn6v" data-framer-name="Account actions"><div class="ssr-variant" id="cluezy-header-auth-container"><button type="button" id="cluezy-header-google-btn" class="cluezy-google-btn" title="Sign in with Google"><svg class="cluezy-google-icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex-shrink:0"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg><span class="cluezy-google-btn-text">Sign in with Google</span></button></div></div></nav><style data-framer-html-style="">html body { background: rgb(255, 255, 255); }</style><div data-framer-root="" class="framer-TUnar framer-IvaMD framer-WW2yX framer-2veIr framer-O1ECl framer-ntMaH framer-72rtr7" style="min-height:100vh;width:auto;display:contents"><div class="framer-1k5d4r9" data-framer-name="Landing content"><div class="framer-iwz5lk" data-framer-name="Troubleshooting hero"><div class="framer-xml8iz" data-framer-name="Hero copy"><div class="ssr-variant hidden-gl62q9 hidden-1jnz3rc"><div class="framer-lgk7od" data-framer-component-type="RichTextContainer" style="transform:none"><h1 class="framer-text framer-styles-preset-162tg2d" data-styles-preset="On0sDNXvd" dir="auto"></h1><h1 class="framer-text framer-styles-preset-162tg2d" data-styles-preset="On0sDNXvd" dir="auto">Troubleshoot Technical Problems with AI, <span style="--framer-text-color:var(--token-aW35IeuAs)" class="framer-text">Step by Step.</span></h1></div></div><div class="framer-8lhi3e" data-framer-name="A conversational assistant that understa" data-framer-component-type="RichTextContainer" style="transform:none"><p class="framer-text framer-styles-preset-g5gvkz" data-styles-preset="HNZA9_QSM" dir="auto" style="--framer-text-color:var(--token-z7x8e0_dE)"><span style="--framer-text-color:var(--token-z7x8e0_dE)" class="framer-text">A conversational assistant that understands your issue, asks the right questions, tests possible fixes and helps you resolve it — not just guess the answer.</span></p></div><div class="framer-9fd05w" data-framer-name="Hero actions"><!--$--><div class="framer-142crrb-container" data-framer-name="Start Troubleshooting" name="Start Troubleshooting"><!--$--><a name="Start Troubleshooting" class="framer-6VCSX framer-ntMaH framer-9jeig7 framer-v-9jeig7 framer-tkxn9d" data-border="true" data-framer-name="Default" href="/investigation/" tabindex="0" style="--border-bottom-width:1px;--border-color:var(--token-aW35IeuAs);--border-left-width:1px;--border-right-width:1px;--border-style:solid;--border-top-width:1px;background-color:rgb(20, 92, 56);border-bottom-left-radius:9px;border-bottom-right-radius:9px;border-top-left-radius:9px;border-top-right-radius:9px;opacity:1"><div class="framer-182kob9" data-framer-name="Label" data-framer-component-type="RichTextContainer" style="--extracted-1w3ko1f: var(--variable-reference-Fq3N0eamG-ezvJGKDD1); --extracted-r6o4lv: var(--variable-reference-Fq3N0eamG-ezvJGKDD1); --variable-reference-Fq3N0eamG-ezvJGKDD1: rgb(255, 255, 255); transform: none; opacity: 1;"><p class="framer-text framer-styles-preset-1hewirz" data-styles-preset="Z1BYkLRW1" dir="auto" style="--framer-text-color:var(--extracted-r6o4lv, var(--variable-reference-Fq3N0eamG-ezvJGKDD1))"><span class="framer-text" style="--framer-text-color:var(--extracted-1w3ko1f, var(--variable-reference-Fq3N0eamG-ezvJGKDD1))">Start Troubleshooting</span></p></div></a><!--/$--></div><!--/$--><!--$--><div class="framer-1s95o7a-container" data-framer-name="See How It Works" name="See How It Works"><!--$--><a name="See How It Works" class="framer-6VCSX framer-ntMaH framer-9jeig7 framer-v-9jeig7 framer-tkxn9d" data-border="true" data-framer-name="Default" href="/solution/" tabindex="0" style="--border-bottom-width:1px;--border-color:var(--token-aW35IeuAs);--border-left-width:1px;--border-right-width:1px;--border-style:solid;--border-top-width:1px;background-color:rgb(252, 251, 249);border-bottom-left-radius:9px;border-bottom-right-radius:9px;border-top-left-radius:9px;border-top-right-radius:9px;opacity:1"><div class="framer-182kob9" data-framer-name="Label" data-framer-component-type="RichTextContainer" style="--extracted-1w3ko1f: var(--variable-reference-Fq3N0eamG-ezvJGKDD1); --extracted-r6o4lv: var(--variable-reference-Fq3N0eamG-ezvJGKDD1); --variable-reference-Fq3N0eamG-ezvJGKDD1: rgb(23, 37, 31); transform: none; opacity: 1;"><p class="framer-text framer-styles-preset-1hewirz" data-styles-preset="Z1BYkLRW1" dir="auto" style="--framer-text-color:var(--extracted-r6o4lv, var(--variable-reference-Fq3N0eamG-ezvJGKDD1))"><span class="framer-text" style="--framer-text-color:var(--extracted-1w3ko1f, var(--variable-reference-Fq3N0eamG-ezvJGKDD1))">See How It Works</span></p></div></a><!--/$--></div><!--/$--></div></div><div class="framer-ynmtwr" data-framer-name="Laptop illustration"><div class="ssr-variant hidden-1jnz3rc"><div data-framer-component-type="SVG" data-framer-name="Mint backdrop" class="framer-1lwd1d4" aria-hidden="true" style="image-rendering:pixelated;flex-shrink:0;background-size:100% 100%;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 xmlns:xlink=%22http://www.w3.org/1999/xlink%22 viewBox=%220 0 520 390%22 overflow=%22visible%22><path d=%22M 260 0 C 403.594 0 520 87.304 520 195 C 520 302.696 403.594 390 260 390 C 116.406 390 0 302.696 0 195 C 0 87.304 116.406 0 260 0 Z%22 fill=%22%23DFEEDB%22></path></svg>');transform:rotate(-15deg)"></div></div><div class="framer-1aeb716" data-border="true" data-framer-name="Laptop display" style="transform:rotate(-6deg) skewX(-8deg)"><div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:2px;"><img src="/images/logo.png" alt="CLUEZY logo" style="height:32px;width:auto;object-fit:contain;filter:brightness(0) invert(1);"><img src="/images/text.png" alt="CLUEZY" style="height:20px;width:auto;object-fit:contain;filter:brightness(0) invert(1);"></div><div class="framer-7s7dzm" data-framer-name="How can I help you today?" data-framer-component-type="RichTextContainer" style="transform:none"><p class="framer-text framer-styles-preset-150qgy0" data-styles-preset="LwAm2Brje" dir="auto" style="--framer-text-alignment:center;--framer-text-color:var(--token-I3uub_v4E)"><span style="--framer-text-color:var(--token-I3uub_v4E)" class="framer-text">How can I help you today?</span></p></div><div class="framer-qgv8zk" data-framer-name="Laptop prompt"><div class="framer-dvzimr" data-framer-name="My laptop is very slow..." data-framer-component-type="RichTextContainer" style="transform:none"><p class="framer-text framer-styles-preset-150qgy0" data-styles-preset="LwAm2Brje" dir="auto">My laptop is very slow…</p></div><svg data-framer-name="Send" class="framer-o99Un framer-n16ic8" role="presentation" viewBox="0 0 24 24"><use href="#2033914333"></use></svg></div></div><div class="framer-17vx2y0" data-framer-name="Laptop base" style="transform:rotate(-3deg)"></div></div></div><div class="framer-1n8j05n" data-framer-name="Features" id="features"><div class="framer-r2nvad" data-framer-name="Chat Naturally"><svg data-framer-name="Monitor" class="framer-QhhDJ framer-h7vf3l" role="presentation" viewBox="0 0 24 24"><use href="#4199002263"></use></svg><div class="framer-w197fi" data-framer-name="Chat Naturally" data-framer-component-type="RichTextContainer" style="transform:none"><p class="framer-text framer-styles-preset-1hewirz" data-styles-preset="Z1BYkLRW1" dir="auto" style="--framer-text-alignment:center">Chat Naturally</p></div><div class="framer-wnmomo" data-framer-name="Describe your problem in your own words" data-framer-component-type="RichTextContainer" style="transform:none"><p class="framer-text framer-styles-preset-150qgy0" data-styles-preset="LwAm2Brje" dir="auto" style="--framer-text-alignment:center">Describe your problem in your own words</p></div></div><div class="framer-atl610" data-framer-name="Investigate &amp; Test"><svg data-framer-name="Layers" class="framer-CxKJY framer-197srpv" role="presentation" viewBox="0 0 24 24"><use href="#2039305298"></use></svg><div class="framer-u3k7tm" data-framer-name="Investigate &amp; Test" data-framer-component-type="RichTextContainer" style="transform:none"><p class="framer-text framer-styles-preset-1hewirz" data-styles-preset="Z1BYkLRW1" dir="auto" style="--framer-text-alignment:center">Investigate &amp; Test</p></div><div class="framer-1kgefe7" data-framer-name="Ask smart questions and guide you with c" data-framer-component-type="RichTextContainer" style="transform:none"><p class="framer-text framer-styles-preset-150qgy0" data-styles-preset="LwAm2Brje" dir="auto" style="--framer-text-alignment:center">Ask smart questions and guide you with checks</p></div></div><div class="framer-kw4om" data-framer-name="Multiple Possibilities"><svg data-framer-name="Zap" class="framer-t9b6j framer-1f1ep1a" role="presentation" viewBox="0 0 24 24"><use href="#3408069395"></use></svg><div class="framer-1pj7rtw" data-framer-name="Multiple Possibilities" data-framer-component-type="RichTextContainer" style="transform:none"><p class="framer-text framer-styles-preset-1hewirz" data-styles-preset="Z1BYkLRW1" dir="auto" style="--framer-text-alignment:center">Multiple Possibilities</p></div><div class="framer-z9re7g" data-framer-name="Explore and test possible causes step by" data-framer-component-type="RichTextContainer" style="transform:none"><p class="framer-text framer-styles-preset-150qgy0" data-styles-preset="LwAm2Brje" dir="auto" style="--framer-text-alignment:center">Explore and test possible causes step by step</p></div></div><div class="framer-9x1ues" data-framer-name="Verified Solutions"><svg data-framer-name="Check" class="framer-FCBgc framer-1dceevk" role="presentation" viewBox="0 0 24 24"><use href="#3338047389"></use></svg><div class="framer-vto337" data-framer-name="Verified Solutions" data-framer-component-type="RichTextContainer" style="transform:none"><p class="framer-text framer-styles-preset-1hewirz" data-styles-preset="Z1BYkLRW1" dir="auto" style="--framer-text-alignment:center">Verified Solutions</p></div><div class="framer-1cgwrlg" data-framer-name="Recommended fixes from trusted technical" data-framer-component-type="RichTextContainer" style="transform:none"><p class="framer-text framer-styles-preset-150qgy0" data-styles-preset="LwAm2Brje" dir="auto" style="--framer-text-alignment:center">Recommended fixes from trusted technical sources</p></div></div><div class="framer-qlywa4" data-framer-name="Keep Going"><svg data-framer-name="Activity" class="framer-Mv0fb framer-1jiw0z3" role="presentation" viewBox="0 0 24 24"><use href="#3261614140"></use></svg><div class="framer-bhk4to" data-framer-name="Keep Going" data-framer-component-type="RichTextContainer" style="transform:none"><p class="framer-text framer-styles-preset-1hewirz" data-styles-preset="Z1BYkLRW1" dir="auto" style="--framer-text-alignment:center">Keep Going</p></div><div class="framer-k1qk3y" data-framer-name="Keep going until your problem is resolve" data-framer-component-type="RichTextContainer" style="transform:none"><p class="framer-text framer-styles-preset-150qgy0" data-styles-preset="LwAm2Brje" dir="auto" style="--framer-text-alignment:center">Keep going until your problem is resolved</p></div></div></div></div></div><div id="overlay"></div><div class="framer-1ie4q0e"></div></div><div id="template-overlay"></div><!--/$--></div>
 	<script>!function(){var w="framer_variant";function u(a,r){let e=r.indexOf("#"),t=e===-1?r:r.substring(0,e),o=e===-1?"":r.substring(e),n=t.indexOf("?"),h=n===-1?t:t.substring(0,n),d=n===-1?"":t.substring(n),s=new URLSearchParams(d),m=new URLSearchParams(a);for(let[i,l]of m)s.has(i)||i!==w&&s.append(i,l);let c=s.toString();return c===""?t+o:h+"?"+c+o}var g='div#main a[href^="#"],div#main a[href^="/"],div#main a[href^="."]',f="div#main a[data-framer-preserve-params]",S=document.currentScript?.hasAttribute("data-preserve-internal-params");if(window.location.search&&!navigator.webdriver&&!/bot|-google|google-|yandex|ia_archiver|crawl|spider/iu.test(navigator.userAgent)){let a=document.querySelectorAll(S?`${g},${f}`:f);for(let r of a){let e=u(window.location.search,r.href);r.setAttribute("href",e)}}
 }()</script>
 

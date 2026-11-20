@@ -1,3 +1,13 @@
+---
+title: Cluezy Backend API
+emoji: 🔍
+colorFrom: green
+colorTo: darkgreen
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # CLUEZY — AI-Powered Technical Problem Solving Platform
 
 CLUEZY is an intelligent conversational troubleshooting assistant that helps users diagnose and resolve complex technical problems step by step. Rather than making speculative guesses, CLUEZY systematically analyzes issues, establishes confirmed evidence, prioritizes candidate causes, guides users through targeted verification checks, and walks through verified solutions.
