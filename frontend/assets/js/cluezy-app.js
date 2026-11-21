@@ -30,6 +30,19 @@
   };
 
   /**
+   * Escape HTML special characters to prevent XSS when building HTML strings.
+   */
+  function escapeHtml(str) {
+    if (str === null || str === undefined) return "";
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  /**
    * Format an ISO timestamp into a concise local time string (e.g., "10:25 AM").
    */
   function formatTime(isoString) {
@@ -2450,7 +2463,7 @@
           convContainer.classList.remove("cluezy-new-investigation-layout");
 
           inv.messages.forEach(function (msg) {
-            var bubble = createChatBubbleDOM(msg.sender, msg.content, formatTime(msg.created_at));
+            var bubble = createChatBubbleDOM(msg.sender, msg.content || msg.text || "", formatTime(msg.created_at));
             convContainer.appendChild(bubble);
           });
 
@@ -2474,8 +2487,10 @@
             }
           }
           var suggestions =
-            lastAssistantMsg && Array.isArray(lastAssistantMsg.suggested_responses)
+            lastAssistantMsg && Array.isArray(lastAssistantMsg.suggested_responses) && lastAssistantMsg.suggested_responses.length > 0
               ? lastAssistantMsg.suggested_responses
+              : lastAssistantMsg && lastAssistantMsg.extra_data && Array.isArray(lastAssistantMsg.extra_data.quick_replies)
+              ? lastAssistantMsg.extra_data.quick_replies
               : [];
           var qId =
             lastAssistantMsg && lastAssistantMsg.extra_data
@@ -2806,7 +2821,14 @@
     var rawText = (textarea.value || "").trim();
     if (!rawText) return;
 
-    if (!appState.currentInvestigation) {
+    var inv = appState.currentInvestigation;
+    var isNew =
+      !inv ||
+      !Array.isArray(inv.messages) ||
+      inv.messages.length === 0 ||
+      inv.status === "resolved";
+
+    if (isNew) {
       await startNewInvestigation(rawText, textarea);
       return;
     }
@@ -2829,9 +2851,9 @@
     autoResizeChatTextarea(textarea);
     appState.isSubmitting = true;
     appState.errorBannerMessage = null;
-    renderInvestigationView();
 
     try {
+      renderInvestigationView();
       var updated = await API.submitMessage(inv.reference_id, savedDraft, qId);
       appState.currentInvestigation = updated;
     } catch (err) {
@@ -2859,9 +2881,9 @@
 
     appState.isSubmitting = true;
     appState.errorBannerMessage = null;
-    renderInvestigationView();
 
     try {
+      renderInvestigationView();
       var created = await API.createInvestigation(text);
       if (textareaToRestore) {
         textareaToRestore.value = "";
@@ -3572,22 +3594,17 @@
           API.setCurrentInvestigationId(urlId);
         }
 
-        if (!targetId && !isExplicitNew) {
-          // Check if the user has a recent investigation in Supabase
-          try {
-            var recentList = await API.listInvestigations({ page: 1, page_size: 1 });
-            if (recentList && recentList.items && recentList.items.length > 0) {
-              targetId = recentList.items[0].reference_id;
-              API.setCurrentInvestigationId(targetId);
-            }
-          } catch (_e) {}
-        }
-
         if (targetId) {
           try {
             var inv = await API.getInvestigation(targetId);
-            appState.currentInvestigation = inv;
-            API.setCurrentInvestigationId(inv.reference_id);
+            // If the investigation is already resolved and user didn't explicitly request it by ?id=, start fresh
+            if (inv && inv.status === "resolved" && !urlId) {
+              API.setCurrentInvestigationId(null);
+              appState.currentInvestigation = null;
+            } else {
+              appState.currentInvestigation = inv;
+              API.setCurrentInvestigationId(inv.reference_id);
+            }
           } catch (_notFoundErr) {
             API.setCurrentInvestigationId(null);
             appState.currentInvestigation = null;

@@ -220,13 +220,16 @@
           {
             id: "m1",
             sender: "user",
+            content: problemDescription,
             text: problemDescription,
             created_at: new Date().toISOString()
           },
           {
             id: "m2",
             sender: "assistant",
+            content: firstQuestion,
             text: firstQuestion,
+            suggested_responses: quickReplies,
             created_at: new Date(Date.now() + 200).toISOString(),
             extra_data: {
               question_id: "q1",
@@ -285,6 +288,7 @@
         inv.messages.push({
           id: "m_" + Date.now(),
           sender: "user",
+          content: text,
           text: text,
           created_at: new Date().toISOString()
         });
@@ -365,7 +369,9 @@
       inv.messages.push({
         id: "m_reply_" + Date.now(),
         sender: "assistant",
+        content: replyText,
         text: replyText,
+        suggested_responses: qReplies,
         created_at: new Date(Date.now() + 300).toISOString(),
         extra_data: {
           question_id: "q_" + Date.now(),
