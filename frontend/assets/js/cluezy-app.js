@@ -206,11 +206,12 @@
       ".cluezy-new-investigation-layout {",
       "  display: flex !important;",
       "  flex-direction: column !important;",
-      "  justify-content: center !important;",
+      "  justify-content: flex-start !important;",
       "  align-items: center !important;",
       "  min-height: 100% !important;",
-      "  padding: 24px 20px 40px !important;",
+      "  padding: 28px 20px 48px !important;",
       "  box-sizing: border-box !important;",
+      "  overflow-y: auto !important;",
       "}",
       ".cluezy-new-investigation-layout [data-framer-name='Reply composer'],",
       ".cluezy-new-investigation-layout .framer-sz1ut5 {",
@@ -2244,7 +2245,9 @@
       // 2. Ensure Reply Composer has an interactive <textarea>
       var composer = root.querySelector('[data-framer-name="Reply composer"]');
       var replyBox = composer ? composer.querySelector('[data-framer-name="Type your reply..."]') : null;
-      var sendBtn = composer ? composer.querySelector('[data-framer-name="Send reply"]') : null;
+      var sendBtn = composer
+        ? composer.querySelector('[data-framer-name="Send reply"], [data-framer-name="Send"], a[data-framer-name*="Send"]')
+        : null;
       var textarea = replyBox ? replyBox.querySelector("textarea.cluezy-chat-textarea") : null;
 
       if (composer) {
@@ -2511,119 +2514,124 @@
    * Render the right-hand Investigation Context sidebar.
    */
   function renderDiagnosticSidebar(root, inv) {
-    var sidebar = root.querySelector('[data-framer-name="Investigation context"]');
-    if (!sidebar) return;
+    var sidebars = root.querySelectorAll(
+      '[data-framer-name="Investigation context"], [data-framer-name="Investigation Context"]'
+    );
+    if (!sidebars || sidebars.length === 0) return;
 
-    var whatWeKnowHeader = sidebar.querySelector('[data-framer-name="What we know"]');
-    var possibleCausesHeader = sidebar.querySelector('[data-framer-name="Possible causes"]');
-    var nextStepHeader = sidebar.querySelector('[data-framer-name="Next step"]');
-    var nextCheckLink = sidebar.querySelector('[data-framer-name="Next check"]');
+    sidebars.forEach(function (sidebar) {
+      var whatWeKnowHeader = sidebar.querySelector('[data-framer-name="What we know"]');
+      var possibleCausesHeader = sidebar.querySelector('[data-framer-name="Possible causes"]');
+      var nextStepHeader = sidebar.querySelector('[data-framer-name="Next step"]');
+      var nextCheckLink = sidebar.querySelector('[data-framer-name="Next check"]');
 
-    if (!whatWeKnowHeader || !possibleCausesHeader || !nextStepHeader) return;
+      if (!whatWeKnowHeader || !possibleCausesHeader || !nextStepHeader) return;
 
-    // Remove existing dynamic or static items between headers
-    var toRemove = [];
-    var children = Array.from(sidebar.children);
-    var keepSet = new Set([
-      sidebar.querySelector('[data-framer-name="Investigation Context"]'),
-      whatWeKnowHeader,
-      possibleCausesHeader,
-      nextStepHeader,
-      nextCheckLink,
-    ]);
-    children.forEach(function (ch) {
-      if (!keepSet.has(ch)) {
-        toRemove.push(ch);
-      }
-    });
-    toRemove.forEach(function (ch) {
-      sidebar.removeChild(ch);
-    });
-
-    // A. Populate "What we know" Evidence Items before possibleCausesHeader
-    var evidenceItems = inv && Array.isArray(inv.evidence) ? inv.evidence : [];
-    if (evidenceItems.length === 0) {
-      var emptyEv = createEvidenceRowDOM({
-        category: "issue",
-        key: "Status",
-        value: "Awaiting problem description",
+      // Remove existing dynamic or static items between headers
+      var toRemove = [];
+      var children = Array.from(sidebar.children);
+      var keepSet = new Set([
+        sidebar.querySelector('[data-framer-name="Investigation Context"]'),
+        sidebar.querySelector('[data-framer-name="Investigation context"]'),
+        whatWeKnowHeader,
+        possibleCausesHeader,
+        nextStepHeader,
+        nextCheckLink,
+      ]);
+      children.forEach(function (ch) {
+        if (!keepSet.has(ch)) {
+          toRemove.push(ch);
+        }
       });
-      sidebar.insertBefore(emptyEv, possibleCausesHeader);
-    } else {
-      evidenceItems.forEach(function (ev) {
-        var row = createEvidenceRowDOM(ev);
-        sidebar.insertBefore(row, possibleCausesHeader);
+      toRemove.forEach(function (ch) {
+        sidebar.removeChild(ch);
       });
-    }
 
-    // B. Populate "Possible causes" Items before nextStepHeader
-    var causes = inv && Array.isArray(inv.candidate_causes) ? inv.candidate_causes.slice() : [];
-    causes.sort(function (a, b) {
-      var rank = function (c) {
-        if (c.status === "confirmed") return 2;
-        if (c.status === "ruled_out") return -1;
-        return 1;
-      };
-      var rDiff = rank(b) - rank(a);
-      if (rDiff !== 0) return rDiff;
-      return (b.confidence_score || 0) - (a.confidence_score || 0);
-    });
-
-    if (causes.length === 0) {
-      var emptyCause = createCandidateCauseRowDOM({
-        title: "Pending initial symptom analysis",
-        likelihood: "Low",
-        status: "suspected",
-        notes: "Describe your issue to evaluate candidate causes.",
-      });
-      sidebar.insertBefore(emptyCause, nextStepHeader);
-    } else {
-      causes.forEach(function (cause) {
-        var cRow = createCandidateCauseRowDOM(cause);
-        sidebar.insertBefore(cRow, nextStepHeader);
-      });
-    }
-
-    // C. Populate "Next step" & Investigation Progress stage
-    var nextStepTitleP = nextStepHeader.querySelector("p");
-    if (nextStepTitleP) {
-      if (!inv) {
-        nextStepTitleP.textContent = "Next step · Stage 1: Describe Issue";
-      } else if (inv.status === "resolved") {
-        nextStepTitleP.textContent = "Next step · Resolved (Report Ready)";
-      } else if (inv.status === "testing_solution") {
-        nextStepTitleP.textContent = "Next step · Testing Recommended Fix";
+      // A. Populate "What we know" Evidence Items before possibleCausesHeader
+      var evidenceItems = inv && Array.isArray(inv.evidence) ? inv.evidence : [];
+      if (evidenceItems.length === 0) {
+        var emptyEv = createEvidenceRowDOM({
+          category: "issue",
+          key: "Status",
+          value: "Awaiting problem description",
+        });
+        sidebar.insertBefore(emptyEv, possibleCausesHeader);
       } else {
-        nextStepTitleP.textContent = "Next step · Isolating Root Cause";
+        evidenceItems.forEach(function (ev) {
+          var row = createEvidenceRowDOM(ev);
+          sidebar.insertBefore(row, possibleCausesHeader);
+        });
       }
-    }
 
-    if (nextCheckLink) {
-      var nextTextSpan = nextCheckLink.querySelector("span, p");
-      if (!inv) {
-        if (nextTextSpan) nextTextSpan.textContent = "Enter your problem description in chat";
-        bindActionClick(nextCheckLink, function () {
-          var ta = document.querySelector(".cluezy-chat-textarea");
-          if (ta) ta.focus();
+      // B. Populate "Possible causes" Items before nextStepHeader
+      var causes = inv && Array.isArray(inv.candidate_causes) ? inv.candidate_causes.slice() : [];
+      causes.sort(function (a, b) {
+        var rank = function (c) {
+          if (c.status === "confirmed") return 2;
+          if (c.status === "ruled_out") return -1;
+          return 1;
+        };
+        var rDiff = rank(b) - rank(a);
+        if (rDiff !== 0) return rDiff;
+        return (b.confidence_score || 0) - (a.confidence_score || 0);
+      });
+
+      if (causes.length === 0) {
+        var emptyCause = createCandidateCauseRowDOM({
+          title: "Pending initial symptom analysis",
+          likelihood: "Low",
+          status: "suspected",
+          notes: "Describe your issue to evaluate candidate causes.",
         });
-      } else if (inv.status === "resolved") {
-        if (nextTextSpan) nextTextSpan.textContent = "View Final Resolution Report (#" + inv.reference_id + ")";
-        bindActionClick(nextCheckLink, function () {
-          navigateTo("/resolved/", { id: inv.reference_id });
-        });
+        sidebar.insertBefore(emptyCause, nextStepHeader);
       } else {
-        var actions = Array.isArray(inv.recommended_actions) ? inv.recommended_actions : [];
-        var pendingAct =
-          actions.filter(function (a) {
-            return a.status === "pending";
-          }).pop() || actions[actions.length - 1];
-        var nextTitle = pendingAct ? pendingAct.title : "Open Solution Walkthrough";
-        if (nextTextSpan) nextTextSpan.textContent = nextTitle;
-        bindActionClick(nextCheckLink, function () {
-          navigateTo("/solution/", { id: inv.reference_id });
+        causes.forEach(function (cause) {
+          var cRow = createCandidateCauseRowDOM(cause);
+          sidebar.insertBefore(cRow, nextStepHeader);
         });
       }
-    }
+
+      // C. Populate "Next step" & Investigation Progress stage
+      var nextStepTitleP = nextStepHeader.querySelector("p");
+      if (nextStepTitleP) {
+        if (!inv) {
+          nextStepTitleP.textContent = "Next step · Stage 1: Describe Issue";
+        } else if (inv.status === "resolved") {
+          nextStepTitleP.textContent = "Next step · Resolved (Report Ready)";
+        } else if (inv.status === "testing_solution") {
+          nextStepTitleP.textContent = "Next step · Testing Recommended Fix";
+        } else {
+          nextStepTitleP.textContent = "Next step · Isolating Root Cause";
+        }
+      }
+
+      if (nextCheckLink) {
+        var nextTextSpan = nextCheckLink.querySelector("span, p");
+        if (!inv) {
+          if (nextTextSpan) nextTextSpan.textContent = "Enter your problem description in chat";
+          bindActionClick(nextCheckLink, function () {
+            var ta = document.querySelector(".cluezy-chat-textarea");
+            if (ta) ta.focus();
+          });
+        } else if (inv.status === "resolved") {
+          if (nextTextSpan) nextTextSpan.textContent = "View Final Resolution Report (#" + inv.reference_id + ")";
+          bindActionClick(nextCheckLink, function () {
+            navigateTo("/resolved/", { id: inv.reference_id });
+          });
+        } else {
+          var actions = Array.isArray(inv.recommended_actions) ? inv.recommended_actions : [];
+          var pendingAct =
+            actions.filter(function (a) {
+              return a.status === "pending";
+            }).pop() || actions[actions.length - 1];
+          var nextTitle = pendingAct ? pendingAct.title : "Open Solution Walkthrough";
+          if (nextTextSpan) nextTextSpan.textContent = nextTitle;
+          bindActionClick(nextCheckLink, function () {
+            navigateTo("/solution/", { id: inv.reference_id });
+          });
+        }
+      }
+    });
   }
 
   function createEvidenceRowDOM(ev) {
@@ -2849,16 +2857,16 @@
       return;
     }
 
-    if (textareaToRestore) {
-      textareaToRestore.value = "";
-      autoResizeChatTextarea(textareaToRestore);
-    }
     appState.isSubmitting = true;
     appState.errorBannerMessage = null;
     renderInvestigationView();
 
     try {
       var created = await API.createInvestigation(text);
+      if (textareaToRestore) {
+        textareaToRestore.value = "";
+        autoResizeChatTextarea(textareaToRestore);
+      }
       appState.currentInvestigation = created;
       if (created && created.reference_id && window.history && window.history.replaceState) {
         window.history.replaceState(

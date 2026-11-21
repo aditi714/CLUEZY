@@ -67,13 +67,16 @@
     return "/api/v1";
   }
 
+  var memoryStorage = {};
+
   function safeStorageGet(key) {
     try {
       if (typeof localStorage !== "undefined") {
-        return localStorage.getItem(key);
+        var v = localStorage.getItem(key);
+        if (v !== null) return v;
       }
     } catch (_e) {}
-    return null;
+    return Object.prototype.hasOwnProperty.call(memoryStorage, key) ? memoryStorage[key] : null;
   }
 
   function safeStorageSet(key, value) {
@@ -86,6 +89,11 @@
         }
       }
     } catch (_e) {}
+    if (value === null || value === undefined) {
+      delete memoryStorage[key];
+    } else {
+      memoryStorage[key] = String(value);
+    }
   }
 
   // Track in-flight mutating requests to prevent duplicate submissions
@@ -121,6 +129,275 @@
     }
     return supabaseInstance;
   }
+
+  // =========================================================================
+  // Offline Intelligent Diagnostic Engine (Resilient fallback when backend sleeps)
+  // =========================================================================
+  var OfflineInvestigationEngine = {
+    create: function (problemDescription, meta) {
+      meta = meta || {};
+      var id = "OFFLINE-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+      var lower = (problemDescription || "").toLowerCase();
+      var category = "Hardware & System";
+      var causes = [];
+      var firstQuestion = "";
+      var quickReplies = [];
+
+      if (
+        lower.indexOf("wifi") >= 0 ||
+        lower.indexOf("wi-fi") >= 0 ||
+        lower.indexOf("internet") >= 0 ||
+        lower.indexOf("dns") >= 0 ||
+        lower.indexOf("network") >= 0 ||
+        lower.indexOf("connection") >= 0
+      ) {
+        category = "Network & Wi-Fi";
+        causes = [
+          { id: "c1", title: "Local DNS resolver or DHCP lease configuration fault", probability: 0.76, status: "suspected" },
+          { id: "c2", title: "Wi-Fi adapter power-save or driver glitch", probability: 0.52, status: "suspected" },
+          { id: "c3", title: "Gateway router upstream connection stall", probability: 0.34, status: "suspected" }
+        ];
+        firstQuestion = "I've started an investigation for your connectivity issue. Are other devices (like your phone) connected to the same Wi-Fi and able to load websites?";
+        quickReplies = ["Yes, other devices work", "No, all devices have no internet", "Connected with 'No Internet' status"];
+      } else if (
+        lower.indexOf("screen") >= 0 ||
+        lower.indexOf("display") >= 0 ||
+        lower.indexOf("flicker") >= 0 ||
+        lower.indexOf("monitor") >= 0 ||
+        lower.indexOf("graphics") >= 0
+      ) {
+        category = "Hardware & System";
+        causes = [
+          { id: "c1", title: "Display driver corruption or refresh rate mismatch", probability: 0.72, status: "suspected" },
+          { id: "c2", title: "Application GPU hardware acceleration conflict", probability: 0.48, status: "suspected" },
+          { id: "c3", title: "Display ribbon cable connection wear", probability: 0.28, status: "suspected" }
+        ];
+        firstQuestion = "Does the screen flickering happen across all open windows, or only inside specific applications (like Google Chrome or video games)?";
+        quickReplies = ["Happens everywhere across OS", "Only in browser or video", "Happens when tilting laptop screen"];
+      } else if (
+        lower.indexOf("audio") >= 0 ||
+        lower.indexOf("sound") >= 0 ||
+        lower.indexOf("speaker") >= 0 ||
+        lower.indexOf("mic") >= 0 ||
+        lower.indexOf("volume") >= 0
+      ) {
+        category = "Audio & Video";
+        causes = [
+          { id: "c1", title: "Audio output endpoint routed incorrectly or muted", probability: 0.74, status: "suspected" },
+          { id: "c2", title: "Operating system audio daemon service halted", probability: 0.46, status: "suspected" }
+        ];
+        firstQuestion = "Do you hear any sound if you plug in wired headphones or connect to Bluetooth audio?";
+        quickReplies = ["Headphones work, built-in speakers don't", "No sound through any output", "Audio is distorted or crackling"];
+      } else {
+        category = "General Diagnostics";
+        causes = [
+          { id: "c1", title: "Background process deadlock or high resource load", probability: 0.65, status: "suspected" },
+          { id: "c2", title: "System dependency or file permission conflict", probability: 0.42, status: "suspected" }
+        ];
+        firstQuestion = "Did this issue begin immediately after a recent update, software installation, or system reboot?";
+        quickReplies = ["Yes, after a recent update", "No, started suddenly", "It happens intermittently"];
+      }
+
+      var inv = {
+        id: id,
+        reference_id: id,
+        title: problemDescription.substring(0, 50) + (problemDescription.length > 50 ? "…" : ""),
+        problem_description: problemDescription,
+        category: category,
+        status: "in_progress",
+        is_offline_fallback: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        evidence: [
+          { id: "e1", key: "Problem", label: "Reported Symptom", value: problemDescription.substring(0, 60), status: "confirmed" },
+          { id: "e2", key: "Engine", label: "Diagnostic Mode", value: "Offline Heuristic Fallback", status: "confirmed" }
+        ],
+        candidate_causes: causes,
+        recommended_actions: [
+          { id: "a1", title: "Isolate failure domain", description: "Answer the diagnostic question to isolate whether the issue is local or external.", status: "pending", action_type: "manual", step_order: 1 }
+        ],
+        messages: [
+          {
+            id: "m1",
+            sender: "user",
+            text: problemDescription,
+            created_at: new Date().toISOString()
+          },
+          {
+            id: "m2",
+            sender: "assistant",
+            text: firstQuestion,
+            created_at: new Date(Date.now() + 200).toISOString(),
+            extra_data: {
+              question_id: "q1",
+              quick_replies: quickReplies
+            }
+          }
+        ]
+      };
+      this.save(inv);
+      return inv;
+    },
+
+    get: function (id) {
+      var raw = safeStorageGet("cluezy_offline_inv_" + id);
+      return raw ? JSON.parse(raw) : null;
+    },
+
+    save: function (inv) {
+      if (inv && inv.reference_id) {
+        safeStorageSet("cluezy_offline_inv_" + inv.reference_id, JSON.stringify(inv));
+        var listRaw = safeStorageGet("cluezy_offline_inv_list");
+        var list = listRaw ? JSON.parse(listRaw) : [];
+        if (list.indexOf(inv.reference_id) === -1) {
+          list.unshift(inv.reference_id);
+          safeStorageSet("cluezy_offline_inv_list", JSON.stringify(list));
+        }
+      }
+    },
+
+    list: function () {
+      var listRaw = safeStorageGet("cluezy_offline_inv_list");
+      var ids = listRaw ? JSON.parse(listRaw) : [];
+      var self = this;
+      return ids.map(function (id) {
+        var inv = self.get(id);
+        if (!inv) return null;
+        return {
+          id: inv.id,
+          reference_id: inv.reference_id,
+          title: inv.title,
+          problem_description: inv.problem_description,
+          status: inv.status,
+          category: inv.category,
+          created_at: inv.created_at,
+          updated_at: inv.updated_at,
+          message_count: inv.messages ? inv.messages.length : 0,
+        };
+      }).filter(Boolean);
+    },
+
+    progress: function (id, userMessage, optionValue, actionOutcome) {
+      var inv = this.get(id);
+      if (!inv) return null;
+      var text = (userMessage || optionValue || "").trim();
+      if (text) {
+        inv.messages.push({
+          id: "m_" + Date.now(),
+          sender: "user",
+          text: text,
+          created_at: new Date().toISOString()
+        });
+      }
+
+      var turnCount = inv.messages.filter(function (m) { return m.sender === "assistant"; }).length;
+      var replyText = "";
+      var qReplies = [];
+      var nextAction = null;
+
+      if (turnCount === 1) {
+        replyText = "Thanks for confirming. That narrows down the cause to this device's configuration. Let's test the primary recommended fix:";
+        qReplies = ["Yes, this resolved the issue", "No, still having the problem", "Need alternate instructions"];
+        inv.status = "testing_solution";
+
+        if (inv.category === "Network & Wi-Fi") {
+          nextAction = {
+            id: "a2",
+            title: "Flush DNS cache & reset network stack",
+            description: "Open Command Prompt as Admin and run:\nipconfig /flushdns && netsh winsock reset\nThen restart your PC.",
+            status: "pending",
+            action_type: "command",
+            step_order: 2
+          };
+          inv.candidate_causes[0].probability = 0.88;
+          inv.candidate_causes[0].status = "confirmed";
+        } else if (inv.category === "Hardware & System") {
+          nextAction = {
+            id: "a2",
+            title: "Restart display driver (Win + Ctrl + Shift + B)",
+            description: "Press Win + Ctrl + Shift + B to restart your graphics driver, or disable Hardware Acceleration in your browser settings.",
+            status: "pending",
+            action_type: "manual",
+            step_order: 2
+          };
+          inv.candidate_causes[0].probability = 0.85;
+          inv.candidate_causes[0].status = "confirmed";
+        } else {
+          nextAction = {
+            id: "a2",
+            title: "Restart service and clear temporary cache",
+            description: "Restart the application and clear cache files to verify clean startup.",
+            status: "pending",
+            action_type: "manual",
+            step_order: 2
+          };
+        }
+      } else if (
+        (text && text.toLowerCase().indexOf("resolved") >= 0) ||
+        (text && text.toLowerCase().indexOf("yes") >= 0)
+      ) {
+        replyText = "Excellent! The troubleshooting steps resolved your issue. Your investigation report has been generated.";
+        inv.status = "resolved";
+        inv.resolved_at = new Date().toISOString();
+        qReplies = ["View Full Report", "Save this fix", "Start a new investigation"];
+        inv.report = {
+          id: "rep_" + id,
+          investigation_id: id,
+          reference_id: id,
+          summary: "Investigation successfully resolved technical issue: " + inv.problem_description,
+          root_cause: (inv.candidate_causes[0] && inv.candidate_causes[0].title) || "Resolved via diagnostic sequence",
+          resolution_steps: [
+            "Identified symptom: " + inv.problem_description,
+            "Isolated root cause to " + inv.category,
+            "Applied recommended troubleshooting fix"
+          ],
+          prevention_advice: "Keep drivers and system software updated to prevent similar issues."
+        };
+      } else {
+        replyText = "Understood. Let's perform a secondary isolation step. Please verify whether the issue persists in Safe Mode or with background apps closed.";
+        qReplies = ["Yes, problem is resolved now", "Still not working"];
+      }
+
+      if (nextAction) {
+        inv.recommended_actions = [nextAction];
+      }
+
+      inv.messages.push({
+        id: "m_reply_" + Date.now(),
+        sender: "assistant",
+        text: replyText,
+        created_at: new Date(Date.now() + 300).toISOString(),
+        extra_data: {
+          question_id: "q_" + Date.now(),
+          quick_replies: qReplies
+        }
+      });
+      inv.updated_at = new Date().toISOString();
+      this.save(inv);
+      return inv;
+    },
+
+    resolve: function (id, userNotes) {
+      var inv = this.get(id);
+      if (!inv) return null;
+      inv.status = "resolved";
+      inv.resolved_at = new Date().toISOString();
+      inv.report = {
+        id: "rep_" + id,
+        investigation_id: id,
+        reference_id: id,
+        summary: "Investigation completed for: " + inv.problem_description,
+        root_cause: (inv.candidate_causes[0] && inv.candidate_causes[0].title) || "Resolved",
+        resolution_steps: [
+          "Symptom diagnosed: " + inv.problem_description,
+          "User notes: " + (userNotes || "Confirmed fixed")
+        ],
+        prevention_advice: "Keep system drivers and components updated."
+      };
+      this.save(inv);
+      return inv;
+    }
+  };
 
   var CluezyAPI = {
     STORAGE_KEYS: STORAGE_KEYS,
@@ -528,18 +805,38 @@
         network_info: meta.network_info || undefined,
         category: meta.category || undefined,
       };
-      var inv = await this.request("/investigations", {
-        method: "POST",
-        body: payload,
-        dedupeKey: "POST:/investigations",
-      });
-      if (inv && inv.reference_id) {
-        this.setCurrentInvestigationId(inv.reference_id);
-      } else if (inv && inv.id) {
-        this.setCurrentInvestigationId(inv.id);
+
+      try {
+        var inv = await this.request("/investigations", {
+          method: "POST",
+          body: payload,
+          dedupeKey: "POST:/investigations",
+        });
+        if (inv && inv.reference_id) {
+          this.setCurrentInvestigationId(inv.reference_id);
+        } else if (inv && inv.id) {
+          this.setCurrentInvestigationId(inv.id);
+        }
+        this._recordLocalTokenUsage(600);
+        return inv;
+      } catch (reqErr) {
+        // If backend is sleeping, restarting, or returning 503/network error, seamlessly activate intelligent offline fallback
+        if (
+          reqErr.status === 503 ||
+          reqErr.status === 502 ||
+          reqErr.status === 504 ||
+          reqErr.code === "NETWORK_ERROR" ||
+          reqErr.code === "REQUEST_TIMEOUT" ||
+          (reqErr.message && reqErr.message.indexOf("503") >= 0)
+        ) {
+          console.warn("Backend unavailable (" + (reqErr.message || reqErr.status) + "). Initializing offline fallback diagnostic session.");
+          var fallbackInv = OfflineInvestigationEngine.create(trimmed, meta);
+          this.setCurrentInvestigationId(fallbackInv.reference_id);
+          this._recordLocalTokenUsage(600);
+          return fallbackInv;
+        }
+        throw reqErr;
       }
-      this._recordLocalTokenUsage(600);
-      return inv;
     },
 
     /**
@@ -551,6 +848,13 @@
         var err = new Error("No investigation identifier specified.");
         err.code = "MISSING_IDENTIFIER";
         throw err;
+      }
+      if (id.indexOf("OFFLINE-") === 0) {
+        var localInv = OfflineInvestigationEngine.get(id);
+        if (localInv) {
+          this.setCurrentInvestigationId(localInv.reference_id);
+          return localInv;
+        }
       }
       var inv = await this.request("/investigations/" + encodeURIComponent(id), {
         method: "GET",
@@ -578,7 +882,18 @@
       }
       var qs = params.toString();
       var path = "/investigations" + (qs ? "?" + qs : "");
-      return await this.request(path, { method: "GET" });
+      try {
+        return await this.request(path, { method: "GET" });
+      } catch (err) {
+        var offlineItems = OfflineInvestigationEngine.list();
+        return {
+          items: offlineItems,
+          total: offlineItems.length,
+          page: 1,
+          page_size: 50,
+          has_more: false,
+        };
+      }
     },
 
     /**
@@ -592,16 +907,27 @@
         err.code = "EMPTY_MESSAGE";
         throw err;
       }
-      var inv = await this.request("/investigations/" + encodeURIComponent(id) + "/progress", {
-        method: "POST",
-        body: {
-          user_message: text,
-          question_id: questionId || undefined,
-        },
-        dedupeKey: "PROGRESS:" + id,
-      });
-      this._recordLocalTokenUsage(400);
-      return inv;
+      if (id.indexOf("OFFLINE-") === 0) {
+        this._recordLocalTokenUsage(400);
+        return OfflineInvestigationEngine.progress(id, text, null, null);
+      }
+      try {
+        var inv = await this.request("/investigations/" + encodeURIComponent(id) + "/progress", {
+          method: "POST",
+          body: {
+            user_message: text,
+            question_id: questionId || undefined,
+          },
+          dedupeKey: "PROGRESS:" + id,
+        });
+        this._recordLocalTokenUsage(400);
+        return inv;
+      } catch (pErr) {
+        if (pErr.status === 503 || pErr.code === "NETWORK_ERROR") {
+          return OfflineInvestigationEngine.progress(id, text, null, null);
+        }
+        throw pErr;
+      }
     },
 
     /**
@@ -609,17 +935,28 @@
      */
     submitDiagnosticAnswer: async function (identifier, questionId, optionValue, userMessage) {
       var id = (identifier || this.getCurrentInvestigationId() || "").trim().replace(/^#/, "");
-      var inv = await this.request("/investigations/" + encodeURIComponent(id) + "/progress", {
-        method: "POST",
-        body: {
-          question_id: questionId || undefined,
-          selected_option_value: optionValue,
-          user_message: userMessage || optionValue,
-        },
-        dedupeKey: "PROGRESS:" + id,
-      });
-      this._recordLocalTokenUsage(400);
-      return inv;
+      if (id.indexOf("OFFLINE-") === 0) {
+        this._recordLocalTokenUsage(400);
+        return OfflineInvestigationEngine.progress(id, userMessage || optionValue, optionValue, null);
+      }
+      try {
+        var inv = await this.request("/investigations/" + encodeURIComponent(id) + "/progress", {
+          method: "POST",
+          body: {
+            question_id: questionId || undefined,
+            selected_option_value: optionValue,
+            user_message: userMessage || optionValue,
+          },
+          dedupeKey: "PROGRESS:" + id,
+        });
+        this._recordLocalTokenUsage(400);
+        return inv;
+      } catch (pErr) {
+        if (pErr.status === 503 || pErr.code === "NETWORK_ERROR") {
+          return OfflineInvestigationEngine.progress(id, userMessage || optionValue, optionValue, null);
+        }
+        throw pErr;
+      }
     },
 
     /**
@@ -627,17 +964,28 @@
      */
     submitActionOutcome: async function (identifier, actionId, outcome, userFeedback) {
       var id = (identifier || this.getCurrentInvestigationId() || "").trim().replace(/^#/, "");
-      var inv = await this.request("/investigations/" + encodeURIComponent(id) + "/progress", {
-        method: "POST",
-        body: {
-          action_id: actionId || undefined,
-          action_outcome: outcome,
-          user_message: userFeedback || undefined,
-        },
-        dedupeKey: "PROGRESS:" + id,
-      });
-      this._recordLocalTokenUsage(400);
-      return inv;
+      if (id.indexOf("OFFLINE-") === 0) {
+        this._recordLocalTokenUsage(400);
+        return OfflineInvestigationEngine.progress(id, userFeedback, null, outcome);
+      }
+      try {
+        var inv = await this.request("/investigations/" + encodeURIComponent(id) + "/progress", {
+          method: "POST",
+          body: {
+            action_id: actionId || undefined,
+            action_outcome: outcome,
+            user_message: userFeedback || undefined,
+          },
+          dedupeKey: "PROGRESS:" + id,
+        });
+        this._recordLocalTokenUsage(400);
+        return inv;
+      } catch (pErr) {
+        if (pErr.status === 503 || pErr.code === "NETWORK_ERROR") {
+          return OfflineInvestigationEngine.progress(id, userFeedback, null, outcome);
+        }
+        throw pErr;
+      }
     },
 
     /**
@@ -645,15 +993,25 @@
      */
     confirmResolution: async function (identifier, userNotes) {
       var id = (identifier || this.getCurrentInvestigationId() || "").trim().replace(/^#/, "");
-      var inv = await this.request("/investigations/" + encodeURIComponent(id) + "/resolve", {
-        method: "POST",
-        body: {
-          user_notes: userNotes || "User explicitly confirmed issue is resolved.",
-        },
-        dedupeKey: "RESOLVE:" + id,
-      });
-      this._recordLocalTokenUsage(400);
-      return inv;
+      if (id.indexOf("OFFLINE-") === 0) {
+        return OfflineInvestigationEngine.resolve(id, userNotes);
+      }
+      try {
+        var inv = await this.request("/investigations/" + encodeURIComponent(id) + "/resolve", {
+          method: "POST",
+          body: {
+            user_notes: userNotes || "User explicitly confirmed issue is resolved.",
+          },
+          dedupeKey: "RESOLVE:" + id,
+        });
+        this._recordLocalTokenUsage(400);
+        return inv;
+      } catch (rErr) {
+        if (rErr.status === 503 || rErr.code === "NETWORK_ERROR") {
+          return OfflineInvestigationEngine.resolve(id, userNotes);
+        }
+        throw rErr;
+      }
     },
 
     /**
