@@ -5,7 +5,7 @@
   <script id="framexporter-cdn-rewriter">(function(){var el=document.getElementById("framexporter-cdn-map");if(!el)return;var map;try{map=JSON.parse(el.textContent||"{}")}catch(e){return}var hosts=/^(?:framerusercontent\.com|cdn\.framer\.com|static\.framer\.com)$/i;function isFramer(u){return u&&hosts.test(u.hostname)}function rootRel(p){if(!p)return p;return p.charAt(0)==="/"?p:"/"+p.replace(/^\.\//,"")}function lookup(p){if(map[p])return rootRel(map[p]);var bare=p.match(/^\/images\/([A-Za-z0-9_-]+)$/);if(bare){var id=bare[1],exts=[".png",".jpg",".jpeg",".webp",".gif",".avif"];for(var i=0;i<exts.length;i++){var k="/images/"+id+exts[i];if(map[k])return rootRel(map[k])}for(var k in map){if(k.indexOf("/"+id+".")>0)return rootRel(map[k])}}var b=p.split("/").pop();if(!b)return null;for(var k in map){if(k===p||k.endsWith("/"+b))return rootRel(map[k])}return null}function rewrite(raw){if(!raw||typeof raw!=="string")return raw;raw=raw.replace(/&amp;/g,"&").trim();try{var u=new URL(raw,location.href);if(!isFramer(u))return raw;var local=lookup(u.pathname);return local||raw}catch(e){return raw}}function fixSrcset(v){if(!v)return v;return v.split(",").map(function(part){part=part.trim();if(!part)return part;var bits=part.split(/\s+/);bits[0]=rewrite(bits[0]);return bits.join(" ")}).join(", ")}function fixEl(node){if(!node||node.nodeType!==1)return;var tag=node.tagName;if(tag==="IMG"||tag==="SOURCE"||tag==="VIDEO"){if(node.src)node.src=rewrite(node.src);if(node.srcset)node.srcset=fixSrcset(node.srcset);if(node.poster)node.poster=rewrite(node.poster)}if(tag==="LINK"&&node.href&&/preload|image/i.test(node.rel||""))node.href=rewrite(node.href);var st=node.getAttribute&&node.getAttribute("style");if(st&&/framerusercontent|cdn\.framer|static\.framer/i.test(st))node.setAttribute("style",st.replace(/url\(\s*["']?(https?:\/\/[^)"']+)["']?\s*\)/gi,function(_,u){return"url("+rewrite(u)+")"}))}function scan(root){if(!root)root=document.documentElement;var nodes=root.querySelectorAll?root.querySelectorAll("img,source,video,link[rel*=preload]"):[];for(var i=0;i<nodes.length;i++)fixEl(nodes[i]);if(root.nodeType===1&&/^(IMG|SOURCE|VIDEO|LINK)$/.test(root.tagName))fixEl(root)}var nf=window.fetch;if(nf){window.fetch=function(input,init){var url=typeof input==="string"?input:input&&input.url;if(url){var r=rewrite(url);if(r!==url)return nf(r,init)}return nf.apply(this,arguments)}}scan();new MutationObserver(function(muts){for(var i=0;i<muts.length;i++){var m=muts[i];for(var j=0;j<m.addedNodes.length;j++){var n=m.addedNodes[j];if(n.nodeType===1){fixEl(n);scan(n)}}}}).observe(document.documentElement,{childList:true,subtree:true});var n=0;function tick(){scan();if(++n<16)requestAnimationFrame(tick)}requestAnimationFrame(tick)})();</script>
   <base href="/">
 <meta charset="utf-8">
-	<meta name="viewport" content="width=device-width">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
 	<title>Investigation Resolved · CLUEZY</title>
     <meta name="description" content="Investigation resolved and saved fixes.">
     <meta name="framer-search-index" content="/assets/searchIndex.json">
@@ -507,6 +507,39 @@ html, body {
   background-color: #ffffff !important;
   display: flex !important;
   flex-direction: column !important;
+}
+[data-framer-name="resolved content"] {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+@media (max-width: 1024px) {
+  [data-layout-template="true"],
+  .framer-sbem9.framer-n22pd4 {
+    padding: 56px 0 0 0 !important;
+  }
+  [data-framer-name="Sidebar"],
+  .framer-sbem9 .framer-r5haeu {
+    transform: translateX(-105%) !important;
+    transition: transform 0.26s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+  body.cluezy-mobile-sidebar-open [data-framer-name="Sidebar"],
+  body.cluezy-mobile-sidebar-open .framer-sbem9 .framer-r5haeu {
+    transform: translateX(0) !important;
+  }
+  .framer-fnZmG.framer-1remmab,
+  [data-framer-root],
+  [data-framer-name="resolved content"] {
+    height: calc(100vh - 56px) !important;
+    height: calc(100dvh - 56px) !important;
+    max-height: calc(100dvh - 56px) !important;
+    padding: 18px 16px 32px 16px !important;
+  }
 }
 </style>
 </head>

@@ -547,6 +547,7 @@
       ".framer-BxVAd.framer-1g3woon,",
       ".framer-EQe3b.framer-3ap5fj,",
       ".framer-fnZmG.framer-1remmab,",
+      ".framer-QebP1.framer-6z3yif,",
       "[data-framer-root] {",
       "  width: 100% !important;",
       "  max-width: 100% !important;",
@@ -562,8 +563,6 @@
       "  flex-direction: column !important;",
       "}",
       "[data-framer-name='investigation content'],",
-      "[data-framer-name='solution content'],",
-      "[data-framer-name='resolved content'],",
       ".framer-xyKMK .framer-nbz4r4 {",
       "  width: 100% !important;",
       "  max-width: 100% !important;",
@@ -576,6 +575,24 @@
       "  flex-direction: column !important;",
       "  gap: 12px !important;",
       "  overflow: hidden !important;",
+      "}",
+      "[data-framer-name='solution content'],",
+      "[data-framer-name='resolved content'],",
+      "[data-framer-name='investigations content'],",
+      "[data-framer-name='knowledge content'] {",
+      "  width: 100% !important;",
+      "  max-width: 100% !important;",
+      "  height: 100vh !important;",
+      "  max-height: 100vh !important;",
+      "  padding: 24px 32px 36px 32px !important;",
+      "  margin: 0 !important;",
+      "  box-sizing: border-box !important;",
+      "  display: flex !important;",
+      "  flex-direction: column !important;",
+      "  gap: 18px !important;",
+      "  overflow-y: auto !important;",
+      "  overflow-x: hidden !important;",
+      "  -webkit-overflow-scrolling: touch !important;",
       "}",
       "[data-framer-name='Investigation heading'],",
       ".framer-xyKMK .framer-1yyitid {",
@@ -1036,6 +1053,611 @@
       "  height: 100% !important;",
       "  border-radius: 50% !important;",
       "  object-fit: cover !important;",
+      "}",
+      "/* ==========================================================================",
+      "   DYNAMIC RESPONSIVE & MOBILE-FIRST SYSTEM (All Screens & Devices)",
+      "   ========================================================================== */",
+      "/* 1. Prevent Framer SSR breakpoint classes from hiding critical content */",
+      ".framer-xml8iz .ssr-variant.hidden-gl62q9,",
+      ".framer-xml8iz .ssr-variant.hidden-1jnz3rc,",
+      ".framer-ynmtwr .ssr-variant.hidden-1jnz3rc {",
+      "  display: block !important;",
+      "}",
+      ".framer-1yyoi4g.hidden-87vn6v,",
+      ".hidden-dyjihb {",
+      "  display: flex !important;",
+      "}",
+      "/* 2. Mobile Top Navigation Bar & Backdrop (hidden on desktop > 1024px) */",
+      ".cluezy-mobile-topbar {",
+      "  display: none;",
+      "}",
+      ".cluezy-mobile-backdrop {",
+      "  display: none;",
+      "  position: fixed;",
+      "  inset: 0;",
+      "  background: rgba(7, 28, 19, 0.52);",
+      "  backdrop-filter: blur(3px);",
+      "  -webkit-backdrop-filter: blur(3px);",
+      "  z-index: 100000;",
+      "  opacity: 0;",
+      "  transition: opacity 0.22s ease;",
+      "}",
+      "body.cluezy-mobile-sidebar-open .cluezy-mobile-backdrop,",
+      "body.cluezy-mobile-context-open .cluezy-mobile-backdrop {",
+      "  display: block;",
+      "  opacity: 1;",
+      "}",
+      ".cluezy-sidebar-close-btn {",
+      "  display: none;",
+      "}",
+      ".cluezy-context-sheet-header {",
+      "  display: none;",
+      "}",
+      ".cluezy-inline-context-btn {",
+      "  display: none;",
+      "}",
+      "/* 3. Tablet & Mobile Workspace Layout (<= 1024px) */",
+      "@media (max-width: 1024px) {",
+      "  /* Landing Page scrollable & stacked layout */",
+      "  html:not(.cluezy-no-page-scroll),",
+      "  body:not(.cluezy-no-page-scroll) {",
+      "    height: auto !important;",
+      "    min-height: 100vh !important;",
+      "    max-height: none !important;",
+      "    overflow-y: auto !important;",
+      "    overflow-x: hidden !important;",
+      "    -webkit-overflow-scrolling: touch !important;",
+      "  }",
+      "  body:not(.cluezy-no-page-scroll) #main,",
+      "  .framer-8kiHx.framer-da9gk2 {",
+      "    height: auto !important;",
+      "    min-height: 100vh !important;",
+      "    max-height: none !important;",
+      "    overflow: visible !important;",
+      "  }",
+      "  .framer-TUnar.framer-72rtr7,",
+      "  .framer-TUnar .framer-1k5d4r9 {",
+      "    height: auto !important;",
+      "    min-height: calc(100vh - 70px) !important;",
+      "    max-height: none !important;",
+      "    overflow: visible !important;",
+      "  }",
+      "  .framer-8kiHx .framer-15hwoiw {",
+      "    height: auto !important;",
+      "    min-height: 64px !important;",
+      "    max-height: none !important;",
+      "    padding: 12px 24px !important;",
+      "    flex-wrap: wrap !important;",
+      "    gap: 12px !important;",
+      "  }",
+      "  .framer-8kiHx .framer-krramk {",
+      "    gap: 24px !important;",
+      "  }",
+      "  .framer-TUnar .framer-iwz5lk {",
+      "    flex-direction: column !important;",
+      "    align-items: center !important;",
+      "    justify-content: flex-start !important;",
+      "    text-align: center !important;",
+      "    padding: 28px 24px 36px !important;",
+      "    gap: 32px !important;",
+      "    height: auto !important;",
+      "    max-height: none !important;",
+      "    overflow: visible !important;",
+      "  }",
+      "  .framer-TUnar .framer-xml8iz {",
+      "    flex: none !important;",
+      "    width: 100% !important;",
+      "    max-width: 660px !important;",
+      "    align-items: center !important;",
+      "    text-align: center !important;",
+      "  }",
+      "  .framer-TUnar .framer-lgk7od h1 {",
+      "    text-align: center !important;",
+      "    font-size: clamp(28px, 4.8vw, 42px) !important;",
+      "    line-height: 1.14 !important;",
+      "  }",
+      "  .framer-TUnar .framer-8lhi3e p {",
+      "    text-align: center !important;",
+      "    margin: 0 auto !important;",
+      "  }",
+      "  .framer-TUnar .framer-9fd05w {",
+      "    justify-content: center !important;",
+      "    flex-wrap: wrap !important;",
+      "  }",
+      "  .framer-TUnar .framer-ynmtwr {",
+      "    flex: none !important;",
+      "    width: 100% !important;",
+      "    max-width: 460px !important;",
+      "    height: auto !important;",
+      "    min-height: 260px !important;",
+      "    max-height: none !important;",
+      "    margin: 0 auto !important;",
+      "    padding: 8px 0 !important;",
+      "  }",
+      "  .framer-TUnar .framer-1n8j05n {",
+      "    display: grid !important;",
+      "    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)) !important;",
+      "    gap: 16px !important;",
+      "    padding: 24px !important;",
+      "    height: auto !important;",
+      "  }",
+      "  .framer-TUnar .framer-r2nvad,",
+      "  .framer-TUnar .framer-atl610,",
+      "  .framer-TUnar .framer-kw4om,",
+      "  .framer-TUnar .framer-9x1ues,",
+      "  .framer-TUnar .framer-qlywa4 {",
+      "    width: 100% !important;",
+      "    background: #fcfbf9 !important;",
+      "    border: 1px solid #dfe5de !important;",
+      "    border-radius: 12px !important;",
+      "    padding: 16px 14px !important;",
+      "    box-sizing: border-box !important;",
+      "  }",
+      "  /* Workspace Pages: Mobile Top Bar & Slide-Out Drawer Sidebar */",
+      "  .cluezy-mobile-topbar {",
+      "    display: flex !important;",
+      "    position: fixed !important;",
+      "    top: 0 !important;",
+      "    left: 0 !important;",
+      "    right: 0 !important;",
+      "    height: 56px !important;",
+      "    background-color: var(--token-cPoBWZDTB, #073b27) !important;",
+      "    color: #ffffff !important;",
+      "    z-index: 99990 !important;",
+      "    align-items: center !important;",
+      "    justify-content: space-between !important;",
+      "    padding: 0 14px !important;",
+      "    box-sizing: border-box !important;",
+      "    border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;",
+      "    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12) !important;",
+      "  }",
+      "  .cluezy-mobile-topbar-left {",
+      "    display: flex !important;",
+      "    align-items: center !important;",
+      "    gap: 10px !important;",
+      "  }",
+      "  .cluezy-mobile-menu-btn {",
+      "    background: rgba(255, 255, 255, 0.1) !important;",
+      "    border: 1px solid rgba(255, 255, 255, 0.18) !important;",
+      "    color: #ffffff !important;",
+      "    width: 38px !important;",
+      "    height: 38px !important;",
+      "    border-radius: 8px !important;",
+      "    display: inline-flex !important;",
+      "    align-items: center !important;",
+      "    justify-content: center !important;",
+      "    cursor: pointer !important;",
+      "    padding: 0 !important;",
+      "    flex-shrink: 0 !important;",
+      "  }",
+      "  .cluezy-mobile-brand {",
+      "    display: inline-flex !important;",
+      "    align-items: center !important;",
+      "    gap: 7px !important;",
+      "    text-decoration: none !important;",
+      "    cursor: pointer !important;",
+      "  }",
+      "  .cluezy-mobile-topbar-right {",
+      "    display: flex !important;",
+      "    align-items: center !important;",
+      "    gap: 8px !important;",
+      "  }",
+      "  .cluezy-mobile-context-btn {",
+      "    background: rgba(236, 246, 232, 0.15) !important;",
+      "    border: 1px solid rgba(181, 221, 169, 0.45) !important;",
+      "    color: #ecf6e8 !important;",
+      "    height: 36px !important;",
+      "    padding: 0 11px !important;",
+      "    border-radius: 8px !important;",
+      "    font-family: 'Inter', sans-serif !important;",
+      "    font-size: 12px !important;",
+      "    font-weight: 600 !important;",
+      "    display: inline-flex !important;",
+      "    align-items: center !important;",
+      "    gap: 6px !important;",
+      "    cursor: pointer !important;",
+      "    white-space: nowrap !important;",
+      "  }",
+      "  .cluezy-mobile-context-badge {",
+      "    background: #22c55e !important;",
+      "    color: #052e16 !important;",
+      "    font-size: 10.5px !important;",
+      "    font-weight: 800 !important;",
+      "    padding: 1px 6px !important;",
+      "    border-radius: 10px !important;",
+      "    line-height: 1.3 !important;",
+      "  }",
+      "  .cluezy-mobile-new-btn {",
+      "    background: #145c38 !important;",
+      "    border: 1px solid #22c55e !important;",
+      "    color: #ffffff !important;",
+      "    height: 36px !important;",
+      "    padding: 0 11px !important;",
+      "    border-radius: 8px !important;",
+      "    font-family: 'Inter', sans-serif !important;",
+      "    font-size: 12px !important;",
+      "    font-weight: 600 !important;",
+      "    display: inline-flex !important;",
+      "    align-items: center !important;",
+      "    gap: 4px !important;",
+      "    cursor: pointer !important;",
+      "    white-space: nowrap !important;",
+      "  }",
+      "  /* Remove permanent 230px sidebar offset on <= 1024px */",
+      "  body.cluezy-no-page-scroll [data-layout-template='true'],",
+      "  [data-layout-template='true'],",
+      "  .framer-sbem9.framer-n22pd4 {",
+      "    padding: 56px 0 0 0 !important;",
+      "    width: 100vw !important;",
+      "    max-width: 100vw !important;",
+      "    height: 100vh !important;",
+      "    height: 100dvh !important;",
+      "    max-height: 100dvh !important;",
+      "  }",
+      "  /* Off-canvas Sidebar Drawer */",
+      "  [data-framer-name='Sidebar'],",
+      "  .framer-sbem9 .framer-r5haeu {",
+      "    position: fixed !important;",
+      "    left: 0 !important;",
+      "    top: 0 !important;",
+      "    bottom: 0 !important;",
+      "    width: 270px !important;",
+      "    min-width: 270px !important;",
+      "    max-width: 84vw !important;",
+      "    height: 100vh !important;",
+      "    height: 100dvh !important;",
+      "    max-height: 100dvh !important;",
+      "    z-index: 100005 !important;",
+      "    transform: translateX(-105%) !important;",
+      "    transition: transform 0.26s cubic-bezier(0.4, 0, 0.2, 1) !important;",
+      "    box-shadow: 6px 0 28px rgba(0, 0, 0, 0.4) !important;",
+      "  }",
+      "  body.cluezy-mobile-sidebar-open [data-framer-name='Sidebar'],",
+      "  body.cluezy-mobile-sidebar-open .framer-sbem9 .framer-r5haeu {",
+      "    transform: translateX(0) !important;",
+      "  }",
+      "  .cluezy-sidebar-close-btn {",
+      "    display: inline-flex !important;",
+      "    align-items: center !important;",
+      "    justify-content: center !important;",
+      "    position: absolute !important;",
+      "    top: 14px !important;",
+      "    right: 12px !important;",
+      "    width: 32px !important;",
+      "    height: 32px !important;",
+      "    border-radius: 7px !important;",
+      "    background: rgba(255, 255, 255, 0.1) !important;",
+      "    border: 1px solid rgba(255, 255, 255, 0.18) !important;",
+      "    color: #ffffff !important;",
+      "    cursor: pointer !important;",
+      "    z-index: 10 !important;",
+      "  }",
+      "  /* Adjust Workspace Main Content Height for 56px Top Bar */",
+      "  .framer-xyKMK.framer-ypbln3,",
+      "  .framer-BxVAd.framer-1g3woon,",
+      "  .framer-EQe3b.framer-3ap5fj,",
+      "  .framer-fnZmG.framer-1remmab,",
+      "  .framer-QebP1.framer-6z3yif,",
+      "  [data-framer-root] {",
+      "    width: 100% !important;",
+      "    max-width: 100% !important;",
+      "    height: calc(100vh - 56px) !important;",
+      "    height: calc(100dvh - 56px) !important;",
+      "    max-height: calc(100dvh - 56px) !important;",
+      "  }",
+      "  [data-framer-name='investigation content'],",
+      "  .framer-xyKMK .framer-nbz4r4 {",
+      "    height: calc(100vh - 56px) !important;",
+      "    height: calc(100dvh - 56px) !important;",
+      "    max-height: calc(100dvh - 56px) !important;",
+      "    padding: 12px 16px !important;",
+      "    gap: 10px !important;",
+      "  }",
+      "  [data-framer-name='solution content'],",
+      "  [data-framer-name='resolved content'],",
+      "  [data-framer-name='investigations content'],",
+      "  [data-framer-name='knowledge content'] {",
+      "    height: calc(100vh - 56px) !important;",
+      "    height: calc(100dvh - 56px) !important;",
+      "    max-height: calc(100dvh - 56px) !important;",
+      "    padding: 18px 16px 32px 16px !important;",
+      "    gap: 16px !important;",
+      "  }",
+      "  /* Slide-Up Bottom Sheet for Right-Hand Investigation Context on <= 1024px */",
+      "  [data-framer-name='Investigation context'],",
+      "  .framer-xyKMK .framer-1qpwm9z {",
+      "    position: fixed !important;",
+      "    left: 0 !important;",
+      "    right: 0 !important;",
+      "    bottom: 0 !important;",
+      "    width: 100% !important;",
+      "    min-width: 100% !important;",
+      "    max-width: 100% !important;",
+      "    flex: none !important;",
+      "    height: auto !important;",
+      "    max-height: 80vh !important;",
+      "    max-height: 80dvh !important;",
+      "    border-radius: 20px 20px 0 0 !important;",
+      "    border-top: 2px solid #145c38 !important;",
+      "    z-index: 100004 !important;",
+      "    transform: translateY(105%) !important;",
+      "    transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1) !important;",
+      "    box-shadow: 0 -10px 35px rgba(0, 0, 0, 0.25) !important;",
+      "    padding: 14px 18px 28px 18px !important;",
+      "  }",
+      "  body.cluezy-mobile-context-open [data-framer-name='Investigation context'],",
+      "  body.cluezy-mobile-context-open .framer-xyKMK .framer-1qpwm9z {",
+      "    transform: translateY(0) !important;",
+      "  }",
+      "  .cluezy-context-sheet-header {",
+      "    display: flex !important;",
+      "    align-items: center !important;",
+      "    justify-content: space-between !important;",
+      "    width: 100% !important;",
+      "    padding-bottom: 10px !important;",
+      "    margin-bottom: 4px !important;",
+      "    border-bottom: 1px solid #dfe5de !important;",
+      "  }",
+      "  .cluezy-context-sheet-title {",
+      "    font-family: 'Inter', sans-serif !important;",
+      "    font-size: 14px !important;",
+      "    font-weight: 700 !important;",
+      "    color: #145c38 !important;",
+      "    display: flex !important;",
+      "    align-items: center !important;",
+      "    gap: 6px !important;",
+      "  }",
+      "  .cluezy-context-sheet-close {",
+      "    background: #ecf6e8 !important;",
+      "    border: 1px solid #b5dda9 !important;",
+      "    color: #145c38 !important;",
+      "    border-radius: 6px !important;",
+      "    padding: 4px 10px !important;",
+      "    font-family: 'Inter', sans-serif !important;",
+      "    font-size: 12px !important;",
+      "    font-weight: 600 !important;",
+      "    cursor: pointer !important;",
+      "  }",
+      "  .cluezy-inline-context-btn {",
+      "    display: inline-flex !important;",
+      "    align-items: center !important;",
+      "    gap: 5px !important;",
+      "    background: #ecf6e8 !important;",
+      "    border: 1px solid #145c38 !important;",
+      "    color: #145c38 !important;",
+      "    border-radius: 20px !important;",
+      "    padding: 4px 10px !important;",
+      "    font-family: 'Inter', sans-serif !important;",
+      "    font-size: 11.5px !important;",
+      "    font-weight: 600 !important;",
+      "    cursor: pointer !important;",
+      "  }",
+      "}",
+      "/* 4. Mobile Phone Breakpoint (<= 768px) */",
+      "@media (max-width: 768px) {",
+      "  /* Landing Navbar compact 2-row grid */",
+      "  .framer-8kiHx .framer-15hwoiw {",
+      "    padding: 10px 14px !important;",
+      "    gap: 8px !important;",
+      "  }",
+      "  .framer-8kiHx .framer-o7hoit img:first-child {",
+      "    height: 28px !important;",
+      "  }",
+      "  .framer-8kiHx .framer-o7hoit img:last-child {",
+      "    height: 18px !important;",
+      "  }",
+      "  .framer-8kiHx .framer-1yyoi4g {",
+      "    margin-left: auto !important;",
+      "  }",
+      "  .cluezy-google-btn,",
+      "  .cluezy-header-profile-pill {",
+      "    min-width: 0 !important;",
+      "    padding: 8px 12px !important;",
+      "    font-size: 12.5px !important;",
+      "    gap: 7px !important;",
+      "  }",
+      "  .framer-8kiHx .framer-krramk {",
+      "    order: 3 !important;",
+      "    width: 100% !important;",
+      "    justify-content: space-around !important;",
+      "    gap: 10px !important;",
+      "    padding-top: 8px !important;",
+      "    border-top: 1px solid rgba(20, 92, 56, 0.1) !important;",
+      "  }",
+      "  .framer-8kiHx .framer-1ytts1e p,",
+      "  .framer-8kiHx .framer-u1406l p,",
+      "  .framer-8kiHx .framer-1o2suav p {",
+      "    font-size: 13.5px !important;",
+      "  }",
+      "  /* Landing Hero & Laptop on Mobile */",
+      "  .framer-TUnar .framer-iwz5lk {",
+      "    padding: 18px 16px 24px !important;",
+      "    gap: 22px !important;",
+      "  }",
+      "  .framer-TUnar .framer-lgk7od h1 {",
+      "    font-size: clamp(24px, 6.8vw, 32px) !important;",
+      "    line-height: 1.16 !important;",
+      "  }",
+      "  .framer-TUnar .framer-8lhi3e p {",
+      "    font-size: 14px !important;",
+      "    line-height: 1.5 !important;",
+      "  }",
+      "  .framer-TUnar .framer-9fd05w {",
+      "    flex-direction: column !important;",
+      "    width: 100% !important;",
+      "    max-width: 340px !important;",
+      "    gap: 10px !important;",
+      "  }",
+      "  .framer-TUnar .framer-142crrb-container,",
+      "  .framer-TUnar .framer-1s95o7a-container {",
+      "    width: 100% !important;",
+      "  }",
+      "  .framer-TUnar .framer-142crrb-container a,",
+      "  .framer-TUnar .framer-1s95o7a-container a {",
+      "    width: 100% !important;",
+      "    display: flex !important;",
+      "    justify-content: center !important;",
+      "    padding: 12px 20px !important;",
+      "    box-sizing: border-box !important;",
+      "  }",
+      "  .framer-TUnar .framer-ynmtwr {",
+      "    min-height: 210px !important;",
+      "    max-width: 100% !important;",
+      "    flex-direction: column !important;",
+      "  }",
+      "  .framer-TUnar .framer-1lwd1d4 {",
+      "    width: 92% !important;",
+      "    max-width: 330px !important;",
+      "    height: 200px !important;",
+      "    left: 4% !important;",
+      "    top: 0 !important;",
+      "    transform: rotate(-4deg) !important;",
+      "  }",
+      "  .framer-TUnar .framer-1aeb716 {",
+      "    transform: none !important;",
+      "    width: 100% !important;",
+      "    max-width: 335px !important;",
+      "    height: auto !important;",
+      "    min-height: 175px !important;",
+      "    padding: 16px 14px !important;",
+      "    border-width: 8px !important;",
+      "    margin: 0 auto !important;",
+      "    position: relative !important;",
+      "    left: auto !important;",
+      "    top: auto !important;",
+      "  }",
+      "  .framer-TUnar .framer-17vx2y0 {",
+      "    transform: none !important;",
+      "    width: 96% !important;",
+      "    max-width: 350px !important;",
+      "    height: 12px !important;",
+      "    margin: 0 auto !important;",
+      "    position: relative !important;",
+      "    left: auto !important;",
+      "    top: auto !important;",
+      "  }",
+      "  .framer-TUnar .framer-1n8j05n {",
+      "    grid-template-columns: repeat(2, 1fr) !important;",
+      "    gap: 12px !important;",
+      "    padding: 16px 14px 28px !important;",
+      "  }",
+      "  /* Workspace Investigation Heading & Chat on Mobile */",
+      "  [data-framer-name='Investigation heading'],",
+      "  .framer-xyKMK .framer-1yyitid {",
+      "    flex-wrap: wrap !important;",
+      "    gap: 8px !important;",
+      "  }",
+      "  [data-framer-name='Investigation heading'] h2 {",
+      "    font-size: 16.5px !important;",
+      "  }",
+      "  .cluezy-heading-actions {",
+      "    gap: 6px !important;",
+      "    flex-wrap: wrap !important;",
+      "  }",
+      "  .cluezy-header-user-name {",
+      "    max-width: 80px !important;",
+      "  }",
+      "  .cluezy-new-investigation-layout {",
+      "    padding: 14px 6px 28px !important;",
+      "  }",
+      "  .cluezy-hero-title {",
+      "    font-size: 20px !important;",
+      "  }",
+      "  .cluezy-hero-subtitle {",
+      "    font-size: 12.5px !important;",
+      "  }",
+      "  .cluezy-starter-categories {",
+      "    flex-wrap: nowrap !important;",
+      "    justify-content: flex-start !important;",
+      "    overflow-x: auto !important;",
+      "    padding-bottom: 6px !important;",
+      "    margin-top: 14px !important;",
+      "    -webkit-overflow-scrolling: touch !important;",
+      "  }",
+      "  .cluezy-starter-card {",
+      "    padding: 10px 12px !important;",
+      "  }",
+      "  .cluezy-starter-card-label {",
+      "    font-size: 12.5px !important;",
+      "  }",
+      "  /* Prevent iOS zoom on input focus by using 16px font on mobile */",
+      "  .cluezy-chat-textarea,",
+      "  .cluezy-search-input,",
+      "  .cluezy-hero-input {",
+      "    font-size: 16px !important;",
+      "  }",
+      "  .framer-xyKMK .framer-vu1os6 {",
+      "    max-width: 90% !important;",
+      "    padding: 12px 14px !important;",
+      "  }",
+      "  .framer-xyKMK .framer-wvffk8 {",
+      "    padding: 14px 15px !important;",
+      "  }",
+      "  [data-framer-name='Conversation'],",
+      "  .framer-xyKMK .framer-1f6swql {",
+      "    padding-right: 2px !important;",
+      "    gap: 12px !important;",
+      "  }",
+      "  /* Investigations History list on Mobile */",
+      "  .framer-EQe3b .framer-18etrkb {",
+      "    flex-direction: column !important;",
+      "    align-items: stretch !important;",
+      "    gap: 10px !important;",
+      "  }",
+      "  .framer-EQe3b .framer-1nkaxif {",
+      "    width: 100% !important;",
+      "    flex: none !important;",
+      "  }",
+      "  .cluezy-category-tabs {",
+      "    width: 100% !important;",
+      "    display: flex !important;",
+      "  }",
+      "  .cluezy-category-tab {",
+      "    flex: 1 1 50% !important;",
+      "    text-align: center !important;",
+      "  }",
+      "  .framer-EQe3b .framer-1xep79e,",
+      "  .framer-EQe3b .framer-94geo0,",
+      "  .framer-EQe3b .framer-15h09tb {",
+      "    padding: 14px !important;",
+      "    gap: 12px !important;",
+      "    flex-wrap: wrap !important;",
+      "  }",
+      "  /* Solution & Resolved pages on Mobile */",
+      "  .framer-BxVAd .framer-146hex6,",
+      "  .framer-BxVAd .framer-p2z1ts,",
+      "  .framer-fnZmG .framer-v42pep {",
+      "    padding: 16px !important;",
+      "  }",
+      "  .framer-fnZmG .framer-1uqe61t {",
+      "    padding: 12px 0 !important;",
+      "  }",
+      "  .framer-BxVAd .framer-xjpebi,",
+      "  .framer-fnZmG .framer-1gl26h2 {",
+      "    flex-direction: column !important;",
+      "    align-items: stretch !important;",
+      "    gap: 10px !important;",
+      "  }",
+      "  .framer-BxVAd .framer-xjpebi > div,",
+      "  .framer-fnZmG .framer-1gl26h2 > div {",
+      "    width: 100% !important;",
+      "  }",
+      "  .framer-BxVAd .framer-xjpebi a,",
+      "  .framer-fnZmG .framer-1gl26h2 a {",
+      "    width: 100% !important;",
+      "    display: flex !important;",
+      "    justify-content: center !important;",
+      "    box-sizing: border-box !important;",
+      "    padding: 12px 16px !important;",
+      "  }",
+      "}",
+      "@media (max-width: 480px) {",
+      "  .framer-TUnar .framer-1n8j05n {",
+      "    grid-template-columns: 1fr !important;",
+      "  }",
+      "  .cluezy-header-auth-slot .cluezy-header-user-name {",
+      "    display: none !important;",
+      "  }",
       "}",
     ].join("\n");
     document.head.appendChild(style);
@@ -2542,10 +3164,33 @@
 
       if (!whatWeKnowHeader || !possibleCausesHeader || !nextStepHeader) return;
 
+      // Ensure mobile bottom-sheet header exists inside the Investigation Context sidebar
+      var sheetHeader = sidebar.querySelector(".cluezy-context-sheet-header");
+      if (!sheetHeader) {
+        sheetHeader = document.createElement("div");
+        sheetHeader.className = "cluezy-context-sheet-header";
+        sheetHeader.innerHTML =
+          '<div class="cluezy-context-sheet-title">' +
+            '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>' +
+            '<span>Diagnostic Clues &amp; Causes</span>' +
+          '</div>' +
+          '<button type="button" class="cluezy-context-sheet-close" aria-label="Close diagnostic context">Done ✕</button>';
+        var closeSheetBtn = sheetHeader.querySelector(".cluezy-context-sheet-close");
+        if (closeSheetBtn) {
+          closeSheetBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            document.body.classList.remove("cluezy-mobile-context-open");
+          });
+        }
+        sidebar.insertBefore(sheetHeader, sidebar.firstChild);
+      }
+
       // Remove existing dynamic or static items between headers
       var toRemove = [];
       var children = Array.from(sidebar.children);
       var keepSet = new Set([
+        sheetHeader,
         sidebar.querySelector('[data-framer-name="Investigation Context"]'),
         sidebar.querySelector('[data-framer-name="Investigation context"]'),
         whatWeKnowHeader,
@@ -2642,11 +3287,14 @@
           var nextTitle = pendingAct ? pendingAct.title : "Open Solution Walkthrough";
           if (nextTextSpan) nextTextSpan.textContent = nextTitle;
           bindActionClick(nextCheckLink, function () {
+            document.body.classList.remove("cluezy-mobile-context-open");
             navigateTo("/solution/", { id: inv.reference_id });
           });
         }
       }
     });
+
+    updateMobileContextBadges(inv);
   }
 
   function createEvidenceRowDOM(ev) {
@@ -3620,12 +4268,269 @@
   }
 
   /**
+   * Close all mobile slide-out drawers (Sidebar & Context Sheet).
+   */
+  function closeAllMobileDrawers() {
+    if (document.body) {
+      document.body.classList.remove("cluezy-mobile-sidebar-open");
+      document.body.classList.remove("cluezy-mobile-context-open");
+    }
+  }
+
+  /**
+   * Update the live clue/cause count badges on mobile context toggle buttons.
+   */
+  function updateMobileContextBadges(inv) {
+    var evCount = inv && Array.isArray(inv.evidence) ? inv.evidence.length : 0;
+    var causeCount =
+      inv && Array.isArray(inv.candidate_causes)
+        ? inv.candidate_causes.filter(function (c) {
+            return c.status !== "ruled_out";
+          }).length
+        : 0;
+    var totalCount = evCount + causeCount;
+
+    var badges = document.querySelectorAll(".cluezy-mobile-context-badge");
+    badges.forEach(function (b) {
+      b.textContent = String(totalCount);
+      b.style.display = totalCount > 0 ? "inline-block" : "none";
+    });
+  }
+
+  /**
+   * Inject and bind the responsive Mobile Top Bar, Backdrop Overlay, Sidebar Close Button,
+   * and Inline Context Sheet Toggle Button for mobile and tablet screens (<= 1024px).
+   */
+  function ensureMobileNavigationUI() {
+    var hasWorkspaceSidebar = !!document.querySelector('[data-framer-name="Sidebar"]');
+    if (!hasWorkspaceSidebar) return;
+
+    // 1. Backdrop overlay
+    var backdrop = document.querySelector(".cluezy-mobile-backdrop");
+    if (!backdrop) {
+      backdrop = document.createElement("div");
+      backdrop.className = "cluezy-mobile-backdrop";
+      backdrop.addEventListener("click", function (e) {
+        e.preventDefault();
+        closeAllMobileDrawers();
+      });
+      document.body.appendChild(backdrop);
+    }
+
+    // 2. Close button inside Sidebar drawer
+    var sidebars = document.querySelectorAll('[data-framer-name="Sidebar"]');
+    sidebars.forEach(function (sb) {
+      if (!sb.querySelector(".cluezy-sidebar-close-btn")) {
+        var closeBtn = document.createElement("button");
+        closeBtn.type = "button";
+        closeBtn.className = "cluezy-sidebar-close-btn";
+        closeBtn.setAttribute("aria-label", "Close sidebar menu");
+        closeBtn.innerHTML =
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+        closeBtn.addEventListener("click", function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          document.body.classList.remove("cluezy-mobile-sidebar-open");
+        });
+        sb.appendChild(closeBtn);
+      }
+    });
+
+    // 3. Mobile Top Navigation Bar
+    var isInvestigationPage = !!document.querySelector('[data-framer-name="investigation content"]');
+    var topbar = document.querySelector(".cluezy-mobile-topbar");
+    if (!topbar) {
+      topbar = document.createElement("header");
+      topbar.className = "cluezy-mobile-topbar";
+      topbar.innerHTML =
+        '<div class="cluezy-mobile-topbar-left">' +
+          '<button type="button" class="cluezy-mobile-menu-btn" aria-label="Open navigation menu" title="Menu">' +
+            '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>' +
+          '</button>' +
+          '<a class="cluezy-mobile-brand" href="/" title="CLUEZY Home">' +
+            '<img src="/images/logo.png" alt="CLUEZY" style="height:24px;width:auto;object-fit:contain;filter:brightness(0) invert(1);" />' +
+            '<img src="/images/text.png" alt="CLUEZY" style="height:15px;width:auto;object-fit:contain;filter:brightness(0) invert(1);" />' +
+          '</a>' +
+        '</div>' +
+        '<div class="cluezy-mobile-topbar-right">' +
+          '<button type="button" class="cluezy-mobile-context-btn" title="View Diagnostic Clues &amp; Causes">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>' +
+            '<span>Clues</span>' +
+            '<span class="cluezy-mobile-context-badge" style="display:none;">0</span>' +
+          '</button>' +
+          '<button type="button" class="cluezy-mobile-new-btn" title="Start New Investigation">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>' +
+            '<span>New</span>' +
+          '</button>' +
+        '</div>';
+
+      var menuBtn = topbar.querySelector(".cluezy-mobile-menu-btn");
+      if (menuBtn) {
+        menuBtn.addEventListener("click", function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          document.body.classList.remove("cluezy-mobile-context-open");
+          document.body.classList.toggle("cluezy-mobile-sidebar-open");
+        });
+      }
+
+      var brandLink = topbar.querySelector(".cluezy-mobile-brand");
+      if (brandLink) {
+        bindActionClick(brandLink, function () {
+          closeAllMobileDrawers();
+          navigateTo("/");
+        });
+      }
+
+      var ctxBtn = topbar.querySelector(".cluezy-mobile-context-btn");
+      if (ctxBtn) {
+        ctxBtn.addEventListener("click", function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          document.body.classList.remove("cluezy-mobile-sidebar-open");
+          document.body.classList.toggle("cluezy-mobile-context-open");
+        });
+      }
+
+      var newBtn = topbar.querySelector(".cluezy-mobile-new-btn");
+      if (newBtn) {
+        bindActionClick(newBtn, function () {
+          closeAllMobileDrawers();
+          API.setCurrentInvestigationId(null);
+          appState.currentInvestigation = null;
+          navigateTo("/investigation/", { new: "1" });
+        });
+      }
+
+      document.body.appendChild(topbar);
+    }
+
+    var topCtxBtn = topbar.querySelector(".cluezy-mobile-context-btn");
+    if (topCtxBtn) {
+      topCtxBtn.style.display = isInvestigationPage ? "inline-flex" : "none";
+    }
+
+    // 4. Inline "Clues & Causes" toggle button inside Investigation Heading
+    var invHeading = document.querySelector('[data-framer-name="Investigation heading"]');
+    if (invHeading) {
+      var actionsContainer = invHeading.querySelector(".cluezy-heading-actions") || invHeading;
+      if (!actionsContainer.querySelector(".cluezy-inline-context-btn")) {
+        var inlineCtxBtn = document.createElement("button");
+        inlineCtxBtn.type = "button";
+        inlineCtxBtn.className = "cluezy-inline-context-btn";
+        inlineCtxBtn.title = "View What We Know & Possible Causes";
+        inlineCtxBtn.innerHTML =
+          '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>' +
+          '<span>Clues &amp; Causes</span>' +
+          '<span class="cluezy-mobile-context-badge" style="display:none;">0</span>';
+        inlineCtxBtn.addEventListener("click", function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          document.body.classList.remove("cluezy-mobile-sidebar-open");
+          document.body.classList.toggle("cluezy-mobile-context-open");
+        });
+        actionsContainer.insertBefore(inlineCtxBtn, actionsContainer.firstChild);
+      }
+    }
+
+    updateMobileContextBadges(appState.currentInvestigation);
+
+    // Escape key closes mobile drawers
+    if (!window._cluezyEscDrawerBound) {
+      window._cluezyEscDrawerBound = true;
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
+          closeAllMobileDrawers();
+        }
+      });
+    }
+  }
+
+  /**
+   * Make Knowledge Base search input and topic category pills interactive across all devices.
+   */
+  function renderKnowledgeBaseView() {
+    var root = document.querySelector('[data-framer-name="knowledge content"]');
+    if (!root) return;
+
+    appState.isUpdatingDOM = true;
+    try {
+      root.setAttribute("data-cluezy-rendered", "true");
+      var searchBox = root.querySelector('[data-framer-name="Search topics"]');
+      var textWrap = searchBox
+        ? searchBox.querySelector('[data-framer-name*="Search topics"]') || searchBox.querySelector(".framer-1mas3tm")
+        : null;
+
+      if (textWrap && !textWrap.querySelector("input.cluezy-search-input")) {
+        textWrap.innerHTML = "";
+        var inp = document.createElement("input");
+        inp.type = "text";
+        inp.className = "cluezy-search-input";
+        inp.placeholder = "Search topics, e.g., “DNS”, “Slow laptop”, “Python”…";
+        inp.value = appState.kbSearchQuery || "";
+        inp.addEventListener("input", function () {
+          appState.kbSearchQuery = inp.value;
+          filterKnowledgeGuides(root);
+        });
+        textWrap.appendChild(inp);
+      }
+
+      var topicCats = root.querySelector('[data-framer-name="Topic categories"]');
+      if (topicCats && !topicCats.dataset.bound) {
+        topicCats.dataset.bound = "true";
+        var pills = Array.from(topicCats.children);
+        pills.forEach(function (pill) {
+          pill.style.cursor = "pointer";
+          pill.addEventListener("click", function () {
+            var labelEl = pill.querySelector("span, p");
+            var catText = labelEl ? labelEl.textContent.trim().toLowerCase() : "all";
+            appState.kbCategory = catText;
+            pills.forEach(function (p) {
+              var pTextEl = p.querySelector("span, p");
+              var isSelected = p === pill;
+              p.style.backgroundColor = isSelected ? "var(--token-aW35IeuAs, #145c38)" : "var(--token-gMr3EOQJF, #f5f6f3)";
+              if (pTextEl) {
+                pTextEl.style.color = isSelected ? "#ffffff" : "var(--token-vfjxZCpBY, #17251f)";
+                pTextEl.style.setProperty("--framer-text-color", isSelected ? "#ffffff" : "var(--token-vfjxZCpBY, #17251f)");
+              }
+            });
+            filterKnowledgeGuides(root);
+          });
+        });
+      }
+    } finally {
+      appState.isUpdatingDOM = false;
+    }
+  }
+
+  function filterKnowledgeGuides(root) {
+    var guidesBox = root.querySelector('[data-framer-name="Troubleshooting guides"]');
+    if (!guidesBox) return;
+    var q = (appState.kbSearchQuery || "").trim().toLowerCase();
+    var cat = (appState.kbCategory || "all").toLowerCase();
+
+    Array.from(guidesBox.children).forEach(function (card) {
+      var text = (card.textContent || "").toLowerCase();
+      var matchesQuery = !q || text.indexOf(q) >= 0;
+      var matchesCat = true;
+      if (cat && cat !== "all") {
+        if (cat === "network") matchesCat = text.indexOf("wi-fi") >= 0 || text.indexOf("internet") >= 0 || text.indexOf("dns") >= 0;
+        else if (cat === "os") matchesCat = text.indexOf("laptop") >= 0 || text.indexOf("windows") >= 0 || text.indexOf("performance") >= 0;
+        else if (cat === "programming") matchesCat = text.indexOf("python") >= 0 || text.indexOf("code") >= 0 || text.indexOf("error") >= 0;
+        else if (cat === "software") matchesCat = text.indexOf("app") >= 0 || text.indexOf("python") >= 0 || text.indexOf("performance") >= 0;
+      }
+      card.style.display = matchesQuery && matchesCat ? "flex" : "none";
+    });
+  }
+
+  /**
    * Detect which page component is present in the DOM and mount/render it.
    */
   function mountCurrentRouteDOM() {
     if (appState.isUpdatingDOM) return;
     ensureHelperStyles();
     bindSidebarAndSessionQuota();
+    ensureMobileNavigationUI();
 
     var heroEl = document.querySelector('[data-framer-name="Troubleshooting hero"]');
     if (heroEl && heroEl.getAttribute("data-cluezy-rendered") !== "true") {
@@ -3635,8 +4540,10 @@
     var invEl = document.querySelector('[data-framer-name="investigation content"]');
     var solEl = document.querySelector('[data-framer-name="solution content"]');
     var resEl = document.querySelector('[data-framer-name="resolved content"]');
+    var listEl = document.querySelector('[data-framer-name="investigations content"]');
+    var kbEl = document.querySelector('[data-framer-name="knowledge content"]');
 
-    if (invEl || solEl || resEl) {
+    if (invEl || solEl || resEl || listEl || kbEl) {
       document.documentElement.classList.add("cluezy-no-page-scroll");
       document.body.classList.add("cluezy-no-page-scroll");
     } else {
@@ -3656,10 +4563,15 @@
       renderResolvedView();
     }
 
-    var listEl = document.querySelector('[data-framer-name="investigations content"]');
     if (listEl) {
       renderInvestigationsListView();
     }
+
+    if (kbEl) {
+      renderKnowledgeBaseView();
+    }
+
+    ensureMobileNavigationUI();
   }
 
   function registerGlobalDelegatedClickHandlers() {
