@@ -3665,7 +3665,12 @@
       "  }",
       "}",
     ].join("\n");
-    document.head.appendChild(style);
+    var uiCssLink = document.querySelector('link[href*="cluezy-ui.css"]');
+    if (uiCssLink && uiCssLink.parentNode) {
+      uiCssLink.parentNode.insertBefore(style, uiCssLink);
+    } else {
+      document.head.appendChild(style);
+    }
   }
 
   /**
@@ -3784,24 +3789,24 @@
 
       if (recentItems.length === 0) {
         var emptyEl = document.createElement("div");
-        emptyEl.style.cssText = "font-size:11px;color:#a3b2a8;padding:6px 10px;font-style:italic;";
+        emptyEl.className = "cluezy-recent-empty";
         emptyEl.textContent = "No recent investigations";
         list.appendChild(emptyEl);
       } else {
         recentItems.forEach(function (item) {
           var rawTitle = (item.title || item.problem_description || item.reference_id || "Investigation").trim();
-          var displayTitle = rawTitle.length > 20 ? rawTitle.slice(0, 18) + "…" : rawTitle;
           var relTime = formatRelativeTime(item.created_at || item.updated_at);
+          var isCurrentItem =
+            appState.currentInvestigation &&
+            appState.currentInvestigation.reference_id === item.reference_id;
 
           var a = document.createElement("a");
-          a.className = "cluezy-recent-item";
+          a.className = "cluezy-recent-item" + (isCurrentItem ? " active" : "");
           a.setAttribute("href", "/investigation/?id=" + encodeURIComponent(item.reference_id));
+          a.setAttribute("title", rawTitle);
           a.innerHTML =
-            '<div style="display:flex;align-items:center;gap:6px;overflow:hidden;">' +
-            '<span class="cluezy-dot">●</span>' +
-            '<span class="cluezy-title" title="' + rawTitle.replace(/"/g, "&quot;") + '">' + displayTitle + '</span>' +
-            '</div>' +
-            '<span class="cluezy-time">' + relTime + '</span>';
+            '<span class="cluezy-title" title="' + escapeHtml(rawTitle) + '">' + escapeHtml(rawTitle) + "</span>" +
+            '<span class="cluezy-time">' + escapeHtml(relTime) + "</span>";
 
           bindActionClick(a, function () {
             API.setCurrentInvestigationId(item.reference_id);
@@ -3831,10 +3836,16 @@
    * Update the sidebar token usage display and global sidebar navigation links.
    */
   function bindSidebarAndSessionQuota() {
+    var path = window.location.pathname || "/";
+    var isHistoryPage = path.indexOf("/investigations") === 0;
+    var isInvestigationPage = path.indexOf("/investigation") === 0 && !isHistoryPage;
+
     var newInvLinks = document.querySelectorAll('[data-framer-name="Sidebar"] [data-framer-name="New Investigation"]');
     newInvLinks.forEach(function (el) {
       var anchor = el.tagName === "A" ? el : el.closest("a");
       if (anchor) {
+        if (isInvestigationPage) anchor.classList.add("cluezy-nav-link-active");
+        else anchor.classList.remove("cluezy-nav-link-active");
         bindActionClick(anchor, function () {
           API.setCurrentInvestigationId(null);
           navigateTo("/investigation/", { new: "1" });
@@ -3846,6 +3857,8 @@
     myInvLinks.forEach(function (el) {
       var anchor = el.tagName === "A" ? el : el.closest("a");
       if (anchor) {
+        if (isHistoryPage) anchor.classList.add("cluezy-nav-link-active");
+        else anchor.classList.remove("cluezy-nav-link-active");
         bindActionClick(anchor, function () {
           navigateTo("/investigations/");
         });
@@ -3879,12 +3892,13 @@
         var wrap = document.createElement("div");
         wrap.className = "cluezy-sidebar-brand-img";
         wrap.style.cssText = "display: flex; align-items: center; gap: 8px;";
-        wrap.innerHTML = '<img src="/images/logo.png" alt="CLUEZY" style="height: 28px; width: auto; object-fit: contain; filter: brightness(0) invert(1); flex-shrink: 0;" /><img src="/images/text.png" alt="CLUEZY" style="height: 18px; width: auto; object-fit: contain; filter: brightness(0) invert(1); flex-shrink: 0;" />';
+        wrap.innerHTML = '<img src="/images/logo.png" alt="CLUEZY" style="height: 26px; width: auto; object-fit: contain; flex-shrink: 0;" /><img src="/images/text.png" alt="CLUEZY" style="height: 16px; width: auto; object-fit: contain; flex-shrink: 0;" />';
         el.appendChild(wrap);
       }
     });
 
-    // Fetch and render Recent Investigations in the sidebar (max 5 items)
+    // Render Recent Investigations immediately on mount, then update when API resolves
+    renderSidebarRecentInvestigations(appState.investigationsList || []);
     API.listInvestigations({ page: 1, page_size: 5 })
       .then(function (res) {
         if (res && Array.isArray(res.items)) {
@@ -3925,23 +3939,29 @@
   }
 
   function renderTokenQuota(sess) {
-    var usageBox = document.querySelector('[data-framer-name="Free plan usage"]');
-    if (!usageBox || !sess) return;
-    var limitStr = (sess.daily_token_limit || 200000).toLocaleString();
-    var pct = sess.remaining_percentage !== undefined ? Math.round(sess.remaining_percentage) : 100;
-    var textContainer = usageBox.querySelector(".framer-ff8y6p span, .framer-ff8y6p p");
-    if (textContainer) {
-      textContainer.textContent = limitStr + " tokens/day · " + pct + "% remaining";
+    var usageBoxes = document.querySelectorAll('[data-framer-name="Free plan usage"]');
+    if (!usageBoxes || !usageBoxes.length) return;
+    var remPct = sess && sess.remaining_percentage !== undefined ? Math.round(sess.remaining_percentage) : 100;
+    var usedPct = Math.max(0, Math.min(100, 100 - remPct));
+    if (sess && typeof sess.tokens_used === "number" && typeof sess.daily_token_limit === "number" && sess.daily_token_limit > 0) {
+      usedPct = Math.max(0, Math.min(100, Math.round((sess.tokens_used / sess.daily_token_limit) * 100)));
     }
-    var bar = usageBox.querySelector('[data-framer-name="Remaining allowance"]');
-    if (bar) {
-      bar.style.width = Math.max(5, Math.min(100, pct)) + "%";
-    }
+    usageBoxes.forEach(function (usageBox) {
+      var textContainer = usageBox.querySelector(".framer-ff8y6p span, .framer-ff8y6p p");
+      if (textContainer) {
+        textContainer.textContent = "Daily usage: " + usedPct + "%";
+      }
+      var bar = usageBox.querySelector('[data-framer-name="Remaining allowance"]');
+      if (bar) {
+        bar.style.width = usedPct + "%";
+      }
+    });
   }
 
   /**
-   * Bind sidebar user profile container to show Google OAuth avatar, name, and account menu,
-   * with an explicit Logout button, or a clean "Sign in with Google" button for anonymous visitors.
+   * Bind sidebar bottom row: ONE combined avatar/usage row at the bottom of the sidebar.
+   * Preserves [data-framer-name="Profile"], [data-framer-name="Free plan usage"],
+   * .framer-ff8y6p, and [data-framer-name="Remaining allowance"] in the DOM.
    */
   async function bindUserProfile() {
     var profileContainers = document.querySelectorAll('[data-framer-name="Profile"]');
@@ -3955,53 +3975,65 @@
     }
 
     profileContainers.forEach(function (profileEl) {
-      // Remove any previously open dropdown
       var oldMenu = document.getElementById("cluezy-account-dropdown");
       if (oldMenu && oldMenu.parentNode) {
         oldMenu.parentNode.removeChild(oldMenu);
       }
 
+      var sidebar = profileEl.closest('[data-framer-name="Sidebar"]');
+      var usageBox = sidebar ? sidebar.querySelector('[data-framer-name="Free plan usage"]') : null;
+
       profileEl.style.display = "flex";
+      profileEl.classList.add("cluezy-sidebar-bottom-row");
 
-      if (user) {
-        // Authenticated user state: show compact profile card + explicit Logout button
-        var metadata = user.user_metadata || {};
-        var displayName = metadata.full_name || metadata.name || (user.email ? user.email.split("@")[0] : "Aditi");
-        var avatarUrl = metadata.avatar_url || metadata.picture || null;
-        var email = user.email || "Google Account";
-        var initial = (displayName.charAt(0) || "A").toUpperCase();
+      var metadata = (user && user.user_metadata) || {};
+      var displayName = user
+        ? (metadata.full_name || metadata.name || (user.email ? user.email.split("@")[0] : "User"))
+        : "Guest";
+      var avatarUrl = user ? (metadata.avatar_url || metadata.picture || null) : null;
+      var initial = (displayName.charAt(0) || "G").toUpperCase();
 
-        var avatarHtml = avatarUrl
-          ? '<img src="' + avatarUrl + '" alt="' + escapeHtml(displayName) + '" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" referrerpolicy="no-referrer" />'
-          : '<div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font-weight: 700; color: #ffffff; background: #145c38; border-radius: 50%; font-size: 13px;">' + initial + '</div>';
+      var avatarHtml = avatarUrl
+        ? '<img src="' + avatarUrl + '" alt="' + escapeHtml(displayName) + '" class="cluezy-sidebar-avatar-img" referrerpolicy="no-referrer" />'
+        : '<div class="cluezy-sidebar-avatar-initial">' + escapeHtml(initial) + "</div>";
 
-        profileEl.innerHTML =
-          '<div class="cluezy-profile-card-inner" style="display: flex; align-items: center; gap: 8px; flex: 1 1 0px; min-width: 0;" title="Account details">' +
-            '<div style="width: 28px; height: 28px; min-width: 28px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center;">' +
-              avatarHtml +
-            '</div>' +
-            '<div style="flex: 1 1 0px; min-width: 0; display: flex; flex-direction: column; justify-content: center;">' +
-              '<div class="cluezy-sidebar-user-name">' + escapeHtml(displayName) + '</div>' +
-              '<div class="cluezy-sidebar-user-email">' + escapeHtml(email) + '</div>' +
-            '</div>' +
-          '</div>';
-      } else {
-        // Unauthenticated anonymous state: Show clean Google Sign-In button
-        profileEl.innerHTML =
-          '<button class="cluezy-sidebar-signin-btn" title="Sign in with Google" type="button">' +
-            '<svg width="14" height="14" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"/><path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12 0 14.8s.7 5.1 1.9 7.5l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2-6.4-4.8L1.9 16.4C3.7 20.4 7.5 23 12 23z"/></svg>' +
-            '<span>Sign in with Google</span>' +
-          '</button>';
+      var rightActionHtml = !user
+        ? '<button class="cluezy-sidebar-signin-btn" title="Sign in with Google" type="button">Sign in</button>'
+        : "";
 
-        var signinBtn = profileEl.querySelector(".cluezy-sidebar-signin-btn");
-        if (signinBtn) {
-          signinBtn.onclick = function (e) {
-            e.stopPropagation();
-            API.signInWithGoogle();
-          };
-        }
+      // Detach usageBox temporarily before setting innerHTML so it is never destroyed
+      if (usageBox && profileEl.contains(usageBox)) {
+        profileEl.removeChild(usageBox);
+      }
+
+      profileEl.innerHTML =
+        '<div class="cluezy-profile-card-inner">' +
+          '<div class="cluezy-sidebar-avatar-wrap">' + avatarHtml + "</div>" +
+          '<div class="cluezy-sidebar-profile-col">' +
+            '<div class="cluezy-sidebar-profile-top">' +
+              '<span class="cluezy-sidebar-user-name">' + escapeHtml(displayName) + "</span>" +
+              rightActionHtml +
+            "</div>" +
+            '<div class="cluezy-sidebar-usage-slot"></div>' +
+          "</div>" +
+        "</div>";
+
+      var usageSlot = profileEl.querySelector(".cluezy-sidebar-usage-slot");
+      if (usageBox && usageSlot) {
+        usageSlot.appendChild(usageBox);
+      }
+
+      var signinBtn = profileEl.querySelector(".cluezy-sidebar-signin-btn");
+      if (signinBtn) {
+        signinBtn.onclick = function (e) {
+          e.stopPropagation();
+          API.signInWithGoogle();
+        };
       }
     });
+
+    var cachedSess = API.getCachedSessionData();
+    renderTokenQuota(cachedSess || { remaining_percentage: 100 });
 
     var invRoot = document.querySelector('[data-framer-name="investigation content"]');
     if (invRoot) {
@@ -5535,7 +5567,7 @@
           heroSection.className = "cluezy-hero-welcome-section";
           heroSection.innerHTML =
             '<h1 class="cluezy-hero-title">Describe your technical problem</h1>' +
-            '<p class="cluezy-hero-subtitle">Type your issue below or choose a common problem to start a step-by-step investigation.</p>';
+            '<p class="cluezy-hero-subtitle">Type your issue below or choose a common problem to start troubleshooting.</p>';
           convContainer.appendChild(heroSection);
 
           // 2. Prominent centered input box with attach and mic icons
@@ -5739,12 +5771,20 @@
 
       // A. Populate "What we know" Evidence Items before possibleCausesHeader
       var evidenceItems = inv && Array.isArray(inv.evidence) ? inv.evidence : [];
+      var causes = inv && Array.isArray(inv.candidate_causes) ? inv.candidate_causes.slice() : [];
+      var hasContextData = evidenceItems.length > 0 || causes.length > 0;
+
+      // Hide right "Investigation Context" panel on desktop until investigation has evidence or causes
+      if (!hasContextData) {
+        sidebar.classList.add("cluezy-context-empty-hidden");
+      } else {
+        sidebar.classList.remove("cluezy-context-empty-hidden");
+      }
+
       if (evidenceItems.length === 0) {
-        var emptyEv = createEvidenceRowDOM({
-          category: "issue",
-          key: "Status",
-          value: "Awaiting problem description",
-        });
+        var emptyEv = document.createElement("div");
+        emptyEv.className = "cluezy-context-real-empty";
+        emptyEv.textContent = "Evidence and likely causes will appear here as you answer";
         sidebar.insertBefore(emptyEv, possibleCausesHeader);
       } else {
         evidenceItems.forEach(function (ev) {
@@ -5754,7 +5794,6 @@
       }
 
       // B. Populate "Possible causes" Items before nextStepHeader
-      var causes = inv && Array.isArray(inv.candidate_causes) ? inv.candidate_causes.slice() : [];
       causes.sort(function (a, b) {
         var rank = function (c) {
           if (c.status === "confirmed") return 2;
@@ -5767,12 +5806,9 @@
       });
 
       if (causes.length === 0) {
-        var emptyCause = createCandidateCauseRowDOM({
-          title: "Pending initial symptom analysis",
-          likelihood: "Low",
-          status: "suspected",
-          notes: "Describe your issue to evaluate candidate causes.",
-        });
+        var emptyCause = document.createElement("div");
+        emptyCause.className = "cluezy-context-real-empty";
+        emptyCause.textContent = "Evidence and likely causes will appear here as you answer";
         sidebar.insertBefore(emptyCause, nextStepHeader);
       } else {
         causes.forEach(function (cause) {
@@ -6990,8 +7026,8 @@
             '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>' +
           '</button>' +
           '<a class="cluezy-mobile-brand" href="/" title="CLUEZY Home">' +
-            '<img src="/images/logo.png" alt="CLUEZY" style="height:24px;width:auto;object-fit:contain;filter:brightness(0) invert(1);" />' +
-            '<img src="/images/text.png" alt="CLUEZY" style="height:15px;width:auto;object-fit:contain;filter:brightness(0) invert(1);" />' +
+            '<img src="/images/logo.png" alt="CLUEZY" style="height:24px;width:auto;object-fit:contain;" />' +
+            '<img src="/images/text.png" alt="CLUEZY" style="height:15px;width:auto;object-fit:contain;" />' +
           '</a>' +
         '</div>' +
         '<div class="cluezy-mobile-topbar-right">' +
@@ -7056,7 +7092,7 @@
     var invHeading = document.querySelector('[data-framer-name="Investigation heading"]');
     if (invHeading) {
       var actionsContainer = invHeading.querySelector(".cluezy-heading-actions") || invHeading;
-      if (!actionsContainer.querySelector(".cluezy-inline-context-btn")) {
+      if (!invHeading.querySelector(".cluezy-inline-context-btn")) {
         var inlineCtxBtn = document.createElement("button");
         inlineCtxBtn.type = "button";
         inlineCtxBtn.className = "cluezy-inline-context-btn";

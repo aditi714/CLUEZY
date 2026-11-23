@@ -515,22 +515,23 @@ body.cluezy-no-page-scroll .cluezy-mic-btn.recording {
 /* Category Tabs: Underline tabs with Lucide icons (no emoji) */
 body.cluezy-no-page-scroll .cluezy-starter-categories {
   width: 100% !important;
-  max-width: 720px !important;
+  max-width: 820px !important;
   display: flex !important;
-  flex-wrap: wrap !important;
+  flex-wrap: nowrap !important;
   align-items: center !important;
   justify-content: center !important;
   gap: var(--clz-space-4) !important;
   border-bottom: 1px solid var(--clz-border) !important;
   margin: 0 auto !important;
-  padding: 0 !important;
+  padding: 0 var(--clz-space-4) !important;
+  overflow-x: auto !important;
 }
 
 body.cluezy-no-page-scroll .cluezy-category-pill {
   display: inline-flex !important;
   align-items: center !important;
   gap: var(--clz-space-8) !important;
-  padding: var(--clz-space-8) var(--clz-space-12) !important;
+  padding: var(--clz-space-8) 10px !important;
   margin-bottom: -1px !important;
   border: none !important;
   border-bottom: 2px solid transparent !important;
@@ -538,10 +539,12 @@ body.cluezy-no-page-scroll .cluezy-category-pill {
   background: transparent !important;
   color: var(--clz-text-secondary) !important;
   font-family: var(--clz-font-sans) !important;
-  font-size: var(--clz-font-14) !important;
+  font-size: var(--clz-font-12) !important;
   font-weight: 500 !important;
   cursor: pointer !important;
   box-shadow: none !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
   transition: color 0.15s ease, border-color 0.15s ease !important;
 }
 
@@ -623,4 +626,357 @@ body.cluezy-no-page-scroll .cluezy-starter-card-label {
   font-weight: 500 !important;
   color: var(--clz-text-primary) !important;
   line-height: 1.35 !important;
+}
+
+/* ==========================================================================
+   PHASE 4: SIDEBAR, RECENT LIST, COMBINED AVATAR/USAGE ROW & CONTEXT PANEL
+   ========================================================================== */
+
+/* Light Neutral Sidebar */
+body.cluezy-no-page-scroll [data-framer-name="Sidebar"],
+body.cluezy-no-page-scroll .framer-sbem9 .framer-r5haeu {
+  background-color: var(--clz-surface) !important;
+  border-right: 1px solid var(--clz-border) !important;
+  padding: var(--clz-space-16) var(--clz-space-12) !important;
+  gap: var(--clz-space-12) !important;
+}
+
+/* Sidebar Brand Logo */
+body.cluezy-no-page-scroll [data-framer-name="Cluezy brand"] {
+  padding: var(--clz-space-4) var(--clz-space-8) var(--clz-space-12) var(--clz-space-8) !important;
+  border-bottom: 1px solid var(--clz-border) !important;
+  margin-bottom: var(--clz-space-4) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-sidebar-brand-img img {
+  filter: none !important;
+}
+
+/* Sidebar Navigation Links (New Investigation, My Investigations) */
+body.cluezy-no-page-scroll [data-framer-name="Workspace navigation"] a[data-framer-name="New Investigation"],
+body.cluezy-no-page-scroll [data-framer-name="Workspace navigation"] a[data-framer-name="My Investigations"],
+body.cluezy-no-page-scroll [data-framer-name="Workspace navigation"] [data-framer-name="New Investigation"],
+body.cluezy-no-page-scroll [data-framer-name="Workspace navigation"] [data-framer-name="My Investigations"] {
+  border-radius: var(--clz-radius-8) !important;
+  background-color: transparent !important;
+  color: var(--clz-text-secondary) !important;
+  padding: var(--clz-space-8) var(--clz-space-12) !important;
+  transition: background-color 0.15s ease, color 0.15s ease !important;
+}
+
+body.cluezy-no-page-scroll [data-framer-name="Workspace navigation"] a[data-framer-name="New Investigation"] *,
+body.cluezy-no-page-scroll [data-framer-name="Workspace navigation"] a[data-framer-name="My Investigations"] *,
+body.cluezy-no-page-scroll [data-framer-name="Workspace navigation"] [data-framer-name="New Investigation"] *,
+body.cluezy-no-page-scroll [data-framer-name="Workspace navigation"] [data-framer-name="My Investigations"] * {
+  color: var(--clz-text-secondary) !important;
+  --framer-text-color: var(--clz-text-secondary) !important;
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-14) !important;
+  font-weight: 500 !important;
+}
+
+body.cluezy-no-page-scroll [data-framer-name="Workspace navigation"] a:hover,
+body.cluezy-no-page-scroll [data-framer-name="Workspace navigation"] [data-framer-name="New Investigation"]:hover,
+body.cluezy-no-page-scroll [data-framer-name="Workspace navigation"] [data-framer-name="My Investigations"]:hover {
+  background-color: var(--clz-surface-subtle) !important;
+}
+
+body.cluezy-no-page-scroll [data-framer-name="Workspace navigation"] a.cluezy-nav-link-active,
+body.cluezy-no-page-scroll [data-framer-name="Workspace navigation"] a.cluezy-nav-link-active > div {
+  background-color: var(--clz-brand-tint) !important;
+  color: var(--clz-brand) !important;
+}
+
+body.cluezy-no-page-scroll [data-framer-name="Workspace navigation"] a.cluezy-nav-link-active * {
+  color: var(--clz-brand) !important;
+  --framer-text-color: var(--clz-brand) !important;
+  font-weight: 600 !important;
+}
+
+body.cluezy-no-page-scroll [data-framer-name="Workspace navigation"] svg {
+  filter: brightness(0) saturate(100%) opacity(0.65) !important;
+}
+
+body.cluezy-no-page-scroll [data-framer-name="Workspace navigation"] a.cluezy-nav-link-active svg {
+  filter: brightness(0) saturate(100%) invert(24%) sepia(66%) saturate(653%) hue-rotate(107deg) brightness(93%) contrast(94%) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-recent-header svg {
+  filter: none !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-category-tab {
+  white-space: nowrap !important;
+}
+
+/* Sidebar Recent Section: Single-line truncate with title tooltip, relative time right-aligned */
+body.cluezy-no-page-scroll .cluezy-sidebar-recent {
+  margin-top: var(--clz-space-12) !important;
+  padding: var(--clz-space-12) 0 0 0 !important;
+  border-top: 1px solid var(--clz-border) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-recent-header {
+  padding: var(--clz-space-4) var(--clz-space-8) !important;
+  color: var(--clz-text-muted) !important;
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-12) !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+  border-radius: var(--clz-radius-8) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-recent-header:hover {
+  background-color: var(--clz-surface-subtle) !important;
+  color: var(--clz-text-primary) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-recent-empty {
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-12) !important;
+  color: var(--clz-text-muted) !important;
+  padding: var(--clz-space-8) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-recent-item {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: var(--clz-space-8) !important;
+  padding: var(--clz-space-8) !important;
+  border-radius: var(--clz-radius-8) !important;
+  color: var(--clz-text-secondary) !important;
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-14) !important;
+  text-decoration: none !important;
+  min-width: 0 !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-recent-item:hover {
+  background-color: var(--clz-surface-subtle) !important;
+  color: var(--clz-text-primary) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-recent-item.active {
+  background-color: var(--clz-brand-tint) !important;
+  color: var(--clz-brand) !important;
+  font-weight: 600 !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-recent-item .cluezy-title {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  font-size: var(--clz-font-12) !important;
+  color: inherit !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-recent-item .cluezy-time {
+  flex: 0 0 auto !important;
+  margin-left: auto !important;
+  text-align: right !important;
+  font-size: var(--clz-font-12) !important;
+  color: var(--clz-text-muted) !important;
+  opacity: 1 !important;
+}
+
+/* Sidebar Bottom: ONE Combined Avatar / Daily Usage Row */
+body.cluezy-no-page-scroll [data-framer-name="Profile"].cluezy-sidebar-bottom-row {
+  margin-top: auto !important;
+  padding: var(--clz-space-12) !important;
+  background-color: var(--clz-surface-subtle) !important;
+  border: 1px solid var(--clz-border) !important;
+  border-radius: var(--clz-radius-12) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--clz-space-8) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-profile-card-inner {
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--clz-space-12) !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-sidebar-avatar-wrap {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  border-radius: 50% !important;
+  overflow: hidden !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-sidebar-avatar-img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 50% !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-sidebar-avatar-initial {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 50% !important;
+  background-color: var(--clz-brand) !important;
+  color: var(--clz-on-brand) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-14) !important;
+  font-weight: 600 !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-sidebar-profile-col {
+  flex: 1 1 0px !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--clz-space-4) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-sidebar-profile-top {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: var(--clz-space-8) !important;
+  min-width: 0 !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-sidebar-user-name {
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-14) !important;
+  font-weight: 600 !important;
+  color: var(--clz-text-primary) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-sidebar-signin-btn {
+  width: auto !important;
+  padding: 2px var(--clz-space-8) !important;
+  border-radius: var(--clz-radius-8) !important;
+  border: 1px solid var(--clz-border-strong) !important;
+  background-color: var(--clz-surface) !important;
+  color: var(--clz-brand) !important;
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-12) !important;
+  font-weight: 600 !important;
+  flex-shrink: 0 !important;
+}
+
+/* Integrated Daily Usage line + thin progress bar inside the bottom row */
+body.cluezy-no-page-scroll [data-framer-name="Free plan usage"],
+body.cluezy-no-page-scroll .framer-we2i1d {
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--clz-space-4) !important;
+  width: 100% !important;
+}
+
+/* Hide the old "Free Plan" heading and Framer data-border pseudo-borders inside Free plan usage */
+body.cluezy-no-page-scroll [data-framer-name="Free plan usage"] > div:first-child:not(.framer-ff8y6p),
+body.cluezy-no-page-scroll [data-framer-name="Free plan usage"]::after,
+body.cluezy-no-page-scroll [data-framer-name="Profile"]::after {
+  display: none !important;
+}
+
+body.cluezy-no-page-scroll [data-framer-name="Free plan usage"] .framer-ff8y6p,
+body.cluezy-no-page-scroll [data-framer-name="Free plan usage"] .framer-ff8y6p p,
+body.cluezy-no-page-scroll [data-framer-name="Free plan usage"] .framer-ff8y6p span {
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-12) !important;
+  font-weight: 500 !important;
+  color: var(--clz-text-secondary) !important;
+  --framer-text-color: var(--clz-text-secondary) !important;
+}
+
+/* Thin progress bar track and brand-green fill */
+body.cluezy-no-page-scroll [data-framer-name="Usage bar"] {
+  width: 100% !important;
+  height: 4px !important;
+  border-radius: var(--clz-radius-8) !important;
+  background-color: var(--clz-border-strong) !important;
+  overflow: hidden !important;
+}
+
+body.cluezy-no-page-scroll [data-framer-name="Remaining allowance"] {
+  height: 100% !important;
+  border-radius: var(--clz-radius-8) !important;
+  background-color: var(--clz-brand) !important;
+}
+
+/* Right "Investigation Context" Panel */
+@media (min-width: 1025px) {
+  body.cluezy-no-page-scroll [data-framer-name="Investigation context"].cluezy-context-empty-hidden {
+    display: none !important;
+  }
+}
+
+body.cluezy-no-page-scroll [data-framer-name="Investigation context"] {
+  background-color: var(--clz-surface) !important;
+  border: 1px solid var(--clz-border) !important;
+  border-radius: var(--clz-radius-12) !important;
+  padding: var(--clz-space-16) !important;
+  gap: var(--clz-space-12) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-context-real-empty {
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-12) !important;
+  color: var(--clz-text-muted) !important;
+  line-height: 1.45 !important;
+  padding: var(--clz-space-8) var(--clz-space-12) !important;
+  background-color: var(--clz-surface-subtle) !important;
+  border: 1px dashed var(--clz-border-strong) !important;
+  border-radius: var(--clz-radius-8) !important;
+}
+
+/* Mobile Topbar & Drawer fixes for Neutral Light Theme */
+@media (max-width: 1024px) {
+  body.cluezy-no-page-scroll .cluezy-mobile-topbar {
+    background-color: var(--clz-surface) !important;
+    color: var(--clz-text-primary) !important;
+    border-bottom: 1px solid var(--clz-border) !important;
+    box-shadow: var(--clz-shadow) !important;
+  }
+
+  body.cluezy-no-page-scroll .cluezy-mobile-menu-btn {
+    background-color: var(--clz-surface) !important;
+    border: 1px solid var(--clz-border) !important;
+    color: var(--clz-text-primary) !important;
+  }
+
+  body.cluezy-no-page-scroll .cluezy-mobile-context-btn {
+    background-color: var(--clz-surface) !important;
+    border: 1px solid var(--clz-border-strong) !important;
+    color: var(--clz-text-primary) !important;
+  }
+
+  body.cluezy-no-page-scroll .cluezy-mobile-new-btn {
+    background-color: var(--clz-brand) !important;
+    border: 1px solid var(--clz-brand) !important;
+    color: var(--clz-on-brand) !important;
+  }
+
+  body.cluezy-no-page-scroll .cluezy-sidebar-close-btn {
+    background-color: var(--clz-surface-subtle) !important;
+    border: 1px solid var(--clz-border) !important;
+    color: var(--clz-text-primary) !important;
+  }
 }
