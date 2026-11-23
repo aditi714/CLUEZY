@@ -1166,7 +1166,7 @@
           '</div>' +
           '<div class="cluezy-vm-center" id="cluezy-vm-tap-zone">' +
             '<div class="cluezy-vm-state-badge" id="cluezy-vm-state-badge">IDLE</div>' +
-            '<div class="cluezy-vm-orb-wrap" id="cluezy-vm-orb-wrap">' +
+            '<div class="cluezy-vm-orb-wrap" id="cluezy-vm-orb-wrap" role="button" tabindex="0" aria-label="Voice mode control orb (tap to interrupt or send)">' +
               '<div class="cluezy-vm-orb-ring cluezy-vm-orb-ring-1"></div>' +
               '<div class="cluezy-vm-orb-ring cluezy-vm-orb-ring-2"></div>' +
               '<div class="cluezy-vm-orb">' +
@@ -1231,6 +1231,13 @@
           orbWrap.addEventListener("click", function (e) {
             e.stopPropagation();
             handleOverlayOrbOrTap();
+          });
+          orbWrap.addEventListener("keydown", function (e) {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              e.stopPropagation();
+              handleOverlayOrbOrTap();
+            }
           });
         }
 
@@ -3768,6 +3775,10 @@
 
       var header = document.createElement("div");
       header.className = "cluezy-recent-header";
+      header.setAttribute("role", "button");
+      header.setAttribute("tabindex", "0");
+      header.setAttribute("aria-expanded", "true");
+      header.setAttribute("aria-label", "Toggle recent investigations");
       header.innerHTML =
         '<div style="display:flex;align-items:center;gap:8px;">' +
         '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>' +
@@ -3778,12 +3789,21 @@
       var list = document.createElement("div");
       list.className = "cluezy-recent-list";
 
-      header.addEventListener("click", function () {
+      function toggleRecentList() {
         var isHidden = list.style.display === "none";
         list.style.display = isHidden ? "flex" : "none";
+        header.setAttribute("aria-expanded", isHidden ? "true" : "false");
         var chevron = header.querySelector(".cluezy-recent-chevron");
         if (chevron) {
           chevron.style.transform = isHidden ? "rotate(0deg)" : "rotate(-90deg)";
+        }
+      }
+
+      header.addEventListener("click", toggleRecentList);
+      header.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          toggleRecentList();
         }
       });
 
