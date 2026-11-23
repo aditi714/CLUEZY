@@ -19,13 +19,15 @@
   </p>
 
   <p align="center">
-    <!-- Badges with Cluezy Brand Palette (#145C38 Forest Green & Mint) -->
+    <!-- Live Demo Button & Badges with Cluezy Brand Palette (#145C38 Forest Green & Mint) -->
+    <a href="https://cluezy-frontend.vercel.app" target="_blank">
+      <img src="https://img.shields.io/badge/Live%20Demo-cluezy--frontend.vercel.app-145C38?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Demo" />
+    </a>
     <img src="https://img.shields.io/badge/Python-3.12-145C38?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.12" />
     <img src="https://img.shields.io/badge/FastAPI-0.115+-145C38?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
     <img src="https://img.shields.io/badge/Groq%20AI-GPT--OSS--120B-13251E?style=for-the-badge&logo=openai&logoColor=ECF6E8" alt="Groq AI" />
     <img src="https://img.shields.io/badge/Supabase-PostgreSQL%2015-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase" />
     <img src="https://img.shields.io/badge/SQLAlchemy-2.0%20Async-D71F00?style=for-the-badge&logo=sqlalchemy&logoColor=white" alt="SQLAlchemy" />
-    <img src="https://img.shields.io/badge/Vercel-Edge%20Deployed-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel" />
   </p>
 
 </div>
