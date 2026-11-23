@@ -4484,9 +4484,20 @@
       return userCard;
     } else {
       var botCard = document.createElement("div");
-      botCard.className = "framer-wvffk8";
+      botCard.className = "framer-wvffk8 cluezy-assistant-msg-card";
       botCard.setAttribute("data-border", "true");
       botCard.setAttribute("data-framer-name", "Cluezy response");
+
+      // Small assistant avatar header row
+      var avatarRow = document.createElement("div");
+      avatarRow.className = "cluezy-assistant-avatar-row";
+      var botIconSvg = (window.lucide && window.lucide.svg)
+        ? window.lucide.svg("bot", { size: 14 })
+        : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M12 8V4H8"/></svg>';
+      avatarRow.innerHTML =
+        '<span class="cluezy-assistant-avatar-badge" aria-hidden="true">' + botIconSvg + "</span>" +
+        '<span class="cluezy-assistant-sender-label">CLUEZY</span>';
+      botCard.appendChild(avatarRow);
 
       var pres = msgObj ? CluezyVoice.getMessagePresentation(msgObj) : null;
 
@@ -4699,22 +4710,6 @@
     labelDiv.appendChild(p);
     a.appendChild(labelDiv);
     container.appendChild(a);
-
-    // Hover effect: only turn solid green on hover
-    if (!isPrimary) {
-      a.addEventListener("mouseenter", function () {
-        a.style.backgroundColor = "rgb(20, 92, 56)";
-        span.style.setProperty("--framer-text-color", "rgb(255, 255, 255)");
-        p.style.setProperty("--framer-text-color", "rgb(255, 255, 255)");
-        span.style.color = "rgb(255, 255, 255)";
-      });
-      a.addEventListener("mouseleave", function () {
-        a.style.backgroundColor = "rgb(252, 251, 249)";
-        span.style.setProperty("--framer-text-color", "rgb(23, 37, 31)");
-        p.style.setProperty("--framer-text-color", "rgb(23, 37, 31)");
-        span.style.color = "rgb(23, 37, 31)";
-      });
-    }
 
     if (appState.isSubmitting) {
       a.classList.add("cluezy-disabled");
@@ -5960,16 +5955,37 @@
       }
     }
 
+    // Compute percentage for cause bar (neutral track + brand green fill + percent label)
+    var rawScore = typeof cause.confidence_score === "number" ? cause.confidence_score : null;
+    var pct = 0;
+    if (cause.status === "ruled_out") {
+      pct = 0;
+    } else if (rawScore !== null) {
+      pct = rawScore <= 1 ? Math.round(rawScore * 100) : Math.round(rawScore);
+    } else if (cause.status === "confirmed") {
+      pct = 90;
+    } else if (cause.likelihood === "High") {
+      pct = 75;
+    } else if (cause.likelihood === "Medium") {
+      pct = 45;
+    } else {
+      pct = 20;
+    }
+    pct = Math.max(0, Math.min(100, pct));
+
+    var barTrack = document.createElement("div");
+    barTrack.className = "cluezy-cause-bar-track";
+    var barFill = document.createElement("div");
+    barFill.className = "cluezy-cause-bar-fill";
+    barFill.style.width = pct + "%";
+    barTrack.appendChild(barFill);
+    leftDiv.appendChild(barTrack);
+
     row.appendChild(leftDiv);
 
     // Badge: High -> framer-1u3sefx, Medium -> framer-2hyt8x, Low -> framer-1i0e59f
     var likelihood = cause.likelihood || "Medium";
-    var badgeLabel =
-      cause.status === "ruled_out"
-        ? "Ruled Out"
-        : cause.status === "confirmed"
-        ? "High"
-        : likelihood;
+    var badgeLabel = pct + "%";
     var badgeClass =
       likelihood === "High"
         ? "framer-1u3sefx"
@@ -5978,7 +5994,7 @@
         : "framer-1i0e59f";
 
     var badgeDiv = document.createElement("div");
-    badgeDiv.className = badgeClass;
+    badgeDiv.className = badgeClass + " cluezy-cause-pct-badge";
     badgeDiv.setAttribute("data-framer-name", "Status " + likelihood);
     badgeDiv.style.flexShrink = "0";
     badgeDiv.style.alignSelf = "flex-start";

@@ -891,9 +891,12 @@ body.cluezy-no-page-scroll .framer-we2i1d {
 
 /* Hide the old "Free Plan" heading and Framer data-border pseudo-borders inside Free plan usage */
 body.cluezy-no-page-scroll [data-framer-name="Free plan usage"] > div:first-child:not(.framer-ff8y6p),
+body.cluezy-no-page-scroll .framer-sbem9 [data-framer-name="Free plan usage"]::after,
+body.cluezy-no-page-scroll .framer-sbem9 [data-framer-name="Profile"]::after,
 body.cluezy-no-page-scroll [data-framer-name="Free plan usage"]::after,
 body.cluezy-no-page-scroll [data-framer-name="Profile"]::after {
   display: none !important;
+  border: none !important;
 }
 
 body.cluezy-no-page-scroll [data-framer-name="Free plan usage"] .framer-ff8y6p,
@@ -907,7 +910,9 @@ body.cluezy-no-page-scroll [data-framer-name="Free plan usage"] .framer-ff8y6p s
 }
 
 /* Thin progress bar track and brand-green fill */
-body.cluezy-no-page-scroll [data-framer-name="Usage bar"] {
+body.cluezy-no-page-scroll [data-framer-name="Usage track"],
+body.cluezy-no-page-scroll [data-framer-name="Usage bar"],
+body.cluezy-no-page-scroll .framer-1n9z8zi {
   width: 100% !important;
   height: 4px !important;
   border-radius: var(--clz-radius-8) !important;
@@ -915,7 +920,8 @@ body.cluezy-no-page-scroll [data-framer-name="Usage bar"] {
   overflow: hidden !important;
 }
 
-body.cluezy-no-page-scroll [data-framer-name="Remaining allowance"] {
+body.cluezy-no-page-scroll [data-framer-name="Remaining allowance"],
+body.cluezy-no-page-scroll .framer-8e0mye {
   height: 100% !important;
   border-radius: var(--clz-radius-8) !important;
   background-color: var(--clz-brand) !important;
@@ -979,4 +985,365 @@ body.cluezy-no-page-scroll .cluezy-context-real-empty {
     border: 1px solid var(--clz-border) !important;
     color: var(--clz-text-primary) !important;
   }
+}
+
+/* ==========================================================================
+   PHASE 5: CONVERSATION VIEW, QUICK-REPLY CHIPS, CAUSE BARS & VOICE OVERLAY
+   ========================================================================== */
+
+/* Hide inner Framer border inside Daily usage box & hide redundant mobile inline context button */
+body.cluezy-no-page-scroll [data-framer-name="Free plan usage"] [data-border="true"]::after,
+body.cluezy-no-page-scroll [data-framer-name="Free plan usage"] *::after,
+body.cluezy-no-page-scroll .cluezy-inline-context-btn {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  body.cluezy-no-page-scroll .cluezy-starter-categories {
+    justify-content: flex-start !important;
+  }
+}
+
+/* Assistant Messages: Plain surface with small avatar header */
+body.cluezy-no-page-scroll [data-framer-name="Cluezy response"],
+body.cluezy-no-page-scroll .framer-xyKMK .framer-wvffk8 {
+  background-color: var(--clz-surface) !important;
+  border: 1px solid var(--clz-border) !important;
+  border-radius: var(--clz-radius-12) !important;
+  padding: var(--clz-space-16) !important;
+  box-shadow: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--clz-space-8) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-assistant-avatar-row {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: var(--clz-space-8) !important;
+  margin-bottom: var(--clz-space-4) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-assistant-avatar-badge {
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: var(--clz-radius-8) !important;
+  background-color: var(--clz-surface-subtle) !important;
+  border: 1px solid var(--clz-border) !important;
+  color: var(--clz-brand) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-assistant-sender-label {
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-12) !important;
+  font-weight: 600 !important;
+  color: var(--clz-text-secondary) !important;
+  letter-spacing: 0.02em !important;
+}
+
+/* User Messages: Right-aligned in a subtle tinted bubble */
+body.cluezy-no-page-scroll [data-framer-name="Your issue"],
+body.cluezy-no-page-scroll .framer-xyKMK .framer-vu1os6 {
+  background-color: var(--clz-surface-subtle) !important;
+  border: 1px solid var(--clz-border) !important;
+  border-radius: var(--clz-radius-12) !important;
+  padding: var(--clz-space-12) var(--clz-space-16) !important;
+  color: var(--clz-text-primary) !important;
+  box-shadow: none !important;
+}
+
+body.cluezy-no-page-scroll [data-framer-name="Your issue"] p,
+body.cluezy-no-page-scroll [data-framer-name="Your issue"] span {
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-14) !important;
+  color: var(--clz-text-primary) !important;
+  --framer-text-color: var(--clz-text-primary) !important;
+}
+
+/* Turn Card inside Assistant Message */
+body.cluezy-no-page-scroll .cluezy-chat-turn-card {
+  gap: var(--clz-space-12) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-chat-turn-summary {
+  background-color: var(--clz-surface-subtle) !important;
+  border: 1px solid var(--clz-border) !important;
+  border-radius: var(--clz-radius-8) !important;
+  padding: var(--clz-space-8) var(--clz-space-12) !important;
+  color: var(--clz-text-secondary) !important;
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-14) !important;
+  font-weight: 500 !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-chat-turn-question {
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-16) !important;
+  font-weight: 600 !important;
+  color: var(--clz-text-primary) !important;
+  line-height: 1.45 !important;
+}
+
+/* Checklist Items & Command Blocks (with copy button) */
+body.cluezy-no-page-scroll .cluezy-turn-check-item,
+body.cluezy-no-page-scroll .cluezy-chat-turn-card .cluezy-turn-check-item {
+  background-color: var(--clz-surface-subtle) !important;
+  border: 1px solid var(--clz-border) !important;
+  border-radius: var(--clz-radius-8) !important;
+  padding: var(--clz-space-12) !important;
+  gap: var(--clz-space-8) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-turn-check-title,
+body.cluezy-no-page-scroll .cluezy-chat-turn-card .cluezy-turn-check-title {
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-14) !important;
+  font-weight: 600 !important;
+  color: var(--clz-text-primary) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-turn-check-detail,
+body.cluezy-no-page-scroll .cluezy-chat-turn-card .cluezy-turn-check-detail {
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-12) !important;
+  color: var(--clz-text-secondary) !important;
+  line-height: 1.45 !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-turn-cmd-bar,
+body.cluezy-no-page-scroll .cluezy-chat-turn-card .cluezy-turn-cmd-bar {
+  background-color: var(--clz-surface) !important;
+  border: 1px solid var(--clz-border-strong) !important;
+  border-radius: var(--clz-radius-8) !important;
+  padding: var(--clz-space-8) var(--clz-space-12) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-turn-cmd-code {
+  font-family: var(--clz-font-mono) !important;
+  font-size: var(--clz-font-12) !important;
+  color: var(--clz-text-primary) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-turn-cmd-copy {
+  background-color: var(--clz-surface-subtle) !important;
+  border: 1px solid var(--clz-border-strong) !important;
+  border-radius: var(--clz-radius-8) !important;
+  color: var(--clz-text-primary) !important;
+  padding: var(--clz-space-4) var(--clz-space-8) !important;
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-12) !important;
+  font-weight: 500 !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-turn-cmd-copy:hover {
+  border-color: var(--clz-brand) !important;
+  color: var(--clz-brand) !important;
+  background-color: var(--clz-brand-tint) !important;
+}
+
+/* Quick-Reply Chips: Uniform Outlined Style */
+body.cluezy-no-page-scroll .cluezy-quick-reply-btn {
+  background-color: var(--clz-surface) !important;
+  border: 1px solid var(--clz-border-strong) !important;
+  border-radius: var(--clz-radius-8) !important;
+  padding: var(--clz-space-8) var(--clz-space-12) !important;
+  color: var(--clz-text-primary) !important;
+  box-shadow: none !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-quick-reply-btn::after {
+  display: none !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-quick-reply-btn * {
+  color: var(--clz-text-primary) !important;
+  --framer-text-color: var(--clz-text-primary) !important;
+  --extracted-1w3ko1f: var(--clz-text-primary) !important;
+  --extracted-r6o4lv: var(--clz-text-primary) !important;
+  --variable-reference-Fq3N0eamG-ezvJGKDD1: var(--clz-text-primary) !important;
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-14) !important;
+  font-weight: 500 !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-quick-reply-btn:hover {
+  background-color: var(--clz-surface-subtle) !important;
+  border-color: var(--clz-brand) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-quick-reply-btn:hover * {
+  color: var(--clz-brand) !important;
+  --framer-text-color: var(--clz-brand) !important;
+  --extracted-1w3ko1f: var(--clz-brand) !important;
+  --extracted-r6o4lv: var(--clz-brand) !important;
+  --variable-reference-Fq3N0eamG-ezvJGKDD1: var(--clz-brand) !important;
+}
+
+/* Primary Quick-Reply Action (e.g. "It's working now" on Solution page) */
+body.cluezy-no-page-scroll .framer-1v8wo4k-container .cluezy-quick-reply-btn {
+  background-color: var(--clz-brand) !important;
+  border-color: var(--clz-brand) !important;
+}
+
+body.cluezy-no-page-scroll .framer-1v8wo4k-container .cluezy-quick-reply-btn * {
+  color: var(--clz-on-brand) !important;
+  --framer-text-color: var(--clz-on-brand) !important;
+  --extracted-1w3ko1f: var(--clz-on-brand) !important;
+  --extracted-r6o4lv: var(--clz-on-brand) !important;
+  --variable-reference-Fq3N0eamG-ezvJGKDD1: var(--clz-on-brand) !important;
+}
+
+/* Candidate Cause Bars: One neutral track and green fill with percent label */
+body.cluezy-no-page-scroll .cluezy-cause-bar-track {
+  width: 100% !important;
+  height: 6px !important;
+  background-color: var(--clz-surface-muted) !important;
+  border-radius: var(--clz-radius-8) !important;
+  overflow: hidden !important;
+  margin-top: var(--clz-space-4) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-cause-bar-fill {
+  height: 100% !important;
+  background-color: var(--clz-brand) !important;
+  border-radius: var(--clz-radius-8) !important;
+  transition: width 0.2s ease !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-cause-pct-badge {
+  background-color: var(--clz-surface-subtle) !important;
+  border: 1px solid var(--clz-border) !important;
+  border-radius: var(--clz-radius-8) !important;
+  padding: 2px var(--clz-space-8) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-cause-pct-badge p,
+body.cluezy-no-page-scroll .cluezy-cause-pct-badge span {
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-12) !important;
+  font-weight: 600 !important;
+  color: var(--clz-text-primary) !important;
+  --framer-text-color: var(--clz-text-primary) !important;
+}
+
+/* Voice Mode Overlay Restyled with Design Tokens */
+body.cluezy-no-page-scroll .cluezy-vm-overlay {
+  background-color: var(--clz-bg) !important;
+  color: var(--clz-text-primary) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-vm-lang-select,
+body.cluezy-no-page-scroll .cluezy-vm-voice-select {
+  background-color: var(--clz-surface) !important;
+  border: 1px solid var(--clz-border) !important;
+  border-radius: var(--clz-radius-8) !important;
+  color: var(--clz-text-primary) !important;
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-14) !important;
+  max-width: none !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-vm-lang-select option,
+body.cluezy-no-page-scroll .cluezy-vm-voice-select option {
+  background-color: var(--clz-surface) !important;
+  color: var(--clz-text-primary) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-vm-close-btn {
+  background-color: var(--clz-surface) !important;
+  border: 1px solid var(--clz-border) !important;
+  border-radius: var(--clz-radius-8) !important;
+  color: var(--clz-text-primary) !important;
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-14) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-vm-close-btn:hover {
+  background-color: var(--clz-surface-subtle) !important;
+  border-color: var(--clz-border-strong) !important;
+  color: var(--clz-text-primary) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-vm-state-badge {
+  background-color: var(--clz-surface) !important;
+  border: 1px solid var(--clz-border-strong) !important;
+  border-radius: var(--clz-radius-8) !important;
+  color: var(--clz-text-secondary) !important;
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-12) !important;
+  font-weight: 600 !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-vm-turn-card {
+  background-color: var(--clz-surface) !important;
+  border: 1px solid var(--clz-border) !important;
+  border-radius: var(--clz-radius-12) !important;
+  box-shadow: var(--clz-shadow) !important;
+  padding: var(--clz-space-16) !important;
+  gap: var(--clz-space-12) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-vm-turn-summary {
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-14) !important;
+  color: var(--clz-text-secondary) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-vm-turn-question {
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-20) !important;
+  font-weight: 600 !important;
+  color: var(--clz-text-primary) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-vm-yousaid-text {
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-14) !important;
+  color: var(--clz-text-secondary) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-vm-yousaid-text.error {
+  color: var(--clz-danger) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-vm-yousaid-edit {
+  background-color: var(--clz-surface) !important;
+  border: 1px solid var(--clz-border) !important;
+  border-radius: var(--clz-radius-8) !important;
+  color: var(--clz-text-secondary) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-vm-opt-pill {
+  background-color: var(--clz-surface) !important;
+  border: 1px solid var(--clz-border-strong) !important;
+  border-radius: var(--clz-radius-8) !important;
+  color: var(--clz-text-primary) !important;
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-14) !important;
+  font-weight: 500 !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-vm-opt-pill:hover {
+  background-color: var(--clz-surface-subtle) !important;
+  border-color: var(--clz-brand) !important;
+  color: var(--clz-brand) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-vm-action-btn {
+  background-color: var(--clz-surface) !important;
+  border: 1px solid var(--clz-border-strong) !important;
+  border-radius: var(--clz-radius-8) !important;
+  color: var(--clz-text-primary) !important;
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-14) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-vm-hint {
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-12) !important;
+  color: var(--clz-text-muted) !important;
 }
