@@ -38,13 +38,36 @@ def _heuristic_fallback_classification(text: str) -> ProblemClassificationResult
     lower = text.lower()
 
     # Check programming / developer errors first
-    if any(k in lower for k in ["modulenotfound", "import", "python", "pip ", "npm ", "node ", "compiler", "syntaxerror", "traceback"]):
+    if any(
+        k in lower
+        for k in [
+            "modulenotfound",
+            "import",
+            "python",
+            "pip ",
+            "npm ",
+            "node ",
+            "compiler",
+            "syntaxerror",
+            "traceback",
+            "postgresql",
+            "postgres",
+            "database",
+            "5432",
+            "econnrefused",
+            "eaddrinuse",
+            "docker",
+            "git ",
+            "127.0.0.1",
+            "localhost",
+        ]
+    ):
         return ProblemClassificationResult(
             category="Programming",
             scenario="Module Import / Dependency Error" if ("module" in lower or "import" in lower) else "Code Execution Error",
             confidence=0.9,
             urgency="Medium",
-            reasoning="Keywords indicate software development, package management, or script execution failures.",
+            reasoning="Keywords indicate software development, database, package management, or script execution failures.",
         )
 
     # Check network connectivity with word-boundary awareness
