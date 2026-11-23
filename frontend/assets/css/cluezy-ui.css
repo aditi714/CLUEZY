@@ -114,3 +114,513 @@ body.cluezy-no-page-scroll [tabindex]:focus-visible {
   outline: 2px solid var(--clz-brand) !important;
   outline-offset: 2px !important;
 }
+
+/* ==========================================================================
+   PHASE 2: HEADER, VOICE MODE BUTTON, SETTINGS POPOVER & AVATAR MENU
+   ========================================================================== */
+
+body.cluezy-no-page-scroll [data-framer-name="Investigation heading"] {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: var(--clz-space-16) !important;
+  padding: 0 0 var(--clz-space-12) 0 !important;
+  border-bottom: 1px solid var(--clz-border) !important;
+  margin-bottom: var(--clz-space-12) !important;
+}
+
+body.cluezy-no-page-scroll [data-framer-name="Investigation heading"] h2 {
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-20) !important;
+  font-weight: 600 !important;
+  color: var(--clz-text-primary) !important;
+  letter-spacing: -0.015em !important;
+  line-height: 1.3 !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-heading-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--clz-space-8) !important;
+  margin-left: auto !important;
+}
+
+/* Loading status dot + text (only shown when appState.isSubmitting is true) */
+body.cluezy-no-page-scroll [data-framer-name="Status Active"].cluezy-loading-status-indicator {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 var(--clz-space-8) !important;
+  align-items: center !important;
+  gap: var(--clz-space-8) !important;
+  border-radius: var(--clz-radius-8) !important;
+}
+
+body.cluezy-no-page-scroll [data-framer-name="Status Active"].cluezy-loading-status-indicator::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--clz-brand);
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+body.cluezy-no-page-scroll [data-framer-name="Status Active"].cluezy-loading-status-indicator span,
+body.cluezy-no-page-scroll [data-framer-name="Status Active"].cluezy-loading-status-indicator p {
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-12) !important;
+  font-weight: 500 !important;
+  color: var(--clz-text-secondary) !important;
+}
+
+/* Primary Voice Mode button in header */
+body.cluezy-no-page-scroll .cluezy-header-voicemode-btn {
+  background-color: var(--clz-brand) !important;
+  border: 1px solid var(--clz-brand) !important;
+  color: var(--clz-on-brand) !important;
+  border-radius: var(--clz-radius-8) !important;
+  padding: var(--clz-space-8) var(--clz-space-12) !important;
+  min-height: 36px !important;
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-14) !important;
+  font-weight: 500 !important;
+  gap: var(--clz-space-8) !important;
+  box-shadow: none !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-header-voicemode-btn:hover {
+  background-color: var(--clz-brand-hover) !important;
+  border-color: var(--clz-brand-hover) !important;
+  color: var(--clz-on-brand) !important;
+}
+
+/* Settings Icon Button */
+body.cluezy-no-page-scroll .cluezy-settings-popover-wrap {
+  position: relative !important;
+  display: inline-flex !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-settings-trigger-btn {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+  padding: 0 !important;
+  border-radius: var(--clz-radius-8) !important;
+  border: 1px solid var(--clz-border) !important;
+  background-color: var(--clz-surface) !important;
+  color: var(--clz-text-secondary) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-settings-trigger-btn:hover,
+body.cluezy-no-page-scroll .cluezy-settings-trigger-btn[aria-expanded="true"] {
+  background-color: var(--clz-surface-subtle) !important;
+  color: var(--clz-text-primary) !important;
+  border-color: var(--clz-border-strong) !important;
+}
+
+/* Settings Popover */
+body.cluezy-no-page-scroll .cluezy-settings-popover {
+  display: none !important;
+  position: absolute !important;
+  top: calc(100% + var(--clz-space-8)) !important;
+  right: 0 !important;
+  min-width: 320px !important;
+  background-color: var(--clz-surface) !important;
+  border: 1px solid var(--clz-border) !important;
+  border-radius: var(--clz-radius-12) !important;
+  box-shadow: var(--clz-shadow) !important;
+  padding: var(--clz-space-16) !important;
+  z-index: 100000 !important;
+  flex-direction: column !important;
+  gap: var(--clz-space-12) !important;
+  box-sizing: border-box !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-settings-popover.open {
+  display: flex !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-settings-row {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--clz-space-4) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-settings-row-inline {
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: var(--clz-space-12) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-settings-label {
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-12) !important;
+  font-weight: 500 !important;
+  color: var(--clz-text-secondary) !important;
+}
+
+/* Read-aloud Switch inside Settings Popover */
+body.cluezy-no-page-scroll .cluezy-switch-btn {
+  min-height: 32px !important;
+  min-width: auto !important;
+  padding: var(--clz-space-4) var(--clz-space-8) !important;
+  border-radius: var(--clz-radius-8) !important;
+  border: 1px solid var(--clz-border) !important;
+  background-color: var(--clz-surface) !important;
+  color: var(--clz-text-primary) !important;
+  font-size: var(--clz-font-12) !important;
+  gap: var(--clz-space-8) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-switch-btn.active {
+  background-color: var(--clz-surface) !important;
+  border-color: var(--clz-brand) !important;
+  color: var(--clz-brand) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-switch-track {
+  width: 32px !important;
+  height: 18px !important;
+  border-radius: 12px !important;
+  background-color: var(--clz-border-strong) !important;
+  position: relative !important;
+  display: inline-block !important;
+  transition: background-color 0.15s ease !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-switch-btn.active .cluezy-switch-track {
+  background-color: var(--clz-brand) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-switch-thumb {
+  width: 14px !important;
+  height: 14px !important;
+  border-radius: 50% !important;
+  background-color: var(--clz-surface) !important;
+  position: absolute !important;
+  top: 2px !important;
+  left: 2px !important;
+  transition: transform 0.15s ease !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-switch-btn.active .cluezy-switch-thumb {
+  transform: translateX(14px) !important;
+}
+
+/* Selects inside Settings Popover (no truncation, full voice names) */
+body.cluezy-no-page-scroll .cluezy-settings-popover .cluezy-voice-lang-select,
+body.cluezy-no-page-scroll .cluezy-settings-popover .cluezy-voice-uri-select {
+  width: 100% !important;
+  min-width: 260px !important;
+  max-width: none !important;
+  min-height: 36px !important;
+  padding: var(--clz-space-8) var(--clz-space-12) !important;
+  border-radius: var(--clz-radius-8) !important;
+  border: 1px solid var(--clz-border) !important;
+  background-color: var(--clz-surface) !important;
+  color: var(--clz-text-primary) !important;
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-14) !important;
+}
+
+/* Header Avatar Menu Button & Dropdown */
+body.cluezy-no-page-scroll .cluezy-header-auth-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: var(--clz-space-8) !important;
+  background-color: var(--clz-surface) !important;
+  border: 1px solid var(--clz-border) !important;
+  border-radius: var(--clz-radius-8) !important;
+  padding: var(--clz-space-4) var(--clz-space-8) !important;
+  min-height: 36px !important;
+  cursor: pointer !important;
+  color: var(--clz-text-primary) !important;
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-14) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-header-auth-pill:hover {
+  background-color: var(--clz-surface-subtle) !important;
+  border-color: var(--clz-border-strong) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-avatar-menu-popover {
+  position: fixed !important;
+  min-width: 220px !important;
+  background-color: var(--clz-surface) !important;
+  border: 1px solid var(--clz-border) !important;
+  border-radius: var(--clz-radius-12) !important;
+  box-shadow: var(--clz-shadow) !important;
+  padding: var(--clz-space-12) !important;
+  z-index: 100001 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--clz-space-8) !important;
+  font-family: var(--clz-font-sans) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-avatar-menu-header {
+  padding-bottom: var(--clz-space-8) !important;
+  border-bottom: 1px solid var(--clz-border) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-avatar-menu-name {
+  font-size: var(--clz-font-14) !important;
+  font-weight: 600 !important;
+  color: var(--clz-text-primary) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-avatar-menu-email {
+  font-size: var(--clz-font-12) !important;
+  color: var(--clz-text-secondary) !important;
+  margin-top: 2px !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-menu-signin-btn {
+  width: 100% !important;
+  justify-content: center !important;
+  border-radius: var(--clz-radius-8) !important;
+  padding: var(--clz-space-8) var(--clz-space-12) !important;
+  font-size: var(--clz-font-14) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-avatar-menu-popover .cluezy-header-logout-btn {
+  width: 100% !important;
+  justify-content: flex-start !important;
+  padding: var(--clz-space-8) var(--clz-space-12) !important;
+  border-radius: var(--clz-radius-8) !important;
+  font-size: var(--clz-font-14) !important;
+  font-weight: 500 !important;
+  color: var(--clz-danger) !important;
+  background: transparent !important;
+  border: none !important;
+  cursor: pointer !important;
+  gap: var(--clz-space-8) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-avatar-menu-popover .cluezy-header-logout-btn:hover {
+  background-color: var(--clz-danger-bg) !important;
+}
+
+
+/* ==========================================================================
+   PHASE 3: EMPTY STATE (NEW INVESTIGATION VIEW)
+   ========================================================================== */
+
+body.cluezy-no-page-scroll .cluezy-hero-badge {
+  display: none !important;
+}
+
+body.cluezy-no-page-scroll [data-framer-name="Conversation"].cluezy-new-investigation-layout {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: var(--clz-space-16) !important;
+  padding: var(--clz-space-16) var(--clz-space-24) !important;
+  overflow-y: auto !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-hero-welcome-section {
+  max-width: 680px !important;
+  width: 100% !important;
+  text-align: center !important;
+  margin-bottom: 0 !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-hero-title {
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-28) !important;
+  font-weight: 700 !important;
+  color: var(--clz-text-primary) !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1.2 !important;
+  margin: 0 0 var(--clz-space-8) 0 !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-hero-subtitle {
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-14) !important;
+  font-weight: 400 !important;
+  color: var(--clz-text-secondary) !important;
+  line-height: 1.45 !important;
+  margin: 0 auto !important;
+  max-width: 580px !important;
+}
+
+/* Prominent Centered Input Box */
+body.cluezy-no-page-scroll .cluezy-new-investigation-layout [data-framer-name="Reply composer"] {
+  width: 100% !important;
+  max-width: 720px !important;
+  margin: 0 auto !important;
+  padding: var(--clz-space-12) var(--clz-space-16) !important;
+  background-color: var(--clz-surface) !important;
+  border: 1px solid var(--clz-border-strong) !important;
+  border-radius: var(--clz-radius-12) !important;
+  box-shadow: var(--clz-shadow) !important;
+  min-height: 56px !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-input-bar-enhanced {
+  background-color: var(--clz-surface) !important;
+  border: 1px solid var(--clz-border-strong) !important;
+  border-radius: var(--clz-radius-12) !important;
+  box-shadow: var(--clz-shadow) !important;
+  transition: border-color 0.15s ease !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-input-bar-enhanced:focus-within {
+  border-color: var(--clz-brand) !important;
+  box-shadow: 0 0 0 2px var(--clz-brand-tint) !important;
+}
+
+body.cluezy-no-page-scroll textarea.cluezy-chat-textarea {
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-14) !important;
+  color: var(--clz-text-primary) !important;
+  line-height: 1.5 !important;
+}
+
+body.cluezy-no-page-scroll textarea.cluezy-chat-textarea::placeholder {
+  color: var(--clz-text-muted) !important;
+}
+
+/* Mic & Attach Icons inside Composer */
+body.cluezy-no-page-scroll .cluezy-mic-btn {
+  min-width: 36px !important;
+  min-height: 36px !important;
+  width: 36px !important;
+  height: 36px !important;
+  padding: 0 !important;
+  border-radius: var(--clz-radius-8) !important;
+  border: 1px solid var(--clz-border) !important;
+  background-color: var(--clz-surface) !important;
+  color: var(--clz-text-secondary) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-mic-btn:hover {
+  background-color: var(--clz-surface-subtle) !important;
+  color: var(--clz-text-primary) !important;
+  border-color: var(--clz-border-strong) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-mic-btn.recording {
+  background-color: var(--clz-danger-bg) !important;
+  border-color: var(--clz-danger) !important;
+  color: var(--clz-danger) !important;
+}
+
+/* Category Tabs: Underline tabs with Lucide icons (no emoji) */
+body.cluezy-no-page-scroll .cluezy-starter-categories {
+  width: 100% !important;
+  max-width: 720px !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: var(--clz-space-4) !important;
+  border-bottom: 1px solid var(--clz-border) !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-category-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: var(--clz-space-8) !important;
+  padding: var(--clz-space-8) var(--clz-space-12) !important;
+  margin-bottom: -1px !important;
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--clz-text-secondary) !important;
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-14) !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  box-shadow: none !important;
+  transition: color 0.15s ease, border-color 0.15s ease !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-category-pill:hover {
+  color: var(--clz-text-primary) !important;
+  background: transparent !important;
+  border-bottom-color: var(--clz-border-strong) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-category-pill.active {
+  color: var(--clz-brand) !important;
+  background: transparent !important;
+  border-bottom: 2px solid var(--clz-brand) !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+}
+
+/* Suggested Problems: 2-column grid of cards (1 column on mobile) with one icon each and short label */
+body.cluezy-no-page-scroll .cluezy-new-investigation-layout [data-framer-name="Diagnostic answers"] {
+  width: 100% !important;
+  max-width: 720px !important;
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: var(--clz-space-12) !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+}
+
+@media (max-width: 640px) {
+  body.cluezy-no-page-scroll .cluezy-new-investigation-layout [data-framer-name="Diagnostic answers"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+body.cluezy-no-page-scroll .cluezy-starter-card {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: var(--clz-space-12) !important;
+  padding: var(--clz-space-12) var(--clz-space-16) !important;
+  background-color: var(--clz-surface) !important;
+  border: 1px solid var(--clz-border) !important;
+  border-radius: var(--clz-radius-12) !important;
+  box-shadow: none !important;
+  color: var(--clz-text-primary) !important;
+  text-decoration: none !important;
+  cursor: pointer !important;
+  transform: none !important;
+  transition: border-color 0.15s ease, background-color 0.15s ease !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-starter-card:hover {
+  background-color: var(--clz-surface-subtle) !important;
+  border-color: var(--clz-brand) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-starter-card-icon-wrap {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: var(--clz-radius-8) !important;
+  background-color: var(--clz-surface-subtle) !important;
+  color: var(--clz-text-secondary) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-starter-card:hover .cluezy-starter-card-icon-wrap {
+  color: var(--clz-brand) !important;
+  background-color: var(--clz-brand-tint) !important;
+}
+
+body.cluezy-no-page-scroll .cluezy-starter-card-label {
+  font-family: var(--clz-font-sans) !important;
+  font-size: var(--clz-font-14) !important;
+  font-weight: 500 !important;
+  color: var(--clz-text-primary) !important;
+  line-height: 1.35 !important;
+}

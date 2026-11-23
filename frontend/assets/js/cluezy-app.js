@@ -3912,36 +3912,15 @@
   }
 
   /**
-   * Render a dedicated, unmissable Logout button in the sidebar navigation.
+   * Remove duplicate sidebar navigation logout button (Avatar menu in header contains the only Logout).
    */
   function renderSidebarLogoutButton() {
     var navs = document.querySelectorAll('[data-framer-name="Workspace navigation"]');
     navs.forEach(function (nav) {
-      if (nav.querySelector(".cluezy-nav-logout-btn")) return;
-      var logoutLink = document.createElement("a");
-      logoutLink.className = "cluezy-nav-logout-btn framer-u8w30";
-      logoutLink.href = "#";
-      logoutLink.setAttribute("data-framer-name", "Logout");
-      logoutLink.title = "Log out of Cluezy";
-      logoutLink.innerHTML =
-        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>' +
-        '<div style="transform: none;"><p class="framer-text framer-styles-preset-1hewirz" data-styles-preset="Z1BYkLRW1" dir="auto" style="--framer-text-color: #ff9b9b;"><span class="framer-text" style="--framer-text-color: #ff9b9b;">Log Out</span></p></div>';
-
-      bindActionClick(logoutLink, async function () {
-        logoutLink.style.opacity = "0.5";
-        var textEl = logoutLink.querySelector("span");
-        if (textEl) textEl.textContent = "Logging out...";
-        try {
-          await API.signOut();
-        } catch (_e) {}
-        try {
-          localStorage.removeItem("cluezy_anonymous_session_token");
-          localStorage.removeItem("cluezy_anonymous_session_id");
-          localStorage.removeItem("sb-" + API.SUPABASE_PROJECT_ID + "-auth-token");
-        } catch (_e) {}
-        window.location.href = "/";
-      });
-      nav.appendChild(logoutLink);
+      var existing = nav.querySelector(".cluezy-nav-logout-btn");
+      if (existing && existing.parentNode) {
+        existing.parentNode.removeChild(existing);
+      }
     });
   }
 
@@ -3997,53 +3976,15 @@
           : '<div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font-weight: 700; color: #ffffff; background: #145c38; border-radius: 50%; font-size: 13px;">' + initial + '</div>';
 
         profileEl.innerHTML =
-          '<div class="cluezy-profile-card-inner" style="display: flex; align-items: center; gap: 8px; flex: 1 1 0px; min-width: 0; cursor: pointer;" title="Account details">' +
+          '<div class="cluezy-profile-card-inner" style="display: flex; align-items: center; gap: 8px; flex: 1 1 0px; min-width: 0;" title="Account details">' +
             '<div style="width: 28px; height: 28px; min-width: 28px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center;">' +
               avatarHtml +
             '</div>' +
             '<div style="flex: 1 1 0px; min-width: 0; display: flex; flex-direction: column; justify-content: center;">' +
-              '<div style="font-weight: 600; font-size: 12px; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2;">' + escapeHtml(displayName) + '</div>' +
-              '<div style="font-size: 10.5px; color: #9bb5a3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; margin-top: 2px;">' + escapeHtml(email) + '</div>' +
+              '<div class="cluezy-sidebar-user-name">' + escapeHtml(displayName) + '</div>' +
+              '<div class="cluezy-sidebar-user-email">' + escapeHtml(email) + '</div>' +
             '</div>' +
-          '</div>' +
-          '<button class="cluezy-sidebar-logout-btn" title="Log out" aria-label="Log out" type="button">' +
-            '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-              '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>' +
-              '<polyline points="16 17 21 12 16 7"></polyline>' +
-              '<line x1="21" y1="12" x2="9" y2="12"></line>' +
-            '</svg>' +
-            '<span>Logout</span>' +
-          '</button>';
-
-        var cardInner = profileEl.querySelector(".cluezy-profile-card-inner");
-        if (cardInner) {
-          cardInner.onclick = function (e) {
-            e.stopPropagation();
-            toggleAccountDropdown(profileEl, user);
-          };
-        }
-
-        var logoutBtn = profileEl.querySelector(".cluezy-sidebar-logout-btn");
-        if (logoutBtn) {
-          logoutBtn.onclick = async function (e) {
-            e.stopPropagation();
-            logoutBtn.disabled = true;
-            logoutBtn.innerHTML = '<span>...</span>';
-            try {
-              await API.signOut();
-            } catch (_e) {}
-            bindUserProfile();
-            var invRoot = document.querySelector('[data-framer-name="investigation content"]');
-            if (invRoot) renderInvestigationHeadingAuth(invRoot);
-            API.listInvestigations({ page: 1, page_size: 5 })
-              .then(function (res) {
-                if (res && Array.isArray(res.items)) {
-                  renderSidebarRecentInvestigations(res.items);
-                }
-              })
-              .catch(function () {});
-          };
-        }
+          '</div>';
       } else {
         // Unauthenticated anonymous state: Show clean Google Sign-In button
         profileEl.innerHTML =
@@ -4096,7 +4037,7 @@
       actionsContainer.appendChild(authSlot);
     }
 
-    // Header Voice Controls: Speaker Read-Aloud Toggle, Language Selector, and Hands-Free Voice Mode Button
+    // Header Voice Controls: Single primary "Voice Mode" button + Settings icon popover
     renderHeaderVoiceControls(actionsContainer, authSlot);
 
     var user = null;
@@ -4106,40 +4047,114 @@
       user = null;
     }
 
-    if (user) {
-      var metadata = user.user_metadata || {};
-      var displayName = metadata.full_name || metadata.name || (user.email ? user.email.split("@")[0] : "User");
-      var avatarUrl = metadata.avatar_url || metadata.picture || null;
-      var initial = (displayName.charAt(0) || "U").toUpperCase();
-      var avatarHtml = avatarUrl
-        ? '<img class="cluezy-header-avatar" src="' + avatarUrl + '" alt="' + escapeHtml(displayName) + '" referrerpolicy="no-referrer" />'
-        : '<div class="cluezy-header-avatar-initial">' + escapeHtml(initial) + '</div>';
+    var metadata = (user && user.user_metadata) || {};
+    var displayName = user
+      ? (metadata.full_name || metadata.name || (user.email ? user.email.split("@")[0] : "User"))
+      : "Guest";
+    var avatarUrl = user ? (metadata.avatar_url || metadata.picture || null) : null;
+    var initial = (displayName.charAt(0) || "G").toUpperCase();
+    var avatarHtml = avatarUrl
+      ? '<img class="cluezy-header-avatar" src="' + avatarUrl + '" alt="' + escapeHtml(displayName) + '" referrerpolicy="no-referrer" />'
+      : '<div class="cluezy-header-avatar-initial">' + escapeHtml(initial) + '</div>';
 
-      authSlot.innerHTML =
-        '<div class="cluezy-header-auth-pill">' +
-          avatarHtml +
-          '<span class="cluezy-header-user-name">' + escapeHtml(displayName) + '</span>' +
-          '<button class="cluezy-header-logout-btn" title="Log out" type="button">' +
-            '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-              '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>' +
-              '<polyline points="16 17 21 12 16 7"></polyline>' +
-              '<line x1="21" y1="12" x2="9" y2="12"></line>' +
-            '</svg>' +
-            '<span>Logout</span>' +
-          '</button>' +
-        '</div>';
+    var chevronSvg = (window.lucide && window.lucide.svg)
+      ? window.lucide.svg("chevron-down", { size: 14 })
+      : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>';
 
-      var logoutBtn = authSlot.querySelector(".cluezy-header-logout-btn");
-      if (logoutBtn) {
-        logoutBtn.onclick = async function (e) {
-          e.stopPropagation();
-          logoutBtn.disabled = true;
-          logoutBtn.innerHTML = "<span>...</span>";
-          try {
-            await API.signOut();
-          } catch (_e) {}
+    authSlot.innerHTML =
+      '<button type="button" class="cluezy-header-auth-pill" aria-label="Account menu" aria-haspopup="menu" aria-expanded="false" title="Account menu">' +
+        avatarHtml +
+        '<span class="cluezy-header-user-name">' + escapeHtml(displayName) + '</span>' +
+        chevronSvg +
+      '</button>';
+
+    var avatarBtn = authSlot.querySelector(".cluezy-header-auth-pill");
+    if (avatarBtn) {
+      avatarBtn.onclick = function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleAccountDropdown(avatarBtn, user, root);
+      };
+    }
+  }
+
+  function toggleAccountDropdown(anchorEl, user, rootEl) {
+    var existing = document.getElementById("cluezy-account-dropdown");
+    if (existing) {
+      existing.parentNode.removeChild(existing);
+      anchorEl.setAttribute("aria-expanded", "false");
+      return;
+    }
+
+    // Close settings popover if open
+    var openSettings = document.getElementById("cluezy-settings-popover");
+    if (openSettings) openSettings.classList.remove("open");
+
+    anchorEl.setAttribute("aria-expanded", "true");
+    var rect = anchorEl.getBoundingClientRect();
+    var menu = document.createElement("div");
+    menu.id = "cluezy-account-dropdown";
+    menu.className = "cluezy-avatar-menu-popover";
+    menu.setAttribute("role", "menu");
+    menu.style.top = (rect.bottom + 8) + "px";
+    menu.style.right = Math.max(16, window.innerWidth - rect.right) + "px";
+
+    var metadata = (user && user.user_metadata) || {};
+    var displayName = user
+      ? (metadata.full_name || metadata.name || (user.email ? user.email.split("@")[0] : "Account"))
+      : "Anonymous Session";
+    var email = (user && user.email) || "Not signed in";
+
+    var logoutIcon = (window.lucide && window.lucide.svg)
+      ? window.lucide.svg("log-out", { size: 14 })
+      : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>';
+
+    var signInRowHtml = !user
+      ? '<button type="button" class="cluezy-header-signin-btn cluezy-menu-signin-btn" role="menuitem">' +
+          '<svg width="14" height="14" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"/><path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12 0 14.8s.7 5.1 1.9 7.5l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2-6.4-4.8L1.9 16.4C3.7 20.4 7.5 23 12 23z"/></svg>' +
+          '<span>Sign in with Google</span>' +
+        '</button>'
+      : "";
+
+    menu.innerHTML =
+      '<div class="cluezy-avatar-menu-header">' +
+      '  <div class="cluezy-avatar-menu-name">' + escapeHtml(displayName) + '</div>' +
+      '  <div class="cluezy-avatar-menu-email">' + escapeHtml(email) + '</div>' +
+      '</div>' +
+      signInRowHtml +
+      '<button type="button" id="cluezy-logout-btn" class="cluezy-header-logout-btn" role="menuitem">' +
+        logoutIcon +
+        '<span>Log out</span>' +
+      '</button>';
+
+    document.body.appendChild(menu);
+
+    var signinBtn = menu.querySelector(".cluezy-header-signin-btn");
+    if (signinBtn) {
+      signinBtn.onclick = function (e) {
+        e.stopPropagation();
+        if (menu.parentNode) menu.parentNode.removeChild(menu);
+        API.signInWithGoogle();
+      };
+    }
+
+    var logoutBtn = menu.querySelector("#cluezy-logout-btn");
+    if (logoutBtn) {
+      logoutBtn.onclick = async function (e) {
+        e.stopPropagation();
+        logoutBtn.disabled = true;
+        logoutBtn.textContent = "Logging out…";
+        try {
+          await API.signOut();
+        } catch (_e) {}
+        try {
+          localStorage.removeItem("cluezy_anonymous_session_token");
+          localStorage.removeItem("cluezy_anonymous_session_id");
+        } catch (_e) {}
+        if (menu.parentNode) menu.parentNode.removeChild(menu);
+        if (user) {
           bindUserProfile();
-          renderInvestigationHeadingAuth(root);
+          if (rootEl) renderInvestigationHeadingAuth(rootEl);
           API.listInvestigations({ page: 1, page_size: 5 })
             .then(function (res) {
               if (res && Array.isArray(res.items)) {
@@ -4147,115 +4162,16 @@
               }
             })
             .catch(function () {});
-        };
-      }
-    } else {
-      authSlot.innerHTML =
-        '<div style="display: flex; align-items: center; gap: 8px;">' +
-          '<button class="cluezy-header-signin-btn" title="Sign in with Google" type="button">' +
-            '<svg width="14" height="14" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"/><path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12 0 14.8s.7 5.1 1.9 7.5l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2-6.4-4.8L1.9 16.4C3.7 20.4 7.5 23 12 23z"/></svg>' +
-            '<span>Sign In</span>' +
-          '</button>' +
-          '<button class="cluezy-header-logout-btn" title="Log out / Exit" type="button" style="border: 1px solid rgba(220,53,69,0.3); background: rgba(220,53,69,0.08); padding: 5px 10px; border-radius: 6px;">' +
-            '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-              '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>' +
-              '<polyline points="16 17 21 12 16 7"></polyline>' +
-              '<line x1="21" y1="12" x2="9" y2="12"></line>' +
-            '</svg>' +
-            '<span>Logout</span>' +
-          '</button>' +
-        '</div>';
-
-      var signinBtn = authSlot.querySelector(".cluezy-header-signin-btn");
-      if (signinBtn) {
-        signinBtn.onclick = function (e) {
-          e.stopPropagation();
-          API.signInWithGoogle();
-        };
-      }
-      var headerLogoutBtn = authSlot.querySelector(".cluezy-header-logout-btn");
-      if (headerLogoutBtn) {
-        headerLogoutBtn.onclick = async function (e) {
-          e.stopPropagation();
-          headerLogoutBtn.disabled = true;
-          headerLogoutBtn.innerHTML = "<span>...</span>";
-          try {
-            await API.signOut();
-          } catch (_e) {}
-          try {
-            localStorage.removeItem("cluezy_anonymous_session_token");
-            localStorage.removeItem("cluezy_anonymous_session_id");
-          } catch (_e) {}
+        } else {
           window.location.href = "/";
-        };
-      }
-    }
-  }
-
-  function toggleAccountDropdown(anchorEl, user) {
-    var existing = document.getElementById("cluezy-account-dropdown");
-    if (existing) {
-      existing.parentNode.removeChild(existing);
-      return;
-    }
-
-    var rect = anchorEl.getBoundingClientRect();
-    var menu = document.createElement("div");
-    menu.id = "cluezy-account-dropdown";
-    menu.style.cssText =
-      "position: fixed; " +
-      "left: " + Math.max(12, rect.left) + "px; " +
-      "bottom: " + (window.innerHeight - rect.top + 8) + "px; " +
-      "width: 230px; " +
-      "background-color: #17251f; " +
-      "border: 1px solid #326049; " +
-      "border-radius: 10px; " +
-      "box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); " +
-      "z-index: 99999; " +
-      "padding: 12px; " +
-      "color: #e5ece7; " +
-      "font-family: Inter, sans-serif;";
-
-    var metadata = (user && user.user_metadata) || {};
-    var displayName = metadata.full_name || metadata.name || (user && user.email ? user.email.split("@")[0] : "Aditi");
-    var email = (user && user.email) || "";
-
-    menu.innerHTML =
-      '<div style="margin-bottom: 10px; border-bottom: 1px solid #326049; padding-bottom: 8px;">' +
-      '  <div style="font-weight: 600; font-size: 14px; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + escapeHtml(displayName) + '</div>' +
-      '  <div style="font-size: 12px; color: #9bb5a3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + escapeHtml(email) + '</div>' +
-      '</div>' +
-      '<button id="cluezy-logout-btn" style="width: 100%; background: rgba(220, 53, 69, 0.15); border: 1px solid rgba(220, 53, 69, 0.4); color: #ff8b8b; padding: 7px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; text-align: center; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.15s;">' +
-      '  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>' +
-      '  Sign Out' +
-      '</button>';
-
-    document.body.appendChild(menu);
-
-    var logoutBtn = menu.querySelector("#cluezy-logout-btn");
-    if (logoutBtn) {
-      logoutBtn.onclick = async function () {
-        logoutBtn.disabled = true;
-        logoutBtn.textContent = "Signing out...";
-        try {
-          await API.signOut();
-        } catch (_e) {}
-        if (menu.parentNode) menu.parentNode.removeChild(menu);
-        bindUserProfile();
-        // Refresh sidebar investigations
-        API.listInvestigations({ page: 1, page_size: 5 })
-          .then(function (res) {
-            if (res && Array.isArray(res.items)) {
-              renderSidebarRecentInvestigations(res.items);
-            }
-          })
-          .catch(function () {});
+        }
       };
     }
 
     function onDocClick(e) {
       if (!menu.contains(e.target) && !anchorEl.contains(e.target)) {
         if (menu.parentNode) menu.parentNode.removeChild(menu);
+        anchorEl.setAttribute("aria-expanded", "false");
         document.removeEventListener("click", onDocClick);
       }
     }
@@ -4777,54 +4693,62 @@
   }
 
   var STARTER_CATEGORIES = [
-    { id: "all", label: "🌟 Popular" },
-    { id: "network", label: "🌐 Network & Wi-Fi" },
-    { id: "hardware", label: "💻 Hardware & System" },
-    { id: "audio", label: "🎙️ Audio & Video" },
-    { id: "software", label: "⚡ Software & Apps" },
-    { id: "dev", label: "🗄️ Dev & Database" },
+    { id: "all", label: "Popular", icon: "sparkles" },
+    { id: "network", label: "Network & Wi-Fi", icon: "wifi" },
+    { id: "hardware", label: "Hardware & System", icon: "cpu" },
+    { id: "audio", label: "Audio & Video", icon: "volume-2" },
+    { id: "software", label: "Software & Apps", icon: "app-window" },
+    { id: "dev", label: "Dev & Database", icon: "database" },
   ];
 
   var STARTER_PROMPTS_BY_CATEGORY = {
     all: [
       {
-        label: "Wi-Fi connected but websites won't open (phone works)",
+        icon: "wifi-off",
+        label: "Wi-Fi connected but websites won't open",
         prompt:
           "My Windows laptop is connected to Wi-Fi but websites aren't opening, though my phone works fine on the same network.",
       },
       {
-        label: "Zoom / Teams does not recognize USB microphone",
+        icon: "mic-off",
+        label: "Zoom / Teams does not detect USB microphone",
         prompt:
           "Zoom says no microphone detected, but my USB microphone is plugged in and works in other apps.",
       },
       {
-        label: "Laptop freezing randomly with 100% Disk / CPU usage",
+        icon: "cpu",
+        label: "Laptop freezing with 100% Disk / CPU usage",
         prompt:
           "My laptop keeps freezing and Task Manager shows 100% disk and CPU usage even when no apps are running.",
       },
       {
-        label: "PostgreSQL connection refused: ECONNREFUSED on port 5432",
+        icon: "database",
+        label: "PostgreSQL connection refused on port 5432",
         prompt:
           "My backend application cannot connect to the PostgreSQL database, showing connection refused on 127.0.0.1:5432.",
       },
     ],
     network: [
       {
-        label: "Wi-Fi says No Internet (IPv4 starts with 169.254 APIPA)",
+        icon: "wifi-off",
+        label: "Wi-Fi says No Internet (169.254 APIPA address)",
         prompt:
           "My Windows laptop is connected to Wi-Fi with no internet access. I ran ipconfig and my IPv4 address starts with 169.254.",
       },
       {
+        icon: "globe",
         label: "DNS server not responding on Windows / Mac",
         prompt:
           "Websites won't load and Windows network troubleshooter reports 'Your computer appears to be correctly configured, but the device or resource (DNS server) is not responding'.",
       },
       {
+        icon: "router",
         label: "All devices on Wi-Fi have no internet access",
         prompt:
           "My laptop and all other devices and phones on the Wi-Fi have no internet. The router lights are blinking amber/orange.",
       },
       {
+        icon: "cable",
         label: "Ethernet connected but says Unidentified Network",
         prompt:
           "My PC is plugged in via Ethernet cable, but Windows shows 'Unidentified Network - No Internet Access'.",
@@ -4832,88 +4756,104 @@
     ],
     hardware: [
       {
-        label: "Laptop shuts down automatically when running heavy apps",
+        icon: "laptop",
+        label: "Laptop shuts down when running heavy apps",
         prompt:
           "My laptop suddenly shuts off without warning when gaming or running intensive applications. The bottom fan feels extremely hot.",
       },
       {
+        icon: "monitor",
         label: "External monitor not detected over HDMI / USB-C",
         prompt:
           "Windows Display Settings says 'Didn't detect another display' when plugging in my external monitor via HDMI.",
       },
       {
-        label: "Laptop battery draining fast even in sleep mode",
+        icon: "battery-warning",
+        label: "Laptop battery draining fast in sleep mode",
         prompt:
           "My laptop battery drops 40% overnight even when the lid is closed and the computer is in sleep mode.",
       },
       {
-        label: "High memory / RAM usage causing system freeze",
+        icon: "cpu",
+        label: "High RAM usage causing system freeze",
         prompt:
           "Task Manager shows 95% RAM in use even with only a few browser tabs open, causing the entire computer to lag.",
       },
     ],
     audio: [
       {
+        icon: "mic-off",
         label: "Zoom / Teams says 'No microphone detected'",
         prompt:
           "During Zoom meetings, the microphone is muted and settings say 'Cannot detect your microphone' even though permissions are granted.",
       },
       {
-        label: "Bluetooth headphones paired but audio plays through speakers",
+        icon: "headphones",
+        label: "Bluetooth headphones paired but audio on speakers",
         prompt:
           "My Bluetooth headphones are connected in Windows settings, but audio still comes out of the laptop speakers.",
       },
       {
+        icon: "volume-x",
         label: "Microphone volume is extremely low or muffled",
         prompt:
           "Other people in Discord and Google Meet can barely hear me because my microphone volume is too low despite max volume in settings.",
       },
       {
-        label: "USB audio device not recognized (Device Descriptor Failed)",
+        icon: "alert-circle",
+        label: "USB audio device not recognized",
         prompt:
           "When plugging in my USB headset/mic, Windows says 'USB device not recognized (Device Descriptor Request Failed)'.",
       },
     ],
     software: [
       {
-        label: "Application crashes immediately on launch with no error",
+        icon: "app-window",
+        label: "Application crashes on launch with no error",
         prompt:
           "When I click to open my application, the loading spinner appears for two seconds and then disappears without opening or showing an error.",
       },
       {
+        icon: "shield-alert",
         label: "Software installer fails with error 2503 / 2502",
         prompt:
           "Running the installer fails with 'The installer has encountered an unexpected error installing this package. Code 2503 / 2502'.",
       },
       {
-        label: "Windows Update stuck downloading or installing at 100%",
+        icon: "refresh-cw",
+        label: "Windows Update stuck installing at 100%",
         prompt:
           "Windows Update has been stuck at 100% installing for over two hours and restarting doesn't fix it.",
       },
       {
-        label: "Browser shows ERR_CONNECTION_REFUSED on all pages",
+        icon: "globe",
+        label: "Browser shows ERR_CONNECTION_REFUSED",
         prompt:
           "Every website I try to open in Chrome shows ERR_CONNECTION_REFUSED, even after clearing cache and cookies.",
       },
     ],
     dev: [
       {
+        icon: "database",
         label: "Database connection refused: 127.0.0.1:5432",
         prompt:
           "My local development server cannot connect to PostgreSQL on port 5432, throwing ECONNREFUSED.",
       },
       {
-        label: "Port 3000 / 8080 already in use by another process",
+        icon: "server",
+        label: "Port 3000 / 8080 already in use (EADDRINUSE)",
         prompt:
           "Running npm run dev fails with 'Error: listen EADDRINUSE: address already in use :::3000'.",
       },
       {
-        label: "Git push rejected (non-fast-forward / merge conflict)",
+        icon: "git-branch",
+        label: "Git push rejected (non-fast-forward)",
         prompt:
           "Git push origin main is rejected with 'error: failed to push some refs ... Updates were rejected because the remote contains work'.",
       },
       {
-        label: "Docker daemon not running / cannot connect to docker.sock",
+        icon: "terminal",
+        label: "Docker daemon not running (docker.sock)",
         prompt:
           "Docker CLI returns 'Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?'",
       },
@@ -4950,7 +4890,7 @@
       sel.innerHTML = "";
       var autoOpt = document.createElement("option");
       autoOpt.value = "";
-      autoOpt.textContent = voices.length > 0 ? "Auto (" + voices[0].name.slice(0, 22) + ")" : "Auto Voice";
+      autoOpt.textContent = voices.length > 0 ? "Auto (" + voices[0].name + ")" : "Auto Voice";
       sel.appendChild(autoOpt);
 
       voices.forEach(function (v) {
@@ -4974,27 +4914,26 @@
   }
 
   /**
-   * Synchronize all speaker read-aloud toggle buttons (in header & toolbar) to current appState.
+   * Synchronize all speaker read-aloud toggle buttons (in settings popover & toolbar) to current appState.
    */
   function syncSpeakerButtonsUI() {
     var enabled = Boolean(appState.voiceSpeakerEnabled);
     document.querySelectorAll(".cluezy-speaker-toggle-btn").forEach(function (btn) {
+      btn.setAttribute("aria-checked", enabled ? "true" : "false");
       if (enabled) {
         btn.classList.add("active");
       } else {
         btn.classList.remove("active");
       }
-      var span = btn.querySelector("span");
-      if (span) {
-        span.textContent = btn.classList.contains("cluezy-header-voice-btn")
-          ? (enabled ? "Read Aloud: On" : "Read Aloud: Off")
-          : ("Voice Read-Aloud: " + (enabled ? "On" : "Off"));
+      var span = btn.querySelector(".cluezy-switch-state-text, span");
+      if (span && !span.classList.contains("cluezy-switch-thumb")) {
+        span.textContent = enabled ? "On" : "Off";
       }
     });
   }
 
   /**
-   * Render Speaker Read-Aloud Toggle, Language Selector, and Hands-Free Voice Mode button in the chat header.
+   * Render primary "Voice Mode" button and Settings icon popover (Read-aloud switch, Language select, full-name Voice select) in the header.
    */
   function renderHeaderVoiceControls(actionsContainer, authSlot) {
     if (!actionsContainer) return;
@@ -5004,49 +4943,107 @@
       voiceSlot.className = "cluezy-header-voice-slot";
       actionsContainer.insertBefore(voiceSlot, authSlot || actionsContainer.firstChild);
 
-      // 1. Speaker Read-Aloud Toggle (Feature-detected for speechSynthesis)
-      if (CluezyVoice.isSynthesisSupported()) {
-        var headerSpeakerBtn = document.createElement("button");
-        headerSpeakerBtn.type = "button";
-        headerSpeakerBtn.className =
-          "cluezy-header-voice-btn cluezy-speaker-toggle-btn" + (appState.voiceSpeakerEnabled ? " active" : "");
-        headerSpeakerBtn.setAttribute("aria-label", "Toggle read-aloud");
-        headerSpeakerBtn.setAttribute("title", "Read aloud new assistant responses");
-        headerSpeakerBtn.innerHTML =
-          '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-          '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>' +
-          '<path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>' +
-          '</svg>' +
-          '<span>' + (appState.voiceSpeakerEnabled ? "Read Aloud: On" : "Read Aloud: Off") + '</span>';
+      // 1. Primary "Voice Mode" button (Feature-detected)
+      if (CluezyVoiceMode.isSupported()) {
+        var vmBtn = document.createElement("button");
+        vmBtn.type = "button";
+        vmBtn.className = "cluezy-header-voice-btn cluezy-header-voicemode-btn";
+        vmBtn.setAttribute("aria-label", "Start Hands-Free Voice Mode");
+        vmBtn.setAttribute("title", "Start Hands-Free Voice Mode");
+        var vmIcon = (window.lucide && window.lucide.svg)
+          ? window.lucide.svg("audio-lines", { size: 16 })
+          : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 10v3"/><path d="M6 6v11"/><path d="M10 3v18"/><path d="M14 8v7"/><path d="M18 5v13"/><path d="M22 10v3"/></svg>';
+        vmBtn.innerHTML = vmIcon + "<span>Voice Mode</span>";
 
-        headerSpeakerBtn.addEventListener("click", function (e) {
+        vmBtn.addEventListener("click", function (e) {
           e.preventDefault();
           e.stopPropagation();
-          var nextState = !appState.voiceSpeakerEnabled;
-          CluezyVoice.setSpeakerEnabled(nextState);
-          syncSpeakerButtonsUI();
-          if (nextState) {
-            triggerAssistantMessageSpeech(true);
-          }
+          var openPop = document.getElementById("cluezy-settings-popover");
+          if (openPop) openPop.classList.remove("open");
+          CluezyVoiceMode.openOverlay();
         });
-        voiceSlot.appendChild(headerSpeakerBtn);
+        voiceSlot.appendChild(vmBtn);
       }
 
-      // 2. Language Selector (en-IN / hi-IN)
+      // 2. Settings Icon Button + Popover
       if (CluezyVoice.isSynthesisSupported() || CluezyVoice.isRecognitionSupported()) {
+        var settingsWrap = document.createElement("div");
+        settingsWrap.className = "cluezy-settings-popover-wrap";
+
+        var settingsBtn = document.createElement("button");
+        settingsBtn.type = "button";
+        settingsBtn.id = "cluezy-settings-btn";
+        settingsBtn.className = "cluezy-header-voice-btn cluezy-settings-trigger-btn";
+        settingsBtn.setAttribute("aria-label", "Voice and audio settings");
+        settingsBtn.setAttribute("aria-haspopup", "dialog");
+        settingsBtn.setAttribute("aria-expanded", "false");
+        settingsBtn.setAttribute("aria-controls", "cluezy-settings-popover");
+        settingsBtn.setAttribute("title", "Voice & Read-Aloud Settings");
+        settingsBtn.innerHTML = (window.lucide && window.lucide.svg)
+          ? window.lucide.svg("settings", { size: 16 })
+          : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>';
+
+        var popover = document.createElement("div");
+        popover.id = "cluezy-settings-popover";
+        popover.className = "cluezy-settings-popover";
+        popover.setAttribute("role", "dialog");
+        popover.setAttribute("aria-label", "Voice and audio settings");
+
+        // Row 1: Read-aloud toggle switch
+        if (CluezyVoice.isSynthesisSupported()) {
+          var switchRow = document.createElement("div");
+          switchRow.className = "cluezy-settings-row cluezy-settings-row-inline";
+          var switchLabel = document.createElement("span");
+          switchLabel.className = "cluezy-settings-label";
+          switchLabel.textContent = "Read aloud responses";
+
+          var headerSpeakerBtn = document.createElement("button");
+          headerSpeakerBtn.type = "button";
+          headerSpeakerBtn.setAttribute("role", "switch");
+          headerSpeakerBtn.setAttribute("aria-checked", appState.voiceSpeakerEnabled ? "true" : "false");
+          headerSpeakerBtn.setAttribute("aria-label", "Toggle read-aloud");
+          headerSpeakerBtn.className =
+            "cluezy-header-voice-btn cluezy-speaker-toggle-btn cluezy-switch-btn" +
+            (appState.voiceSpeakerEnabled ? " active" : "");
+          headerSpeakerBtn.innerHTML =
+            '<span class="cluezy-switch-track"><span class="cluezy-switch-thumb"></span></span>' +
+            '<span class="cluezy-switch-state-text">' + (appState.voiceSpeakerEnabled ? "On" : "Off") + "</span>";
+
+          headerSpeakerBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var nextState = !appState.voiceSpeakerEnabled;
+            CluezyVoice.setSpeakerEnabled(nextState);
+            syncSpeakerButtonsUI();
+            if (nextState) {
+              triggerAssistantMessageSpeech(true);
+            }
+          });
+
+          switchRow.appendChild(switchLabel);
+          switchRow.appendChild(headerSpeakerBtn);
+          popover.appendChild(switchRow);
+        }
+
+        // Row 2: Language Select
+        var langRow = document.createElement("div");
+        langRow.className = "cluezy-settings-row";
+        var langLabel = document.createElement("label");
+        langLabel.className = "cluezy-settings-label";
+        langLabel.textContent = "Language";
+
         var headerLangSelect = document.createElement("select");
         headerLangSelect.className = "cluezy-voice-lang-select";
         headerLangSelect.setAttribute("aria-label", "Voice language");
-        headerLangSelect.setAttribute("title", "Select Voice Language (English / Hindi)");
 
         var optEn = document.createElement("option");
         optEn.value = "en-IN";
-        optEn.textContent = "EN (IN)";
+        optEn.textContent = "English (en-IN)";
         if (appState.voiceLang === "en-IN") optEn.selected = true;
 
         var optHi = document.createElement("option");
         optHi.value = "hi-IN";
-        optHi.textContent = "हिंदी (HI)";
+        optHi.textContent = "हिंदी (hi-IN)";
         if (appState.voiceLang === "hi-IN") optHi.selected = true;
 
         headerLangSelect.appendChild(optEn);
@@ -5058,34 +5055,77 @@
           document.querySelectorAll(".cluezy-voice-lang-select, .cluezy-vm-lang-select").forEach(function (sel) {
             sel.value = headerLangSelect.value;
           });
+          populateVoiceSelectDropdowns();
         });
-        voiceSlot.appendChild(headerLangSelect);
-      }
 
-      // 3. Hands-Free Voice Mode Button (Feature-detected)
-      if (CluezyVoiceMode.isSupported()) {
-        var vmBtn = document.createElement("button");
-        vmBtn.type = "button";
-        vmBtn.className = "cluezy-header-voice-btn cluezy-header-voicemode-btn";
-        vmBtn.setAttribute("aria-label", "Start Hands-Free Voice Mode");
-        vmBtn.setAttribute("title", "Open Hands-Free Voice Troubleshooting Mode");
-        vmBtn.innerHTML =
-          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' +
-          '<path d="M12 2v20M17 5v14M7 5v14M22 9v6M2 9v6"></path>' +
-          '</svg>' +
-          '<span>Voice Mode</span>';
+        langRow.appendChild(langLabel);
+        langRow.appendChild(headerLangSelect);
+        popover.appendChild(langRow);
 
-        vmBtn.addEventListener("click", function (e) {
+        // Row 3: Voice Select (full names, no truncation, min-width)
+        if (CluezyVoice.isSynthesisSupported()) {
+          var voiceRow = document.createElement("div");
+          voiceRow.className = "cluezy-settings-row";
+          var voiceLabel = document.createElement("label");
+          voiceLabel.className = "cluezy-settings-label";
+          voiceLabel.textContent = "Voice";
+
+          var voiceUriSelect = document.createElement("select");
+          voiceUriSelect.className = "cluezy-voice-uri-select";
+          voiceUriSelect.setAttribute("aria-label", "Select preferred speech voice");
+          voiceUriSelect.addEventListener("change", function (e) {
+            e.stopPropagation();
+            CluezyVoice.setPreferredVoiceURI(voiceUriSelect.value);
+            document.querySelectorAll(".cluezy-voice-uri-select, .cluezy-vm-voice-select").forEach(function (s) {
+              s.value = voiceUriSelect.value;
+            });
+          });
+
+          voiceRow.appendChild(voiceLabel);
+          voiceRow.appendChild(voiceUriSelect);
+          popover.appendChild(voiceRow);
+        }
+
+        settingsBtn.addEventListener("click", function (e) {
           e.preventDefault();
           e.stopPropagation();
-          CluezyVoiceMode.openOverlay();
+          var acctMenu = document.getElementById("cluezy-account-dropdown");
+          if (acctMenu && acctMenu.parentNode) acctMenu.parentNode.removeChild(acctMenu);
+          var isOpen = popover.classList.toggle("open");
+          settingsBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+          if (isOpen) {
+            populateVoiceSelectDropdowns();
+          }
         });
-        voiceSlot.appendChild(vmBtn);
+
+        popover.addEventListener("click", function (e) {
+          e.stopPropagation();
+        });
+
+        if (!window._cluezySettingsOutsideBound) {
+          window._cluezySettingsOutsideBound = true;
+          document.addEventListener("click", function (e) {
+            var pop = document.getElementById("cluezy-settings-popover");
+            var btn = document.getElementById("cluezy-settings-btn");
+            if (pop && pop.classList.contains("open")) {
+              if (!pop.contains(e.target) && (!btn || !btn.contains(e.target))) {
+                pop.classList.remove("open");
+                if (btn) btn.setAttribute("aria-expanded", "false");
+              }
+            }
+          });
+        }
+
+        settingsWrap.appendChild(settingsBtn);
+        settingsWrap.appendChild(popover);
+        voiceSlot.appendChild(settingsWrap);
+        populateVoiceSelectDropdowns();
       }
     } else {
       syncSpeakerButtonsUI();
       var sel = voiceSlot.querySelector(".cluezy-voice-lang-select");
       if (sel) sel.value = appState.voiceLang || "en-IN";
+      populateVoiceSelectDropdowns();
     }
   }
 
@@ -5259,35 +5299,36 @@
       root.setAttribute("data-cluezy-rendered", "true");
       var inv = appState.currentInvestigation;
 
-      // 1. Update Heading & Status Badge
+      // 1. Update Heading & Status Indicator (small status dot + text shown only when loading)
       var headingH2 = root.querySelector('[data-framer-name="Investigation heading"] h2');
+      var statusBadgeEl = root.querySelector('[data-framer-name="Status Active"]');
       var statusSpan = root.querySelector(
         '[data-framer-name="Status Active"] span, [data-framer-name="Status Active"] p'
       );
 
       if (inv) {
         if (headingH2) {
-          headingH2.textContent = "Investigation  #" + inv.reference_id;
-        }
-        if (statusSpan) {
-          var statusMap = {
-            active: "Active",
-            in_progress: "In Progress",
-            testing_solution: "Testing Fix",
-            resolved: "Resolved",
-          };
-          statusSpan.textContent = statusMap[inv.status] || "Active";
+          headingH2.textContent = "Investigation #" + inv.reference_id;
         }
       } else {
         if (headingH2) {
           headingH2.textContent = "New Investigation";
         }
-        if (statusSpan) {
-          statusSpan.textContent = "Ready";
+      }
+
+      if (statusBadgeEl) {
+        statusBadgeEl.classList.add("cluezy-loading-status-indicator");
+        if (appState.isSubmitting) {
+          statusBadgeEl.style.display = "inline-flex";
+          if (statusSpan) {
+            statusSpan.textContent = "Working…";
+          }
+        } else {
+          statusBadgeEl.style.display = "none";
         }
       }
 
-      // Small profile section and explicit logout button in heading
+      // Header controls: Voice Mode button, Settings popover, and Avatar menu
       renderInvestigationHeadingAuth(root);
 
       // 2. Ensure Reply Composer has an interactive <textarea>
@@ -5306,6 +5347,9 @@
         if (paperclip && !paperclip.dataset.bound) {
           paperclip.dataset.bound = "true";
           paperclip.style.cursor = "pointer";
+          paperclip.setAttribute("role", "button");
+          paperclip.setAttribute("tabindex", "0");
+          paperclip.setAttribute("aria-label", "Attach log, error screenshot, or system info");
           paperclip.setAttribute("title", "Attach log, error screenshot, or system info");
           var fileInp = document.getElementById("cluezy-composer-file-input");
           if (!fileInp) {
@@ -5333,6 +5377,12 @@
             e.preventDefault();
             fileInp.click();
           });
+          paperclip.addEventListener("keydown", function (e) {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              fileInp.click();
+            }
+          });
         }
 
         // Voice Input Mic Button next to input (Feature-detected)
@@ -5343,13 +5393,14 @@
           micBtn.className = "cluezy-voice-btn cluezy-mic-btn";
           micBtn.setAttribute("aria-label", "Voice input");
           micBtn.setAttribute("title", "Voice Input (Speech to text)");
-          micBtn.innerHTML =
-            '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-            '<path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>' +
-            '<path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>' +
-            '<line x1="12" y1="19" x2="12" y2="23"></line>' +
-            '<line x1="8" y1="23" x2="16" y2="23"></line>' +
-            '</svg>';
+          micBtn.innerHTML = (window.lucide && window.lucide.svg)
+            ? window.lucide.svg("mic", { size: 18 })
+            : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+              '<path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>' +
+              '<path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>' +
+              '<line x1="12" y1="19" x2="12" y2="23"></line>' +
+              '<line x1="8" y1="23" x2="16" y2="23"></line>' +
+              '</svg>';
 
           micBtn.addEventListener("click", function (e) {
             e.preventDefault();
@@ -5421,6 +5472,7 @@
         sendBtn.removeAttribute("href");
         sendBtn.setAttribute("href", "javascript:void(0)");
         sendBtn.setAttribute("role", "button");
+        sendBtn.setAttribute("aria-label", "Send message");
         if (appState.isSubmitting) {
           sendBtn.classList.add("cluezy-disabled");
         } else {
@@ -5475,40 +5527,39 @@
         var isNewInvestigation = !inv || !Array.isArray(inv.messages) || inv.messages.length === 0;
 
         if (isNewInvestigation) {
-          // Centered Middle Layout for New Investigation
+          // Centered Middle Layout for New Investigation (Phase 3 Empty State)
           convContainer.classList.add("cluezy-new-investigation-layout");
 
-          // 1. Hero welcome section
+          // 1. Hero welcome section (Heading + one-line plain description, no pill)
           var heroSection = document.createElement("div");
           heroSection.className = "cluezy-hero-welcome-section";
           heroSection.innerHTML =
-            '<div class="cluezy-hero-badge">' +
-              '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:4px;"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>' +
-              'AI Diagnostic Assistant' +
-            '</div>' +
             '<h1 class="cluezy-hero-title">Describe your technical problem</h1>' +
-            '<p class="cluezy-hero-subtitle">Type your issue below or choose a scenario to start a step-by-step diagnostic investigation.</p>';
+            '<p class="cluezy-hero-subtitle">Type your issue below or choose a common problem to start a step-by-step investigation.</p>';
           convContainer.appendChild(heroSection);
 
-          // 2. Reply composer placed in the middle
+          // 2. Prominent centered input box with attach and mic icons
           if (composer) {
-            var newVoiceBar = renderVoiceToolbar(convContainer);
-            if (newVoiceBar) {
-              convContainer.appendChild(newVoiceBar);
-            }
             convContainer.appendChild(composer);
             renderVoiceStatusBanner(composer);
           }
 
-          // 3. Category Filter Pills
+          // 3. Category Tabs (underline tabs with Lucide icons, no emoji)
           var categoriesContainer = document.createElement("div");
           categoriesContainer.className = "cluezy-starter-categories";
+          categoriesContainer.setAttribute("role", "tablist");
+          categoriesContainer.setAttribute("aria-label", "Problem categories");
           var currentCategory = appState.selectedStarterCategory || "all";
           STARTER_CATEGORIES.forEach(function (cat) {
             var pill = document.createElement("button");
             pill.type = "button";
+            pill.setAttribute("role", "tab");
+            pill.setAttribute("aria-selected", cat.id === currentCategory ? "true" : "false");
             pill.className = "cluezy-category-pill" + (cat.id === currentCategory ? " active" : "");
-            pill.textContent = cat.label;
+            var catIconHtml = (window.lucide && window.lucide.svg)
+              ? window.lucide.svg(cat.icon || "sparkles", { size: 15, className: "cluezy-category-tab-icon" })
+              : "";
+            pill.innerHTML = catIconHtml + "<span>" + escapeHtml(cat.label) + "</span>";
             pill.addEventListener("click", function () {
               appState.selectedStarterCategory = cat.id;
               renderInvestigationView();
@@ -5517,21 +5568,30 @@
           });
           convContainer.appendChild(categoriesContainer);
 
-          // 4. Starter suggestions for active category
+          // 4. Suggested problems: 2-column grid of cards (1 column on mobile) with one icon each and short label
           answersContainer.innerHTML = "";
           var prompts = STARTER_PROMPTS_BY_CATEGORY[currentCategory] || STARTER_PROMPTS_BY_CATEGORY["all"];
           prompts.forEach(function (sp) {
             var card = document.createElement("a");
             card.href = "javascript:void(0)";
+            card.setAttribute("role", "button");
+            card.setAttribute("tabindex", "0");
             card.className = "cluezy-starter-card";
+            var cardIconHtml = (window.lucide && window.lucide.svg)
+              ? window.lucide.svg(sp.icon || "help-circle", { size: 18, className: "cluezy-starter-card-icon" })
+              : "";
             card.innerHTML =
-              '<span class="cluezy-starter-card-label">' + escapeHtml(sp.label) + '</span>' +
-              '<span class="cluezy-starter-card-arrow">' +
-                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>' +
-              '</span>';
+              '<span class="cluezy-starter-card-icon-wrap">' + cardIconHtml + "</span>" +
+              '<span class="cluezy-starter-card-label">' + escapeHtml(sp.label) + "</span>";
             bindActionClick(card, function (e) {
               if (e) e.preventDefault();
               startNewInvestigation(sp.prompt);
+            });
+            card.addEventListener("keydown", function (e) {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                startNewInvestigation(sp.prompt);
+              }
             });
             answersContainer.appendChild(card);
           });
@@ -5596,13 +5656,8 @@
             convContainer.appendChild(answersContainer);
           }
 
-          // Pin composer at bottom
+          // Pin composer at bottom (voice settings live in header popover)
           if (composer) {
-            // Insert Voice Toolbar right above the composer
-            var voiceBar = renderVoiceToolbar(convContainer);
-            if (voiceBar) {
-              convContainer.appendChild(voiceBar);
-            }
             convContainer.appendChild(composer);
             renderVoiceStatusBanner(composer);
           }
