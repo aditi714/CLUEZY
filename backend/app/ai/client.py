@@ -48,6 +48,11 @@ def mask_key(key: Optional[str]) -> str:
 class GroqClient:
     """Wrapper around official Groq Python SDK with resilient error handling and structured JSON output."""
 
+    FALLBACK_MODELS: List[str] = [
+        "openai/gpt-oss-20b",
+        "qwen/qwen3.8-27b",
+    ]
+
     def __init__(
         self,
         api_key: Optional[str] = None,
@@ -60,6 +65,7 @@ class GroqClient:
         self.timeout = timeout if timeout is not None else settings.GROQ_TIMEOUT_SECONDS
         self.max_retries = max_retries if max_retries is not None else settings.GROQ_MAX_RETRIES
         self._async_client: Optional[Any] = None
+        self._exhausted_models: set = set()
 
     @property
     def is_configured(self) -> bool:
@@ -85,6 +91,7 @@ class GroqClient:
     def set_mock_client(self, mock_client: Any) -> None:
         """Inject a mock client for unit testing."""
         self._async_client = mock_client
+        self._exhausted_models.clear()
 
     async def generate_chat_completion(
         self,
@@ -93,53 +100,82 @@ class GroqClient:
         max_tokens: int = 1500,
         response_format: Optional[Dict[str, str]] = None,
     ) -> Optional[str]:
-        """Execute chat completion with robust timeout, rate-limit, and connection error handling."""
+        """Execute chat completion with automatic model fallback on rate limits (HTTP 429)."""
         client = self.get_async_client()
         if not client:
             return None
 
-        kwargs: Dict[str, Any] = {
-            "model": self.model,
-            "messages": messages,
-            "temperature": temperature,
-            "max_tokens": max_tokens,
-        }
-        if response_format:
-            kwargs["response_format"] = response_format
+        candidate_models: List[str] = []
+        for m in [self.model] + self.FALLBACK_MODELS:
+            if m and m not in candidate_models:
+                candidate_models.append(m)
 
-        try:
-            response = await client.chat.completions.create(**kwargs)
-            return response.choices[0].message.content
-        except RateLimitError as exc:
-            logger.warning("Groq rate limit exceeded (HTTP 429).")
+        # Put non-exhausted models first so TPD-exhausted models don't add latency on every turn
+        ordered_models = [m for m in candidate_models if m not in self._exhausted_models] + [
+            m for m in candidate_models if m in self._exhausted_models
+        ]
+
+        last_rate_limit_exc: Optional[Exception] = None
+
+        for idx, active_model in enumerate(ordered_models):
+            kwargs: Dict[str, Any] = {
+                "model": active_model,
+                "messages": messages,
+                "temperature": temperature,
+                "max_tokens": max_tokens,
+            }
+            if response_format:
+                kwargs["response_format"] = response_format
+
+            try:
+                response = await client.chat.completions.create(**kwargs)
+                return response.choices[0].message.content
+            except RateLimitError as exc:
+                last_rate_limit_exc = exc
+                self._exhausted_models.add(active_model)
+                if idx + 1 < len(ordered_models):
+                    next_model = ordered_models[idx + 1]
+                    logger.warning(
+                        f"Groq rate limit (HTTP 429) on model '{active_model}'. "
+                        f"Automatically falling back to '{next_model}'."
+                    )
+                    continue
+                logger.warning("Groq rate limit exceeded across all candidate models (HTTP 429).")
+                raise GroqRateLimitException(
+                    message="Groq API rate limit exceeded. Please back off and retry.",
+                    original_error=exc,
+                ) from exc
+            except APITimeoutError as exc:
+                logger.warning(f"Groq API request timed out after {self.timeout}s.")
+                raise GroqTimeoutException(
+                    message=f"Groq request timed out after {self.timeout}s.",
+                    original_error=exc,
+                ) from exc
+            except APIConnectionError as exc:
+                logger.error("Groq API network connection failure.")
+                raise GroqServiceException(
+                    message="Failed to connect to Groq AI inference service.",
+                    original_error=exc,
+                ) from exc
+            except APIError as exc:
+                logger.error(f"Groq API error encountered: {exc.message if hasattr(exc, 'message') else exc}")
+                raise GroqServiceException(
+                    message="Groq inference service returned an error.",
+                    original_error=exc,
+                ) from exc
+            except Exception as exc:
+                logger.error(f"Unexpected error communicating with Groq: {type(exc).__name__}")
+                raise GroqServiceException(
+                    message=f"Unexpected Groq execution error: {type(exc).__name__}",
+                    original_error=exc,
+                ) from exc
+
+        if last_rate_limit_exc:
             raise GroqRateLimitException(
                 message="Groq API rate limit exceeded. Please back off and retry.",
-                original_error=exc,
-            ) from exc
-        except APITimeoutError as exc:
-            logger.warning(f"Groq API request timed out after {self.timeout}s.")
-            raise GroqTimeoutException(
-                message=f"Groq request timed out after {self.timeout}s.",
-                original_error=exc,
-            ) from exc
-        except APIConnectionError as exc:
-            logger.error("Groq API network connection failure.")
-            raise GroqServiceException(
-                message="Failed to connect to Groq AI inference service.",
-                original_error=exc,
-            ) from exc
-        except APIError as exc:
-            logger.error(f"Groq API error encountered: {exc.message if hasattr(exc, 'message') else exc}")
-            raise GroqServiceException(
-                message="Groq inference service returned an error.",
-                original_error=exc,
-            ) from exc
-        except Exception as exc:
-            logger.error(f"Unexpected error communicating with Groq: {type(exc).__name__}")
-            raise GroqServiceException(
-                message=f"Unexpected Groq execution error: {type(exc).__name__}",
-                original_error=exc,
-            ) from exc
+                original_error=last_rate_limit_exc,
+            )
+        return None
 
     async def generate_structured_json(
         self,
