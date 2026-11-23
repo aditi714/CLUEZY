@@ -19,4 +19,25 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          git push -f https://oauth2:$HF_TOKEN@huggingface.co/spaces/Parth33/cluezy-backend main
+          if ! head -n 1 README.md | grep -q "^---"; then
+            cat << 'EOF' > /tmp/hf_frontmatter.md
+          ---
+          title: Cluezy Backend API
+          emoji: 🔍
+          colorFrom: green
+          colorTo: green
+          sdk: gradio
+          sdk_version: 4.44.0
+          app_file: app.py
+          pinned: false
+          ---
+
+          EOF
+            cat /tmp/hf_frontmatter.md README.md > /tmp/README_hf.md
+            mv /tmp/README_hf.md README.md
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add README.md
+            git commit -m "chore: inject Hugging Face Space frontmatter for HF deployment"
+          fi
+          git push -f https://oauth2:$HF_TOKEN@huggingface.co/spaces/Parth33/cluezy-backend HEAD:main
