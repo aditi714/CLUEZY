@@ -287,12 +287,11 @@ For complete schemas and payload examples, refer to [docs/API_CONTRACTS.md](docs
 
 ---
 
-## 👥 Project Credits
+## 👤 Project Credits
 
 Developed as a **B.Sc. Computer Science Final Year Project** at **KBP College, Vashi** (Affiliated with **University of Mumbai**).
 
 * **Ms. Aditi Raut** — Full-Stack Architecture, Engine Design & Development
-* **Mrs. Chaitrali Suryavanshi** — Project Guide & Academic Mentorship
 
 ---
 
