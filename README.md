@@ -1,14 +1,3 @@
----
-title: Cluezy Backend API
-emoji: 🔍
-colorFrom: green
-colorTo: green
-sdk: gradio
-sdk_version: 4.44.0
-app_file: app.py
-pinned: false
----
-
 <div align="center">
 
   <img src="assets/logo.png" alt="CLUEZY Logo" width="120" style="border-radius: 24px; margin-bottom: 12px;" />
