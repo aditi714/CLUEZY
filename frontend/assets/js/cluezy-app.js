@@ -27,7 +27,286 @@
     inlineHelpText: null,
     expandedFullReport: false,
     errorBannerMessage: null,
+    // Voice preferences and active states
+    voiceLang: (function () {
+      try {
+        return sessionStorage.getItem("cluezy_voice_lang") || "en-IN";
+      } catch (_e) {
+        return "en-IN";
+      }
+    })(),
+    voiceSpeakerEnabled: (function () {
+      try {
+        return sessionStorage.getItem("cluezy_voice_speaker") === "true";
+      } catch (_e) {
+        return false;
+      }
+    })(),
+    isRecording: false,
+    speechErrorMessage: null,
+    lastSpokenMessageId: null,
+    solutionActiveStepIndex: 0,
   };
+
+  // ============================================================================
+  // WEB SPEECH API CONTROLLER (SpeechRecognition & SpeechSynthesis)
+  // ============================================================================
+  var CluezyVoice = (function () {
+    var SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition || null;
+    var recognitionInstance = null;
+    var baseTextBeforeSpeech = "";
+    var currentInterimText = "";
+
+    // Term normalization map for common technical terms
+    var NORMALIZATION_MAP = [
+      { pattern: /\b(?:dns|d\.n\.s\.)\b/gi, replacement: "DNS" },
+      { pattern: /\b(?:wi\s*fi|wifi|wyfy)\b/gi, replacement: "Wi-Fi" },
+      { pattern: /\b(?:ip\s*address|i\.p\.\s*address)\b/gi, replacement: "IP address" },
+      { pattern: /\b(?:ip|i\.p\.)\b/gi, replacement: "IP" },
+      { pattern: /\b(?:ping|peeng)\b/gi, replacement: "ping" },
+      { pattern: /\b(?:router|rout er)\b/gi, replacement: "router" },
+      { pattern: /\b(?:gateway|gate way)\b/gi, replacement: "gateway" },
+      { pattern: /\b(?:dhcp|d\.h\.c\.p\.)\b/gi, replacement: "DHCP" },
+      { pattern: /\b(?:apipa)\b/gi, replacement: "APIPA" },
+      { pattern: /\b(?:wan|w\.a\.n\.)\b/gi, replacement: "WAN" },
+      { pattern: /\b(?:lan|l\.a\.n\.)\b/gi, replacement: "LAN" },
+      { pattern: /\b(?:icmp)\b/gi, replacement: "ICMP" },
+      { pattern: /\b(?:cmd|command\s*prompt)\b/gi, replacement: "Command Prompt" },
+      { pattern: /\b(?:ipconfig)\b/gi, replacement: "ipconfig" },
+    ];
+
+    function normalizeTranscript(rawText) {
+      if (!rawText) return "";
+      var text = rawText;
+      NORMALIZATION_MAP.forEach(function (rule) {
+        text = text.replace(rule.pattern, rule.replacement);
+      });
+      return text;
+    }
+
+    function isRecognitionSupported() {
+      return Boolean(SpeechRecognition);
+    }
+
+    function isSynthesisSupported() {
+      return typeof window !== "undefined" && "speechSynthesis" in window;
+    }
+
+    function setLanguage(lang) {
+      appState.voiceLang = lang;
+      try {
+        sessionStorage.setItem("cluezy_voice_lang", lang);
+      } catch (_e) {}
+      if (recognitionInstance) {
+        recognitionInstance.lang = lang;
+      }
+    }
+
+    function setSpeakerEnabled(enabled) {
+      appState.voiceSpeakerEnabled = Boolean(enabled);
+      try {
+        sessionStorage.setItem("cluezy_voice_speaker", String(appState.voiceSpeakerEnabled));
+      } catch (_e) {}
+      if (!appState.voiceSpeakerEnabled) {
+        stopSpeaking();
+      }
+    }
+
+    function stopSpeaking() {
+      if (isSynthesisSupported()) {
+        try {
+          window.speechSynthesis.cancel();
+        } catch (_e) {}
+      }
+    }
+
+    function getVoiceForLang(targetLang) {
+      if (!isSynthesisSupported()) return null;
+      var voices = window.speechSynthesis.getVoices() || [];
+      if (!voices || voices.length === 0) return null;
+
+      // Exact match (e.g. en-IN or hi-IN)
+      var exact = voices.find(function (v) {
+        return v.lang && v.lang.toLowerCase().replace(/_/g, "-") === targetLang.toLowerCase();
+      });
+      if (exact) return exact;
+
+      // Language prefix match (e.g. "hi" or "en")
+      var prefix = targetLang.split("-")[0].toLowerCase();
+      var langMatch = voices.find(function (v) {
+        return v.lang && v.lang.toLowerCase().split(/[-_]/)[0] === prefix;
+      });
+      return langMatch || voices[0] || null;
+    }
+
+    function speakText(textToSpeak, onEndCallback) {
+      if (!isSynthesisSupported() || !appState.voiceSpeakerEnabled) return;
+      if (!textToSpeak || !textToSpeak.trim()) return;
+
+      stopSpeaking();
+
+      // Clean markdown symbols for natural speech output
+      var clean = textToSpeak
+        .replace(/[*_#`~[\]]/g, " ")
+        .replace(/\(https?:\/\/[^\)]+\)/g, " ")
+        .replace(/https?:\/\/\S+/g, " ")
+        .replace(/•/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+      if (!clean) return;
+
+      try {
+        var utterance = new SpeechSynthesisUtterance(clean);
+        utterance.lang = appState.voiceLang || "en-IN";
+        var voice = getVoiceForLang(utterance.lang);
+        if (voice) utterance.voice = voice;
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+
+        if (typeof onEndCallback === "function") {
+          utterance.onend = onEndCallback;
+          utterance.onerror = onEndCallback;
+        }
+
+        window.speechSynthesis.speak(utterance);
+      } catch (err) {
+        console.warn("Speech synthesis error:", err);
+      }
+    }
+
+    function toggleRecording(textareaElement, onStateChange) {
+      if (!isRecognitionSupported()) {
+        appState.speechErrorMessage = "Speech recognition is not supported in this browser.";
+        if (typeof onStateChange === "function") onStateChange();
+        return;
+      }
+
+      if (appState.isRecording) {
+        stopRecording();
+        if (typeof onStateChange === "function") onStateChange();
+        return;
+      }
+
+      startRecording(textareaElement, onStateChange);
+    }
+
+    function startRecording(textareaElement, onStateChange) {
+      // Cancel any active text-to-speech audio immediately when user starts recording
+      stopSpeaking();
+
+      appState.speechErrorMessage = null;
+      baseTextBeforeSpeech = (textareaElement ? textareaElement.value : "").trim();
+      currentInterimText = "";
+
+      try {
+        recognitionInstance = new SpeechRecognition();
+        recognitionInstance.continuous = true;
+        recognitionInstance.interimResults = true;
+        recognitionInstance.maxAlternatives = 1;
+        recognitionInstance.lang = appState.voiceLang || "en-IN";
+
+        recognitionInstance.onstart = function () {
+          appState.isRecording = true;
+          appState.speechErrorMessage = null;
+          if (typeof onStateChange === "function") onStateChange();
+        };
+
+        recognitionInstance.onresult = function (event) {
+          var finalTranscripts = "";
+          var interimTranscripts = "";
+
+          for (var i = event.resultIndex; i < event.results.length; i++) {
+            var item = event.results[i];
+            var transcript = item[0] ? item[0].transcript : "";
+            if (item.isFinal) {
+              finalTranscripts += transcript + " ";
+            } else {
+              interimTranscripts += transcript;
+            }
+          }
+
+          if (finalTranscripts) {
+            var normalizedFinal = normalizeTranscript(finalTranscripts);
+            baseTextBeforeSpeech = (baseTextBeforeSpeech ? baseTextBeforeSpeech + " " : "") + normalizedFinal.trim();
+          }
+
+          currentInterimText = normalizeTranscript(interimTranscripts).trim();
+
+          if (textareaElement) {
+            var combined = baseTextBeforeSpeech;
+            if (currentInterimText) {
+              combined = (combined ? combined + " " : "") + currentInterimText;
+            }
+            textareaElement.value = combined;
+            autoResizeChatTextarea(textareaElement);
+            var composer = textareaElement.closest('[data-framer-name="Reply composer"]');
+            var sendBtn = composer
+              ? composer.querySelector('[data-framer-name="Send reply"], [data-framer-name="Send"]')
+              : null;
+            updateSendButtonVisual(textareaElement, sendBtn);
+          }
+        };
+
+        recognitionInstance.onerror = function (event) {
+          var err = event.error;
+          if (err === "no-speech") {
+            appState.speechErrorMessage = "No speech detected. Please try speaking again.";
+          } else if (err === "not-allowed" || err === "service-not-allowed") {
+            appState.speechErrorMessage = "Microphone permission denied. Allow mic access in browser.";
+          } else if (err !== "aborted") {
+            appState.speechErrorMessage = "Speech recognition error (" + err + ").";
+          }
+          appState.isRecording = false;
+          if (typeof onStateChange === "function") onStateChange();
+        };
+
+        recognitionInstance.onend = function () {
+          appState.isRecording = false;
+          if (textareaElement) {
+            textareaElement.value = baseTextBeforeSpeech;
+            autoResizeChatTextarea(textareaElement);
+            var composer = textareaElement.closest('[data-framer-name="Reply composer"]');
+            var sendBtn = composer
+              ? composer.querySelector('[data-framer-name="Send reply"], [data-framer-name="Send"]')
+              : null;
+            updateSendButtonVisual(textareaElement, sendBtn);
+          }
+          if (typeof onStateChange === "function") onStateChange();
+        };
+
+        recognitionInstance.start();
+      } catch (err) {
+        console.warn("Speech recognition start failed:", err);
+        appState.speechErrorMessage = "Could not activate microphone. Check browser permissions.";
+        appState.isRecording = false;
+        if (typeof onStateChange === "function") onStateChange();
+      }
+    }
+
+    function stopRecording() {
+      if (recognitionInstance) {
+        try {
+          recognitionInstance.stop();
+        } catch (_e) {}
+        recognitionInstance = null;
+      }
+      appState.isRecording = false;
+    }
+
+    return {
+      isRecognitionSupported: isRecognitionSupported,
+      isSynthesisSupported: isSynthesisSupported,
+      setLanguage: setLanguage,
+      setSpeakerEnabled: setSpeakerEnabled,
+      stopSpeaking: stopSpeaking,
+      speakText: speakText,
+      toggleRecording: toggleRecording,
+      stopRecording: stopRecording,
+      normalizeTranscript: normalizeTranscript,
+    };
+  })();
 
   /**
    * Escape HTML special characters to prevent XSS when building HTML strings.
@@ -198,6 +477,155 @@
       "[data-framer-name='Reply composer'] [data-framer-name='Send reply'] {",
       "  margin-bottom: 2px !important;",
       "  flex-shrink: 0 !important;",
+      "}",
+      "/* Cluezy Voice UI Controls */",
+      ".cluezy-voice-controls-bar {",
+      "  display: flex !important;",
+      "  align-items: center !important;",
+      "  justify-content: space-between !important;",
+      "  width: 100% !important;",
+      "  max-width: 680px !important;",
+      "  margin: 6px auto 10px !important;",
+      "  padding: 6px 12px !important;",
+      "  border-radius: 12px !important;",
+      "  background: #f7faf6 !important;",
+      "  border: 1px solid #dfe5de !important;",
+      "  box-sizing: border-box !important;",
+      "  gap: 8px !important;",
+      "  flex-wrap: wrap !important;",
+      "}",
+      ".cluezy-voice-actions-group {",
+      "  display: inline-flex !important;",
+      "  align-items: center !important;",
+      "  gap: 8px !important;",
+      "}",
+      ".cluezy-voice-btn {",
+      "  display: inline-flex !important;",
+      "  align-items: center !important;",
+      "  justify-content: center !important;",
+      "  gap: 6px !important;",
+      "  min-width: 44px !important;",
+      "  min-height: 44px !important;",
+      "  padding: 6px 12px !important;",
+      "  border-radius: 10px !important;",
+      "  border: 1.5px solid #dfe5de !important;",
+      "  background: #ffffff !important;",
+      "  color: #17251f !important;",
+      "  font-family: 'Inter', sans-serif !important;",
+      "  font-size: 13px !important;",
+      "  font-weight: 500 !important;",
+      "  cursor: pointer !important;",
+      "  transition: all 0.15s ease !important;",
+      "  user-select: none !important;",
+      "  -webkit-tap-highlight-color: transparent !important;",
+      "}",
+      ".cluezy-voice-btn:hover {",
+      "  border-color: #145c38 !important;",
+      "  background: #ecf6e8 !important;",
+      "  color: #145c38 !important;",
+      "}",
+      ".cluezy-voice-btn.active {",
+      "  background: #145c38 !important;",
+      "  border-color: #145c38 !important;",
+      "  color: #ffffff !important;",
+      "}",
+      ".cluezy-mic-btn {",
+      "  border-radius: 50% !important;",
+      "  width: 44px !important;",
+      "  height: 44px !important;",
+      "  padding: 0 !important;",
+      "  flex-shrink: 0 !important;",
+      "  margin-bottom: 2px !important;",
+      "}",
+      ".cluezy-mic-btn.recording {",
+      "  background: #dc2626 !important;",
+      "  border-color: #dc2626 !important;",
+      "  color: #ffffff !important;",
+      "  animation: cluezy-pulse-rec 1.2s infinite ease-in-out !important;",
+      "}",
+      "@keyframes cluezy-pulse-rec {",
+      "  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }",
+      "  70% { transform: scale(1.06); box-shadow: 0 0 0 8px rgba(220, 38, 38, 0); }",
+      "  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }",
+      "}",
+      ".cluezy-voice-lang-select {",
+      "  min-height: 44px !important;",
+      "  padding: 6px 10px !important;",
+      "  border-radius: 8px !important;",
+      "  border: 1px solid #dfe5de !important;",
+      "  background: #ffffff !important;",
+      "  color: #17251f !important;",
+      "  font-family: 'Inter', sans-serif !important;",
+      "  font-size: 13px !important;",
+      "  cursor: pointer !important;",
+      "  outline: none !important;",
+      "}",
+      ".cluezy-voice-lang-select:focus {",
+      "  border-color: #145c38 !important;",
+      "}",
+      ".cluezy-voice-status-msg {",
+      "  font-size: 12px !important;",
+      "  color: #991b1b !important;",
+      "  background: #fef2f2 !important;",
+      "  border: 1px solid #fecaca !important;",
+      "  border-radius: 6px !important;",
+      "  padding: 4px 10px !important;",
+      "  margin: 4px 0 !important;",
+      "  display: inline-block !important;",
+      "  width: 100% !important;",
+      "  box-sizing: border-box !important;",
+      "}",
+      "/* Runbook Step-by-Step Voice Guidance Box */",
+      ".cluezy-solution-voice-box {",
+      "  display: flex !important;",
+      "  flex-direction: column !important;",
+      "  gap: 10px !important;",
+      "  padding: 14px 16px !important;",
+      "  border-radius: 14px !important;",
+      "  background: #ecf6e8 !important;",
+      "  border: 1.5px solid #145c38 !important;",
+      "  margin: 14px 0 16px !important;",
+      "}",
+      ".cluezy-solution-voice-header {",
+      "  display: flex !important;",
+      "  align-items: center !important;",
+      "  justify-content: space-between !important;",
+      "  font-weight: 600 !important;",
+      "  color: #145c38 !important;",
+      "  font-size: 13.5px !important;",
+      "}",
+      ".cluezy-solution-voice-actions {",
+      "  display: flex !important;",
+      "  gap: 10px !important;",
+      "  align-items: center !important;",
+      "  flex-wrap: wrap !important;",
+      "}",
+      ".cluezy-step-voice-btn {",
+      "  min-height: 44px !important;",
+      "  padding: 8px 16px !important;",
+      "  border-radius: 8px !important;",
+      "  border: 1px solid #145c38 !important;",
+      "  background: #ffffff !important;",
+      "  color: #145c38 !important;",
+      "  font-weight: 600 !important;",
+      "  font-size: 13px !important;",
+      "  cursor: pointer !important;",
+      "  display: inline-flex !important;",
+      "  align-items: center !important;",
+      "  gap: 6px !important;",
+      "  user-select: none !important;",
+      "  transition: all 0.15s ease !important;",
+      "}",
+      ".cluezy-step-voice-btn:hover {",
+      "  background: #145c38 !important;",
+      "  color: #ffffff !important;",
+      "}",
+      ".cluezy-step-active-highlight {",
+      "  border-left: 4px solid #145c38 !important;",
+      "  background: #f7faf6 !important;",
+      "  padding-left: 10px !important;",
+      "  border-radius: 4px !important;",
+      "  transition: background 0.2s ease !important;",
       "}",
       "[data-framer-name='Reply composer'] [data-framer-name='Type your reply...'] {",
       "  flex: 1 1 auto !important;",
@@ -2816,8 +3244,131 @@
   };
 
   /**
-   * Helper to visually update the send button state based on text length and submission status.
+   * Helper to render inline speech recognition errors or permission notices.
    */
+  function renderVoiceStatusBanner(composer) {
+    if (!composer) return;
+    var existingStatus = composer.parentNode.querySelector(".cluezy-voice-status-msg");
+    if (appState.speechErrorMessage) {
+      if (!existingStatus) {
+        existingStatus = document.createElement("div");
+        existingStatus.className = "cluezy-voice-status-msg";
+        composer.parentNode.insertBefore(existingStatus, composer);
+      }
+      existingStatus.textContent = appState.speechErrorMessage;
+    } else if (existingStatus) {
+      existingStatus.parentNode.removeChild(existingStatus);
+    }
+  }
+
+  /**
+   * Render the Voice toolbar (Speaker read-aloud toggle and English/Hindi language selector).
+   */
+  function renderVoiceToolbar(convContainer) {
+    if (!convContainer || !CluezyVoice.isSynthesisSupported()) return;
+    var existingBar = convContainer.querySelector(".cluezy-voice-controls-bar");
+    if (!existingBar) {
+      existingBar = document.createElement("div");
+      existingBar.className = "cluezy-voice-controls-bar";
+
+      // Speaker read-aloud toggle
+      var speakerBtn = document.createElement("button");
+      speakerBtn.type = "button";
+      speakerBtn.className =
+        "cluezy-voice-btn cluezy-speaker-toggle-btn" + (appState.voiceSpeakerEnabled ? " active" : "");
+      speakerBtn.setAttribute("aria-label", "Toggle voice read-aloud");
+      speakerBtn.innerHTML =
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+        '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>' +
+        '<path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>' +
+        '</svg>' +
+        '<span>Voice Read-Aloud: ' + (appState.voiceSpeakerEnabled ? "On" : "Off") + '</span>';
+
+      speakerBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        var nextState = !appState.voiceSpeakerEnabled;
+        CluezyVoice.setSpeakerEnabled(nextState);
+        speakerBtn.className =
+          "cluezy-voice-btn cluezy-speaker-toggle-btn" + (nextState ? " active" : "");
+        speakerBtn.querySelector("span").textContent = "Voice Read-Aloud: " + (nextState ? "On" : "Off");
+        if (nextState) {
+          triggerAssistantMessageSpeech(true);
+        }
+      });
+
+      // Language selector
+      var langGroup = document.createElement("div");
+      langGroup.className = "cluezy-voice-actions-group";
+      langGroup.innerHTML = '<span style="font-size:12px;color:#58655e;font-weight:500;">Voice Language:</span>';
+
+      var langSelect = document.createElement("select");
+      langSelect.className = "cluezy-voice-lang-select";
+      langSelect.setAttribute("aria-label", "Select voice language");
+
+      var optEn = document.createElement("option");
+      optEn.value = "en-IN";
+      optEn.textContent = "English (India)";
+      if (appState.voiceLang === "en-IN") optEn.selected = true;
+
+      var optHi = document.createElement("option");
+      optHi.value = "hi-IN";
+      optHi.textContent = "हिंदी (Hindi)";
+      if (appState.voiceLang === "hi-IN") optHi.selected = true;
+
+      langSelect.appendChild(optEn);
+      langSelect.appendChild(optHi);
+
+      langSelect.addEventListener("change", function () {
+        CluezyVoice.setLanguage(langSelect.value);
+      });
+
+      langGroup.appendChild(langSelect);
+
+      existingBar.appendChild(speakerBtn);
+      existingBar.appendChild(langGroup);
+    }
+    return existingBar;
+  }
+
+  /**
+   * Automatically speak the latest assistant message and quick-reply options if speaker is ON.
+   */
+  function triggerAssistantMessageSpeech(force) {
+    if (!appState.voiceSpeakerEnabled && !force) return;
+    var inv = appState.currentInvestigation;
+    if (!inv || !Array.isArray(inv.messages) || inv.messages.length === 0) return;
+
+    var lastAssistantMsg = null;
+    for (var i = inv.messages.length - 1; i >= 0; i--) {
+      if (inv.messages[i].sender === "assistant") {
+        lastAssistantMsg = inv.messages[i];
+        break;
+      }
+    }
+    if (!lastAssistantMsg) return;
+
+    var msgId = lastAssistantMsg.id || lastAssistantMsg.content;
+    if (appState.lastSpokenMessageId === msgId && !force) return;
+    appState.lastSpokenMessageId = msgId;
+
+    var textToRead = lastAssistantMsg.content || "";
+    var suggestions =
+      Array.isArray(lastAssistantMsg.suggested_responses) && lastAssistantMsg.suggested_responses.length > 0
+        ? lastAssistantMsg.suggested_responses
+        : lastAssistantMsg.extra_data && Array.isArray(lastAssistantMsg.extra_data.quick_replies)
+        ? lastAssistantMsg.extra_data.quick_replies
+        : [];
+
+    if (suggestions.length > 0) {
+      var optionsIntro =
+        appState.voiceLang === "hi-IN"
+          ? " आपके विकल्प हैं: "
+          : " Your options are: ";
+      textToRead += optionsIntro + suggestions.join(", ");
+    }
+
+    CluezyVoice.speakText(textToRead);
+  }
   function updateSendButtonVisual(ta, btn) {
     if (!btn) return;
     var hasText = ta && ta.value && ta.value.trim().length > 0;
@@ -2920,6 +3471,54 @@
             e.preventDefault();
             fileInp.click();
           });
+        }
+
+        // Voice Input Mic Button next to input (Feature-detected)
+        var existingMicBtn = composer.querySelector(".cluezy-mic-btn");
+        if (!existingMicBtn && CluezyVoice.isRecognitionSupported()) {
+          var micBtn = document.createElement("button");
+          micBtn.type = "button";
+          micBtn.className = "cluezy-voice-btn cluezy-mic-btn";
+          micBtn.setAttribute("aria-label", "Voice input");
+          micBtn.setAttribute("title", "Voice Input (Speech to text)");
+          micBtn.innerHTML =
+            '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+            '<path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>' +
+            '<path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>' +
+            '<line x1="12" y1="19" x2="12" y2="23"></line>' +
+            '<line x1="8" y1="23" x2="16" y2="23"></line>' +
+            '</svg>';
+
+          micBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var currentTa = replyBox ? replyBox.querySelector("textarea.cluezy-chat-textarea") : textarea;
+            CluezyVoice.toggleRecording(currentTa, function () {
+              if (appState.isRecording) {
+                micBtn.classList.add("recording");
+                micBtn.setAttribute("title", "Recording… Tap to finish speaking");
+              } else {
+                micBtn.classList.remove("recording");
+                micBtn.setAttribute("title", "Voice Input (Speech to text)");
+              }
+              renderVoiceStatusBanner(composer);
+            });
+          });
+
+          // Insert right before send button
+          if (sendBtn && sendBtn.parentNode) {
+            sendBtn.parentNode.insertBefore(micBtn, sendBtn);
+          } else {
+            composer.appendChild(micBtn);
+          }
+        } else if (existingMicBtn) {
+          if (appState.isRecording) {
+            existingMicBtn.classList.add("recording");
+            existingMicBtn.setAttribute("title", "Recording… Tap to finish speaking");
+          } else {
+            existingMicBtn.classList.remove("recording");
+            existingMicBtn.setAttribute("title", "Voice Input (Speech to text)");
+          }
         }
       }
 
@@ -3132,11 +3731,20 @@
 
           // Pin composer at bottom
           if (composer) {
+            // Insert Voice Toolbar right above the composer
+            var voiceBar = renderVoiceToolbar(convContainer);
+            if (voiceBar) {
+              convContainer.appendChild(voiceBar);
+            }
             convContainer.appendChild(composer);
+            renderVoiceStatusBanner(composer);
           }
 
           // Auto-scroll conversation to bottom
           convContainer.scrollTop = convContainer.scrollHeight;
+
+          // Trigger assistant speech read-aloud if speaker is enabled
+          triggerAssistantMessageSpeech(false);
         }
       }
 
@@ -3466,6 +4074,10 @@
    */
   async function handleComposerSubmit(textarea) {
     if (appState.isSubmitting) return;
+    // Cancel any active speech or recording immediately when user sends a message
+    CluezyVoice.stopSpeaking();
+    CluezyVoice.stopRecording();
+
     var rawText = (textarea.value || "").trim();
     if (!rawText) return;
 
@@ -3562,6 +4174,8 @@
    */
   async function handleQuickReplyClick(inv, label, questionId) {
     if (appState.isSubmitting || !inv) return;
+    CluezyVoice.stopSpeaking();
+    CluezyVoice.stopRecording();
     var low = label.toLowerCase().replace("’", "'");
 
     // Navigation / Post-resolution quick actions
@@ -3702,6 +4316,7 @@
           });
 
           var stepsList = Array.isArray(activeAct.steps) ? activeAct.steps : [];
+          var stepElements = [];
           stepsList.forEach(function (stepStr, idx) {
             var stepDiv = document.createElement("div");
             stepDiv.className = "framer-5iotyh";
@@ -3716,7 +4331,102 @@
             sp.textContent = idx + 1 + ".  " + cleanStep;
             stepDiv.appendChild(sp);
             stepsBox.appendChild(stepDiv);
+            stepElements.push(stepDiv);
           });
+
+          // Runbook Voice Guidance Controller (Step-by-step reading with "Next step" and "Repeat" buttons)
+          if (stepsList.length > 0 && CluezyVoice.isSynthesisSupported()) {
+            var voiceBox = document.createElement("div");
+            voiceBox.className = "cluezy-solution-voice-box";
+
+            var currentIdx = appState.solutionActiveStepIndex || 0;
+            if (currentIdx >= stepsList.length) currentIdx = 0;
+            appState.solutionActiveStepIndex = currentIdx;
+
+            // Highlight current step visually
+            stepElements.forEach(function (el, i) {
+              if (i === currentIdx) {
+                el.classList.add("cluezy-step-active-highlight");
+              } else {
+                el.classList.remove("cluezy-step-active-highlight");
+              }
+            });
+
+            var voiceHeader = document.createElement("div");
+            voiceHeader.className = "cluezy-solution-voice-header";
+            voiceHeader.innerHTML =
+              '<span>Step ' + (currentIdx + 1) + ' of ' + stepsList.length + ' · Audio Guidance</span>' +
+              '<span style="font-size:12px;font-weight:normal;color:#145c38;">' + (appState.voiceLang === 'hi-IN' ? 'हिंदी' : 'English') + '</span>';
+
+            var voiceActions = document.createElement("div");
+            voiceActions.className = "cluezy-solution-voice-actions";
+
+            function speakCurrentRunbookStep() {
+              var sIdx = appState.solutionActiveStepIndex || 0;
+              var stepText = stepsList[sIdx] || "";
+              var prefix =
+                appState.voiceLang === "hi-IN"
+                  ? "चरण " + (sIdx + 1) + ": "
+                  : "Step " + (sIdx + 1) + ": ";
+              CluezyVoice.speakText(prefix + stepText);
+            }
+
+            // Speak Current / Repeat button
+            var repeatBtn = document.createElement("button");
+            repeatBtn.type = "button";
+            repeatBtn.className = "cluezy-step-voice-btn";
+            repeatBtn.innerHTML =
+              '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' +
+              '<polyline points="1 4 1 10 7 10"></polyline>' +
+              '<path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>' +
+              '</svg>' +
+              '<span>Repeat step ' + (currentIdx + 1) + '</span>';
+            repeatBtn.addEventListener("click", function (e) {
+              e.preventDefault();
+              speakCurrentRunbookStep();
+            });
+
+            // Next step button
+            var nextStepBtn = document.createElement("button");
+            nextStepBtn.type = "button";
+            nextStepBtn.className = "cluezy-step-voice-btn";
+            nextStepBtn.innerHTML =
+              '<span>Next step</span>' +
+              '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' +
+              '<polyline points="9 18 15 12 9 6"></polyline>' +
+              '</svg>';
+            nextStepBtn.addEventListener("click", function (e) {
+              e.preventDefault();
+              var nextIdx = (appState.solutionActiveStepIndex || 0) + 1;
+              if (nextIdx >= stepsList.length) nextIdx = 0;
+              appState.solutionActiveStepIndex = nextIdx;
+              renderSolutionView();
+              speakCurrentRunbookStep();
+            });
+
+            // Language switch pill in solution view
+            var langBtn = document.createElement("button");
+            langBtn.type = "button";
+            langBtn.className = "cluezy-step-voice-btn";
+            langBtn.innerHTML = '<span>🌐 ' + (appState.voiceLang === "hi-IN" ? "Switch to English" : "Switch to Hindi") + '</span>';
+            langBtn.addEventListener("click", function (e) {
+              e.preventDefault();
+              var newLang = appState.voiceLang === "hi-IN" ? "en-IN" : "hi-IN";
+              CluezyVoice.setLanguage(newLang);
+              renderSolutionView();
+              speakCurrentRunbookStep();
+            });
+
+            voiceActions.appendChild(repeatBtn);
+            if (stepsList.length > 1) {
+              voiceActions.appendChild(nextStepBtn);
+            }
+            voiceActions.appendChild(langBtn);
+
+            voiceBox.appendChild(voiceHeader);
+            voiceBox.appendChild(voiceActions);
+            stepsBox.appendChild(voiceBox);
+          }
 
           if (activeAct.expected_result) {
             var expDiv = document.createElement("div");
@@ -3808,6 +4518,7 @@
 
   async function handleSolutionOutcome(inv, actionId, outcome) {
     if (appState.isSubmitting || !inv) return;
+    CluezyVoice.stopSpeaking();
     appState.isSubmitting = true;
     renderSolutionView();
 
