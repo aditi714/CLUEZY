@@ -9,199 +9,305 @@ app_file: app.py
 pinned: false
 ---
 
-# CLUEZY — AI-Powered Technical Problem Solving Platform
+<div align="center">
 
-CLUEZY is an intelligent conversational troubleshooting assistant that helps users diagnose and resolve complex technical problems step by step. Rather than making speculative guesses, CLUEZY systematically analyzes issues, establishes confirmed evidence, prioritizes candidate causes, guides users through targeted verification checks, and walks through verified solutions.
+  <img src="assets/logo.png" alt="CLUEZY Logo" width="120" style="border-radius: 24px; margin-bottom: 12px;" />
+  <br />
+  <img src="assets/text.png" alt="CLUEZY Typography" width="260" style="margin-bottom: 8px;" />
+
+  <p align="center">
+    <strong>Neuro-Symbolic AI Diagnostic & Systematic Technical Troubleshooting Platform</strong>
+  </p>
+
+  <p align="center">
+    <a href="#-key-features">Features</a> •
+    <a href="#-architecture--neuro-symbolic-engine">Architecture</a> •
+    <a href="#-system-workflow">Workflow</a> •
+    <a href="#-quickstart--local-setup">Quickstart</a> •
+    <a href="#-database-schema">Schema</a> •
+    <a href="#-api-reference">API Docs</a> •
+    <a href="#-project-credits">Credits</a>
+  </p>
+
+  <p align="center">
+    <!-- Badges with Cluezy Brand Palette (#145C38 Forest Green & Mint) -->
+    <img src="https://img.shields.io/badge/Python-3.12-145C38?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.12" />
+    <img src="https://img.shields.io/badge/FastAPI-0.115+-145C38?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
+    <img src="https://img.shields.io/badge/Groq%20AI-GPT--OSS--120B-13251E?style=for-the-badge&logo=openai&logoColor=ECF6E8" alt="Groq AI" />
+    <img src="https://img.shields.io/badge/Supabase-PostgreSQL%2015-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase" />
+    <img src="https://img.shields.io/badge/SQLAlchemy-2.0%20Async-D71F00?style=for-the-badge&logo=sqlalchemy&logoColor=white" alt="SQLAlchemy" />
+    <img src="https://img.shields.io/badge/Vercel-Edge%20Deployed-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel" />
+  </p>
+
+</div>
 
 ---
 
-## Repository Structure
+### 💡 Overview
+
+Traditional AI assistants often generate speculative, unstructured guesses when faced with complex engineering or IT incidents. **CLUEZY** transforms troubleshooting into a rigorous, deterministic scientific method. 
+
+By marrying a high-performance **Large Language Model (Groq / GPT-OSS 120B)** with a **Deterministic Diagnostic Rule Engine (PostgreSQL / SQLAlchemy ORM)**, CLUEZY systematically extracts verified facts, computes mathematical confidence across potential causes, prioritizes high-yield diagnostic checks, and generates verifiable remediation runbooks with rollback guarantees.
+
+---
+
+## 🌟 Key Features
+
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <h3>🔬 Neuro-Symbolic Triaging</h3>
+      <ul>
+        <li><strong>Evidence Graph:</strong> Isolates confirmed facts from user logs, error codes, and symptoms.</li>
+        <li><strong>Hypothesis Ranking:</strong> Real-time probabilistic scoring across candidate root causes.</li>
+        <li><strong>Zero Hallucination:</strong> Remediation steps cross-checked against strict system runbooks.</li>
+      </ul>
+    </td>
+    <td width="50%" valign="top">
+      <h3>⚡ High-Speed Execution</h3>
+      <ul>
+        <li><strong>Sub-Second Inference:</strong> Powered by Groq LPU acceleration for real-time investigation guidance.</li>
+        <li><strong>Async I/O Engine:</strong> Non-blocking SQLAlchemy 2.0 with <code>asyncpg</code> and transaction safety.</li>
+        <li><strong>Edge CDN Frontend:</strong> Pre-rendered static architecture with dynamic interactive hydration.</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <h3>🛡️ Dual-Tier Security & Auth</h3>
+      <ul>
+        <li><strong>Supabase Auth (ES256 JWKS):</strong> Full persistence, investigation histories, and user workspaces.</li>
+        <li><strong>Ephemeral Anonymous Sessions:</strong> Zero-barrier instant access with daily token rate limiting (<code>clz_...</code>).</li>
+        <li><strong>Strict CORS & Headers:</strong> Built-in CSP, X-Frame-Options, and environment segregation.</li>
+      </ul>
+    </td>
+    <td width="50%" valign="top">
+      <h3>📱 Responsive Mobile First UI</h3>
+      <ul>
+        <li><strong>Adaptive Layouts:</strong> Dynamic <code>100dvh</code> viewport handling for mobile, tablet, and desktop.</li>
+        <li><strong>Touch Context Drawer:</strong> Slide-up diagnostic drawer for evidence & causes on smaller viewports.</li>
+        <li><strong>Bespoke Brand Theme:</strong> Signature Forest Green (<code>#145C38</code>) with Mint (<code>#ECF6E8</code>) dark-mode accents.</li>
+      </ul>
+    </td>
+  </tr>
+</table>
+
+---
+
+## 🏛️ Architecture & Neuro-Symbolic Engine
+
+CLUEZY's architecture guarantees that AI reasoning is constrained by deterministic domain rules, preventing dangerous remediation attempts.
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           CLUEZY PRESENTATION LAYER                             │
+│       Desktop / Tablet / Mobile Web  •  Tailwind CSS  •  Vanilla ES6+           │
+└────────────────────────────────────────┬────────────────────────────────────────┘
+                                         │ JSON over HTTPS (Async Client)
+                                         ▼
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                        FASTAPI HIGH-CONCURRENCY BACKEND                         │
+│  ┌──────────────────────┐  ┌──────────────────────┐  ┌──────────────────────┐   │
+│  │ Dual Auth & Security │  │ Investigation Flow   │  │  Session Rate Limiter│   │
+│  │ (ES256 JWKS + Ephem) │  │ Lifecycle Manager    │  │  (200k daily tokens) │   │
+│  └──────────┬───────────┘  └──────────┬───────────┘  └──────────┬───────────┘   │
+└─────────────┼─────────────────────────┼─────────────────────────┼───────────────┘
+              │                         │                         │
+              ▼                         ▼                         ▼
+┌───────────────────────────┐ ┌───────────────────────────┐ ┌────────────────────┐
+│   DETERMINISTIC ENGINE    │ │   NEURO-REASONING (AI)    │ │ PERSISTENCE LAYER  │
+│  • Diagnostic Rules       │ │  • Groq API Acceleration  │ │ • Supabase Postgres│
+│  • Evidence Extraction    │ │  • openai/gpt-oss-120b    │ │ • 12 Relational    │
+│  • Cause Probability Math │ │  • Log & Error Parser     │ │   ORM Models       │
+│  • Step Runbook Generator │ │  • Adaptive Questioner    │ │ • SQLite Fallback  │
+└───────────────────────────┘ └───────────────────────────┘ └────────────────────┘
+```
+
+### Diagnostic Decision Flow
+
+```mermaid
+graph TD
+    A([User Submits Issue / Logs]) --> B[Extract Raw Symptoms]
+    B --> C{Deterministic Rule Match?}
+    C -- High Confidence --> D[Confirm Evidence & Pin Candidate Cause]
+    C -- Ambiguous --> E[Groq LPU: Generate Targeted Diagnostic Question]
+    E --> F[User Verifies / Submits Check]
+    F --> D
+    D --> G[Calculate Bayesian Cause Probabilities]
+    G --> H[Generate Step-by-Step Solution & Rollback Guard]
+    H --> I[User Applies Fix & Confirms Outcome]
+    I --> J([Generate Post-Mortem Report])
+    
+    style A fill:#145C38,stroke:#13251E,stroke-width:2px,color:#fff
+    style D fill:#145C38,stroke:#13251E,stroke-width:2px,color:#fff
+    style H fill:#145C38,stroke:#13251E,stroke-width:2px,color:#fff
+    style J fill:#145C38,stroke:#13251E,stroke-width:2px,color:#fff
+    style E fill:#ECF6E8,stroke:#145C38,stroke-width:2px,color:#13251E
+    style G fill:#ECF6E8,stroke:#145C38,stroke-width:2px,color:#13251E
+```
+
+---
+
+## 📂 Repository Layout
 
 ```text
 CLUEZY/
-├── frontend/           # Static pre-rendered application
-│   ├── assets/
+├── frontend/               # Ultra-lightweight pre-rendered client
+│   ├── assets/             # Brand logos, icons, and styling stylesheets
 │   │   ├── js/
-│   │   │   ├── supabase.js    # Official Supabase client bundle (local fallback)
-│   │   │   ├── cluezy-api.js  # Frontend API client, session & Supabase auth manager
-│   │   │   └── cluezy-app.js  # Interactive UI & DOM lifecycle controller
-│   ├── fonts/          # Embedded typography
-│   ├── images/         # Icons and graphics
-│   ├── investigation/  # Active troubleshooting chat interface
-│   ├── investigations/ # Historical investigations log
-│   ├── knowledge-base/ # Knowledge base and reference guides
-│   ├── solution/       # Step-by-step remediation testing flow
-│   ├── resolved/       # Problem resolution summary and post-mortem
-│   ├── package.json    # Frontend scripts
-│   ├── serve.js        # Zero-dependency local static server
-│   ├── verify-build.js # Build & asset verification check
-│   ├── test-frontend.js# Automated frontend API client tests
-│   └── vercel.json     # Vercel deployment configuration
-├── backend/            # FastAPI application
+│   │   │   ├── cluezy-api.js   # Unified API client & Dual Auth token manager
+│   │   │   ├── cluezy-app.js   # Mobile responsive DOM controller & lifecycle
+│   │   │   └── supabase.js     # Bundled Supabase client
+│   ├── investigation/      # Real-time troubleshooting terminal UI
+│   ├── investigations/     # Past incidents & diagnostic history logs
+│   ├── solution/           # Interactive remediation execution & checklist
+│   ├── resolved/           # Incident post-mortem summary & export
+│   ├── serve.js            # Zero-dependency local Node.js development server
+│   └── vercel.json         # Vercel Edge CDN configuration
+├── backend/                # Production FastAPI application
 │   ├── app/
-│   │   ├── api/        # REST endpoints (health, sessions, investigations)
-│   │   ├── core/       # App configuration, database engine, security, error handling
-│   │   ├── models/     # 12 SQLAlchemy 2.0 ORM database models
-│   │   ├── schemas/    # Pydantic v2 validation and response models
-│   │   ├── services/   # Business logic services
-│   │   ├── ai/         # Groq SDK client wrapper (openai/gpt-oss-120b)
-│   │   └── main.py     # FastAPI application factory and lifespan manager
-│   ├── alembic/        # Alembic database migrations
-│   ├── tests/          # Comprehensive pytest test suite
-│   ├── alembic.ini     # Alembic configuration
-│   ├── requirements.txt # Production dependencies
-│   ├── requirements-dev.txt # Development & test dependencies
-│   ├── pyproject.toml  # Project configuration
-│   ├── .env.example    # Backend environment variables template
-│   └── vercel.json     # Vercel serverless Python configuration
-├── docs/
-│   ├── API_CONTRACTS.md # Full API specifications and request/response examples
-│   └── ARCHITECTURE.md  # System architecture, ER diagram, and design documentation
-├── .gitignore          # Repository git ignore rules
-└── README.md           # Project documentation
+│   │   ├── api/            # REST API endpoints (v1 routes)
+│   │   ├── core/           # Security, async database engine, config
+│   │   ├── models/         # 12 SQLAlchemy 2.0 ORM database models
+│   │   ├── schemas/        # Strict Pydantic v2 validation contracts
+│   │   ├── services/       # Rule evaluator & diagnostic orchestrator
+│   │   ├── ai/             # Groq SDK Async client (openai/gpt-oss-120b)
+│   │   └── main.py         # App factory, CORS, and Lifespan handlers
+│   ├── alembic/            # Database versioning & schema migrations
+│   ├── tests/              # End-to-end Pytest test suite
+│   ├── requirements.txt    # Production dependencies
+│   └── .env.example        # Environment variable specification
+├── docs/                   # Architectural blueprints & specifications
+│   ├── API_CONTRACTS.md    # Request / Response schemas & endpoints
+│   └── ARCHITECTURE.md     # Deep dive into engine design & ER schema
+└── README.md
 ```
 
 ---
 
-## Technology Stack
+## 🗄️ Database Schema
 
-### Frontend
-- **Framework**: Static pre-rendered React / Next.js
-- **Styling**: Tailwind CSS / Framer layout engine
-- **Local Server**: Node.js HTTP server (`frontend/serve.js`) on port `5173`
+The core domain model consists of **12 foundational relational models** engineered with SQLAlchemy 2.0:
 
-### Backend
-- **Framework**: Python 3.12+, FastAPI, Uvicorn
-- **Validation**: Pydantic v2, Pydantic-Settings
-- **ORM & Migrations**: SQLAlchemy 2.x (AsyncSession), Alembic
-- **Architecture**: Modular Monolithic Architecture
+<details>
+<summary><strong>🔍 Click to inspect all 12 Core Entities</strong></summary>
 
-### Database
-- **Engine**: Supabase PostgreSQL 15+
-- **Async Driver**: `asyncpg`
-- **Sync Driver**: `psycopg2` (for Alembic migrations)
-- **Local Fallback**: SQLite (`sqlite+aiosqlite:///./cluezy.db`) for zero-dependency local testing
+<br />
 
-### AI Integration
-- **Provider**: Groq API
-- **Primary Model**: `openai/gpt-oss-120b`
-- **SDK**: Official Groq Python SDK (`AsyncGroq`)
+| Model Name | Table | Description |
+| :--- | :--- | :--- |
+| **AnonymousSession** | `anonymous_sessions` | Ephemeral guest sessions with token quotas (200k/day). |
+| **Investigation** | `investigations` | Incident lifecycle root (e.g. `INV-2024-001`) with user linking. |
+| **Message** | `messages` | Chat history stream between engineer and assistant. |
+| **Evidence** | `evidence` | Validated facts and observations (*"What we know"*). |
+| **CandidateCause** | `candidate_causes` | Ranked root cause hypotheses under Bayesian scoring. |
+| **KnowledgeCategory** | `knowledge_categories` | Hierarchical taxonomy (Network, OS, Cloud, Database). |
+| **DiagnosticCause** | `diagnostic_causes` | Curated catalog of validated system failure modes. |
+| **DiagnosticQuestion**| `diagnostic_questions`| Targeted questions to eliminate candidate causes. |
+| **DiagnosticRule** | `diagnostic_rules` | Logical mapping connecting confirmed evidence to causes. |
+| **RecommendedAction**| `recommended_actions` | Sequenced remediation runbooks with rollback commands. |
+| **ActionOutcome** | `action_outcomes` | Verification telemetry recording success/failure of fixes. |
+| **Report** | `reports` | Incident summaries, prevention recommendations, and RCA. |
 
-### Deployment
-- **Platform**: Vercel
-
----
-
-## Database Models (Foundational Milestone)
-
-1. **Anonymous Sessions (`anonymous_sessions`)**: Temporary sessions with daily token allowances (200,000 tokens/day).
-2. **Investigations (`investigations`)**: Core troubleshooting cases with reference IDs (e.g. `INV-2387`), optional Supabase authenticated user ownership (`user_id`), and session linking.
-3. **Messages (`messages`)**: Chat dialogue history between user and assistant with quick replies.
-4. **Evidence (`evidence`)**: Confirmed technical facts and observations ("What we know").
-5. **Candidate Causes (`candidate_causes`)**: Ranked root causes under investigation ("Possible causes").
-6. **Knowledge Categories (`knowledge_categories`)**: Domain taxonomy (Network, OS, Software, Programming).
-7. **Diagnostic Causes (`diagnostic_causes`)**: Catalog of known root causes.
-8. **Diagnostic Questions (`diagnostic_questions`)**: Interactive questions to isolate problems.
-9. **Diagnostic Rules (`diagnostic_rules`)**: Inference rules mapping evidence to cause probabilities.
-10. **Recommended Actions (`recommended_actions`)**: Step-by-step diagnostic checks or remediation actions.
-11. **Action Outcomes (`action_outcomes`)**: User feedback on applied actions.
-12. **Reports (`reports`)**: Comprehensive resolution reports and preventative measures.
+</details>
 
 ---
 
-## Getting Started
+## 🚀 Quickstart & Local Setup
 
 ### Prerequisites
-- **Python**: 3.11 or higher
-- **Node.js**: v18 or higher
-- **Pip**: Latest version
 
----
+* **Python 3.11+** (Python 3.12 recommended)
+* **Node.js v18+**
+* **Groq API Key** ([console.groq.com](https://console.groq.com))
+* **Supabase PostgreSQL** (or built-in local SQLite fallback)
 
-### Backend Setup
-
-1. **Navigate to the backend directory**:
-   ```bash
-   cd backend
-   ```
-
-2. **Create and activate a virtual environment (optional but recommended)**:
-   ```bash
-   python -m venv .venv
-   # On Windows (PowerShell):
-   .\.venv\Scripts\Activate.ps1
-   # On Linux/macOS:
-   source .venv/bin/activate
-   ```
-
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   pip install -r requirements-dev.txt
-   ```
-
-4. **Configure environment variables**:
-   ```bash
-   cp .env.example .env
-   ```
-   Edit `.env` to configure your Supabase connection string and Groq API key:
-   ```env
-   DATABASE_URL=postgresql+asyncpg://postgres:[PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres
-   DATABASE_URL_SYNC=postgresql://postgres:[PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres
-   GROQ_API_KEY=gsk_...
-   GROQ_MODEL=openai/gpt-oss-120b
-   ```
-   *(Note: If no Supabase connection is specified, the application defaults gracefully to SQLite for local development).*
-
-5. **Run database migrations**:
-   ```bash
-   alembic upgrade head
-   ```
-
-6. **Start the FastAPI backend server**:
-   ```bash
-   uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-   ```
-
-7. **Verify backend endpoints**:
-   - Health check: [http://localhost:8000/health](http://localhost:8000/health)
-   - Interactive API Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
-
----
-
-### Frontend Setup
-
-1. **Navigate to the frontend directory**:
-   ```bash
-   cd frontend
-   ```
-
-2. **Start the local static server**:
-   ```bash
-   node serve.js
-   ```
-
-3. **Access the web application**:
-   Open [http://localhost:5173](http://localhost:5173) in your browser.
-
----
-
-### Running Backend Tests
-
-Run the complete automated test suite using `pytest`:
+### 1. Backend Setup
 
 ```bash
-# From repository root:
-pytest backend/tests -v
+# Clone the repository
+git clone https://github.com/aditi714/CLUEZY.git
+cd CLUEZY/backend
 
-# Or from backend directory:
-cd backend
-pytest -v
+# Create and activate virtual environment
+python -m venv .venv
+# Windows:
+.\.venv\Scripts\Activate.ps1
+# Linux/macOS:
+source .venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt -r requirements-dev.txt
+
+# Configure environment variables
+cp .env.example .env
+```
+
+Edit `.env` with your credentials:
+```env
+DATABASE_URL=postgresql+asyncpg://postgres:[PASSWORD]@db.[REF].supabase.co:5432/postgres
+DATABASE_URL_SYNC=postgresql://postgres:[PASSWORD]@db.[REF].supabase.co:5432/postgres
+GROQ_API_KEY=gsk_your_groq_api_key
+GROQ_MODEL=openai/gpt-oss-120b
+```
+*(Leave empty to automatically fall back to local `cluezy.db` SQLite).*
+
+```bash
+# Run schema migrations
+alembic upgrade head
+
+# Start FastAPI server
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+* Interactive API Documentation: [http://localhost:8000/docs](http://localhost:8000/docs)
+* Health Status Endpoint: [http://localhost:8000/health](http://localhost:8000/health)
+
+### 2. Frontend Setup
+
+In a separate terminal:
+```bash
+cd CLUEZY/frontend
+
+# Launch the static HTTP server
+node serve.js
+```
+Open **[http://localhost:5173](http://localhost:5173)** in your browser or mobile device.
+
+### 3. Running Automated Tests
+
+```bash
+cd CLUEZY/backend
+pytest -v --disable-warnings
 ```
 
 ---
 
-## Documentation
+## 📡 API Reference
 
-- [API Contracts & Endpoints](docs/API_CONTRACTS.md): Detailed specifications of requests, responses, headers, and schemas.
-- [System Architecture](docs/ARCHITECTURE.md): Architectural design, ER diagrams, Supabase pooler compatibility, and Groq SDK integration.
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/health` | System health check and database connectivity |
+| `POST`| `/api/v1/sessions/anonymous` | Initialize guest session (generates `clz_...` token) |
+| `POST`| `/api/v1/investigations/` | Start a new diagnostic investigation |
+| `GET` | `/api/v1/investigations/{id}` | Retrieve investigation state, evidence, and ranked causes |
+| `POST`| `/api/v1/investigations/{id}/messages` | Post message, trigger rule engine & Groq AI response |
+| `POST`| `/api/v1/investigations/{id}/actions/{action_id}/outcome` | Log remediation check outcome |
+| `GET` | `/api/v1/investigations/{id}/report` | Generate comprehensive RCA incident report |
+
+For complete schemas and payload examples, refer to [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md).
+
+---
+
+## 👥 Project Credits
+
+Developed as an **M.Sc. Computer Science Final Year Project** at **KBP College, Vashi** (Affiliated with **University of Mumbai**).
+
+* **Ms. Aditi Raut** — Full-Stack Architecture, Engine Design & Backend Development
+* **Mr. Parth Mahadik** — UI/UX Engineering, Responsive Frontend & Integration
+* **Mrs. Chaitrali Suryavanshi** — Project Guide & Academic Mentorship
+
+---
+
+<div align="center">
+  <sub>Built with ❤️ by the CLUEZY Team • Empowering deterministic engineering diagnostics.</sub>
+</div>
