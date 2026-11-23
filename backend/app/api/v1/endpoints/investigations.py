@@ -48,7 +48,7 @@ def _to_detail_response(inv) -> InvestigationDetailResponse:
         created_at=inv.created_at,
         updated_at=inv.updated_at,
         resolved_at=inv.resolved_at,
-        messages=[MessageResponse.model_validate(m) for m in inv.messages],
+        messages=[MessageResponse.from_orm_message(m) for m in inv.messages],
         evidence=[EvidenceItem.model_validate(e) for e in inv.evidence],
         candidate_causes=[CandidateCauseItem.model_validate(c) for c in inv.candidate_causes],
         recommended_actions=[RecommendedActionItem.model_validate(a) for a in inv.recommended_actions],

@@ -1,6 +1,7 @@
 """Diagnostic engine facade orchestrating rules, scoring, and question planning."""
 
 import logging
+import re
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 from app.diagnostic.planner import question_planner
@@ -13,6 +14,12 @@ from app.diagnostic.scenarios.wifi_no_internet import (
 )
 from app.diagnostic.scorer import cause_scorer
 from app.diagnostic.types import DiagnosticQuestionDef, PlannedStep, ScoredCause
+from app.schemas.message import (
+    TurnCheckItem,
+    TurnPresentation,
+    TurnQuestion,
+    sanitize_spoken_sentence,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -178,6 +185,116 @@ class DiagnosticEngine:
         )
 
         return scored_causes, next_step
+
+    def build_scenario_turn_presentation(
+        self,
+        scored_causes: List[ScoredCause],
+        planned_step: PlannedStep,
+        action_steps_override: Optional[List[str]] = None,
+    ) -> TurnPresentation:
+        """Build a TurnPresentation from DiagnosticQuestionDef or PlannedStep in the Wi-Fi scenario."""
+        active_causes = [c for c in scored_causes if c.status != "ruled_out"]
+        top_cause = active_causes[0] if active_causes else (scored_causes[0] if scored_causes else None)
+        top_title = top_cause.title if top_cause else "Network Connectivity Issue"
+        top_likelihood = top_cause.likelihood if top_cause else "Medium"
+
+        # 1. Question step
+        if planned_step.step_type == "question" and planned_step.question:
+            q = planned_step.question
+            opts = (
+                planned_step.suggested_responses
+                if planned_step.suggested_responses
+                else [str(o.get("label", "")) for o in q.options if o.get("label")]
+            )
+
+            # Extract concise question sentence from q.question_text
+            raw_lines = [ln.strip() for ln in q.question_text.splitlines() if ln.strip()]
+            first_line = re.sub(r"[*_`]", "", raw_lines[0]).strip() if raw_lines else q.purpose
+            last_line = re.sub(r"^[\s•*\-]+|[*_`]", "", raw_lines[-1]).strip() if raw_lines else first_line
+            if "What to look for:" in last_line:
+                last_line = last_line.split("What to look for:", 1)[-1].strip()
+            q_sentence = last_line if "?" in last_line else (first_line if "?" in first_line else f"{first_line}")
+
+            summary_str = (q.purpose or f"Testing hypothesis: {top_title} ({top_likelihood} likelihood).").replace("...", "").replace("…", "").strip()
+
+            checks: List[TurnCheckItem] = []
+            if q.command:
+                checks.append(
+                    TurnCheckItem(
+                        title=f"Run {q.command}",
+                        detail=f"Execute {q.command} in your terminal or Command Prompt and observe the response.",
+                        command=q.command,
+                    )
+                )
+            for ln in raw_lines[1:]:
+                clean_ln = re.sub(r"^[\s•*\-]+|[*_`]", "", ln).replace("...", "").replace("…", "").strip()
+                if ":" in clean_ln and len(checks) < 3:
+                    label_part, detail_part = clean_ln.split(":", 1)
+                    if label_part.strip().lower() in ("what this checks", "how to run it", "what to look for"):
+                        checks.append(
+                            TurnCheckItem(
+                                title=label_part.strip().title(),
+                                detail=detail_part.strip(),
+                                command=q.command if "how to run" in label_part.lower() else None,
+                            )
+                        )
+
+            spoken_str = sanitize_spoken_sentence(
+                f"Our top hypothesis is {top_title}. {q_sentence}",
+                max_words=36,
+            )
+
+            return TurnPresentation(
+                spoken=spoken_str,
+                summary=summary_str,
+                checks=checks[:3],
+                question=TurnQuestion(text=q_sentence, options=opts),
+            )
+
+        # 2. Recommended remediation action step
+        if planned_step.step_type == "recommended_action":
+            act_title = (planned_step.action_title or f"Apply fix for {top_title}").replace("...", "").replace("…", "").strip()
+            steps = action_steps_override if action_steps_override is not None else (planned_step.action_steps or [])
+            opts = planned_step.suggested_responses or ["It's working now", "Still not working", "I need help"]
+
+            checks = []
+            for idx, st in enumerate(steps[:3]):
+                clean_st = str(st).replace("...", "").replace("…", "").strip()
+                cmd_match = re.search(r"'((?:ipconfig|ping|nslookup|netsh)[^']*)'|`([^`]+)`|\b(ncpa\.cpl)\b", clean_st, re.IGNORECASE)
+                cmd_val = (cmd_match.group(1) or cmd_match.group(2) or cmd_match.group(3)) if cmd_match else None
+                checks.append(
+                    TurnCheckItem(
+                        title=f"Step {idx + 1}",
+                        detail=clean_st,
+                        command=cmd_val,
+                    )
+                )
+
+            summary_str = f"Leading cause is {top_title} ({top_likelihood} likelihood). Testing fix: {act_title}."
+            q_text = "After applying these remediation steps, is your connection working now?"
+            spoken_str = sanitize_spoken_sentence(
+                f"The leading cause is {top_title}. I have put {len(checks)} checks on screen. Please try them and let me know if it is working now.",
+                max_words=36,
+            )
+
+            return TurnPresentation(
+                spoken=spoken_str,
+                summary=summary_str,
+                checks=checks[:3],
+                question=TurnQuestion(text=q_text, options=opts),
+            )
+
+        # 3. Resolution ready or escalation fallback
+        opts = planned_step.suggested_responses or ["Yes, problem is resolved", "Still having issues"]
+        summary_str = f"Diagnostic status update for {top_title}."
+        q_text = "Can you confirm if everything is working normally now?"
+        spoken_str = sanitize_spoken_sentence(f"{summary_str} {q_text}", max_words=36)
+        return TurnPresentation(
+            spoken=spoken_str,
+            summary=summary_str,
+            checks=[],
+            question=TurnQuestion(text=q_text, options=opts),
+        )
 
 
 diagnostic_engine = DiagnosticEngine()
