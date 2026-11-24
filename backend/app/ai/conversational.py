@@ -11,12 +11,83 @@ rankings under all environment conditions.
 
 import json
 import logging
+import re
 from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
 
 from app.ai.client import groq_client
+from app.schemas.message import (
+    TurnCheckItem,
+    TurnPresentation,
+    TurnQuestion,
+    build_fallback_turn_presentation,
+    sanitize_spoken_sentence,
+)
 
 logger = logging.getLogger(__name__)
+
+
+def _parse_or_fallback_presentation(
+    raw_data: Optional[Dict[str, Any]],
+    fallback_text: str,
+    fallback_options: List[str],
+    summary_hint: Optional[str] = None,
+    action_title: Optional[str] = None,
+    action_steps: Optional[List[str]] = None,
+) -> TurnPresentation:
+    """Validate LLM presentation dictionary with Pydantic TurnPresentation or build a clean fallback."""
+    fallback_checks: List[Dict[str, Any]] = []
+    if action_steps:
+        for idx, st in enumerate(action_steps[:3]):
+            clean_st = str(st).replace("...", "").replace("…", "").strip()
+            cmd_match = re.search(r"`([^`]+)`|'((?:python|pip|ipconfig|ping|npm|git|docker)[^']*)'", clean_st)
+            cmd_str = (cmd_match.group(1) or cmd_match.group(2)) if cmd_match else None
+            title_str = action_title if (idx == 0 and action_title) else f"Check {idx + 1}"
+            fallback_checks.append(
+                {
+                    "title": title_str.replace("...", "").replace("…", "").strip(),
+                    "detail": clean_st,
+                    "command": cmd_str,
+                }
+            )
+
+    if isinstance(raw_data, dict):
+        # Accept either nested {"presentation": {...}} or top-level keys {"spoken": ..., "summary": ..., ...}
+        pres_candidate = raw_data.get("presentation") if isinstance(raw_data.get("presentation"), dict) else raw_data
+        if isinstance(pres_candidate, dict) and pres_candidate.get("spoken") and pres_candidate.get("summary"):
+            try:
+                q_obj = pres_candidate.get("question")
+                if not isinstance(q_obj, dict):
+                    q_obj = {
+                        "text": str(pres_candidate.get("question_text") or fallback_text).strip(),
+                        "options": pres_candidate.get("suggested_responses") or fallback_options,
+                    }
+                elif not q_obj.get("options") and fallback_options:
+                    q_obj["options"] = fallback_options
+
+                raw_checks = pres_candidate.get("checks")
+                if not isinstance(raw_checks, list):
+                    raw_checks = fallback_checks
+                else:
+                    raw_checks = raw_checks[:3]
+
+                return TurnPresentation.model_validate(
+                    {
+                        "spoken": pres_candidate["spoken"],
+                        "summary": pres_candidate["summary"],
+                        "checks": raw_checks,
+                        "question": q_obj,
+                    }
+                )
+            except Exception as val_err:
+                logger.debug(f"TurnPresentation validation failed, using fallback builder: {val_err}")
+
+    return build_fallback_turn_presentation(
+        raw_text=fallback_text,
+        options=fallback_options,
+        summary_hint=summary_hint,
+        checks=fallback_checks,
+    )
 
 
 class ConversationalCauseItem(BaseModel):
@@ -37,6 +108,7 @@ class ConversationalStepPlan(BaseModel):
     recommended_action_expected: Optional[str] = None
     category: str = "General"
     question_id: str = "conversational_q1"
+    presentation: Optional[TurnPresentation] = None
 
 
 class ConversationalTroubleshooter:
@@ -217,9 +289,19 @@ class ConversationalTroubleshooter:
         is_unclear: bool = False,
     ) -> ConversationalStepPlan:
         """Create the initial diagnostic step plan for an unsupported or unclear problem."""
+        clean_desc = (problem_description or "").replace("...", "").replace("…", "").strip()
+
         # 1. Unclear clarification check
         if is_unclear:
             raw = self.DOMAIN_RUNBOOKS["unclear"]
+            pres = _parse_or_fallback_presentation(
+                raw_data=None,
+                fallback_text=raw["question_text"],
+                fallback_options=raw["suggested_responses"],
+                summary_hint="Clarifying which device or application is experiencing the problem.",
+                action_title=raw["action_title"],
+                action_steps=raw["action_steps"],
+            )
             return ConversationalStepPlan(
                 category="General",
                 question_id=raw["question_id"],
@@ -229,12 +311,22 @@ class ConversationalTroubleshooter:
                 recommended_action_title=raw["action_title"],
                 recommended_action_steps=raw["action_steps"],
                 recommended_action_expected=raw["action_expected"],
+                presentation=pres,
             )
 
         # 2. Check pre-configured domain runbooks for immediate precision
         matched_key = self._match_domain_runbook(problem_description)
         if matched_key and matched_key in self.DOMAIN_RUNBOOKS:
             raw = self.DOMAIN_RUNBOOKS[matched_key]
+            top_c = raw["causes"][0]["title"] if raw.get("causes") else raw["category"]
+            pres = _parse_or_fallback_presentation(
+                raw_data=None,
+                fallback_text=raw["question_text"],
+                fallback_options=raw["suggested_responses"],
+                summary_hint=f"Leading hypothesis is {top_c}.",
+                action_title=raw["action_title"],
+                action_steps=raw["action_steps"],
+            )
             return ConversationalStepPlan(
                 category=raw["category"],
                 question_id=raw["question_id"],
@@ -244,6 +336,7 @@ class ConversationalTroubleshooter:
                 recommended_action_title=raw["action_title"],
                 recommended_action_steps=raw["action_steps"],
                 recommended_action_expected=raw["action_expected"],
+                presentation=pres,
             )
 
         # 3. Dynamic Groq AI planning with fallback
@@ -257,10 +350,17 @@ class ConversationalTroubleshooter:
                     "2. Provide 2 to 4 concise quick reply choices.\n"
                     "3. List 3 to 4 plausible candidate causes with likelihood ('High', 'Medium', or 'Low') and confidence score (0.0 to 1.0).\n"
                     "4. Propose an initial non-destructive verification check action.\n"
+                    "5. Include 'spoken' (<=40 words, plain conversational sentences, no markdown/lists/URLs), 'summary' (one line, never truncated with '...'), 'checks' (max 3 items of {title, detail, command?}), and 'question' ({text, options[]}).\n"
                     "Do NOT propose Wi-Fi or network checks unless the problem is specifically network-related.\n"
                     "Output JSON schema:\n"
                     "{\n"
                     '  "category": "Hardware" | "Software" | "Operating System" | "General",\n'
+                    '  "spoken": "Plain spoken summary and question in 40 words or fewer without markdown or URLs",\n'
+                    '  "summary": "One line summary of the diagnostic focus without ellipsis",\n'
+                    '  "checks": [\n'
+                    '    {"title": "Short check title", "detail": "How to perform the check", "command": "optional command or null"}\n'
+                    "  ],\n"
+                    '  "question": {"text": "Focused diagnostic question?", "options": ["opt1", "opt2", "opt3"]},\n'
                     '  "question_text": "string",\n'
                     '  "suggested_responses": ["opt1", "opt2", "opt3"],\n'
                     '  "candidate_causes": [\n'
@@ -271,7 +371,7 @@ class ConversationalTroubleshooter:
                     '  "recommended_action_expected": "string"\n'
                     "}"
                 )
-                user_prompt = f"User problem: {problem_description}\nCategory: {category or 'General'}"
+                user_prompt = f"User problem: {clean_desc}\nCategory: {category or 'General'}"
                 raw_resp = await groq_client.generate_chat_completion(
                     messages=[
                         {"role": "system", "content": system_prompt},
@@ -290,30 +390,65 @@ class ConversationalTroubleshooter:
                     )
                     for c in data.get("candidate_causes", [])
                 ]
+                q_obj = data.get("question") if isinstance(data.get("question"), dict) else {}
+                q_text = (
+                    q_obj.get("text")
+                    or data.get("question_text")
+                    or f"Could you describe what happens immediately before {clean_desc} occurs?"
+                )
+                s_opts = (
+                    q_obj.get("options")
+                    or data.get("suggested_responses")
+                    or ["It happens randomly", "Under heavy usage", "Immediately on startup"]
+                )
+                act_title = data.get("recommended_action_title", "Review system logs and error codes")
+                act_steps = data.get("recommended_action_steps", ["Check application or operating system error messages"])
+
+                pres = _parse_or_fallback_presentation(
+                    raw_data=data,
+                    fallback_text=q_text,
+                    fallback_options=s_opts,
+                    summary_hint=data.get("summary") or f"Diagnosing {clean_desc}.",
+                    action_title=act_title,
+                    action_steps=act_steps,
+                )
                 return ConversationalStepPlan(
                     category=data.get("category", category or "General"),
                     question_id="dynamic_ai_q1",
-                    question_text=data.get(
-                        "question_text",
-                        f"Could you describe what happens immediately before '{problem_description}' occurs?",
-                    ),
-                    suggested_responses=data.get("suggested_responses", ["It happens randomly", "Under heavy usage", "Immediately on startup"]),
+                    question_text=pres.question.text,
+                    suggested_responses=pres.question.options,
                     candidate_causes=causes or [
                         ConversationalCauseItem(title="System configuration anomaly", likelihood="Medium", confidence_score=0.5)
                     ],
-                    recommended_action_title=data.get("recommended_action_title", "Review system logs and error codes"),
-                    recommended_action_steps=data.get("recommended_action_steps", ["Check application or operating system error messages"]),
+                    recommended_action_title=act_title,
+                    recommended_action_steps=act_steps,
                     recommended_action_expected=data.get("recommended_action_expected", "Identifies specific fault triggering the issue"),
+                    presentation=pres,
                 )
             except Exception as e:
                 logger.warning(f"Groq dynamic troubleshooting plan failed: {e}. Using general fallback.")
 
         # 4. General heuristic fallback
+        fb_q = f"Does this issue with {clean_desc} happen consistently or intermittently?"
+        fb_opts = ["Happens consistently every time", "Happens intermittently / randomly", "Just started today"]
+        fb_steps = [
+            "Save all open work.",
+            "Restart the device completely (not sleep or hibernate).",
+            "Observe whether any error dialog or code appears upon rebooting.",
+        ]
+        fb_pres = _parse_or_fallback_presentation(
+            raw_data=None,
+            fallback_text=fb_q,
+            fallback_options=fb_opts,
+            summary_hint="Isolating whether the symptom is caused by a software conflict or hardware constraint.",
+            action_title="Perform a clean restart and check error messages",
+            action_steps=fb_steps,
+        )
         return ConversationalStepPlan(
             category=category or "General",
             question_id="general_symptom_q1",
-            question_text=f"Let's troubleshoot: \"{problem_description}\". Does this issue happen consistently or intermittently?",
-            suggested_responses=["Happens consistently every time", "Happens intermittently / randomly", "Just started today"],
+            question_text=fb_q,
+            suggested_responses=fb_opts,
             candidate_causes=[
                 ConversationalCauseItem(
                     title="Software or Driver Configuration Conflict",
@@ -329,12 +464,9 @@ class ConversationalTroubleshooter:
                 ),
             ],
             recommended_action_title="Perform a clean restart and check error messages",
-            recommended_action_steps=[
-                "Save all open work.",
-                "Restart the device completely (not sleep or hibernate).",
-                "Observe whether any error dialog or code appears upon rebooting.",
-            ],
+            recommended_action_steps=fb_steps,
             recommended_action_expected="Determines if background transient state resolves the failure.",
+            presentation=fb_pres,
         )
 
     async def progress_dialogue(
@@ -393,22 +525,32 @@ class ConversationalTroubleshooter:
 
         # Action outcome resolution handling
         if action_outcome == "working":
+            res_text = (
+                f"Excellent! It looks like our check confirmed and resolved the issue with **{top_cause}**.\n\n"
+                "Would you like to complete this investigation and save the final report?"
+            )
+            res_opts = ["Yes, mark issue resolved", "Keep investigating other issues"]
+            res_pres = _parse_or_fallback_presentation(
+                raw_data=None,
+                fallback_text=res_text,
+                fallback_options=res_opts,
+                summary_hint=f"Confirmed fix for {top_cause}.",
+            )
             return {
-                "reply_text": (
-                    f"Excellent! It looks like our check confirmed and resolved the issue with **{top_cause}**.\n\n"
-                    "Would you like to complete this investigation and save the final report?"
-                ),
-                "suggested_responses": ["Yes, mark issue resolved", "Keep investigating other issues"],
+                "reply_text": res_text,
+                "suggested_responses": res_opts,
                 "updated_causes": updated_causes,
                 "recommended_action": None,
                 "next_question_id": "confirm_completion",
                 "ready_for_resolution": True,
+                "presentation": res_pres,
             }
 
         # Select next diagnostic question or fix recommendation
         next_question_text: Optional[str] = None
         suggested = ["Only during demanding apps / games", "Even when idle on desktop", "Only when on battery power"]
         action = None
+        llm_raw_data: Optional[Dict[str, Any]] = None
 
         if "shutdown" in (active_question_id or "") or "thermal" in top_cause.lower():
             suggested = ["Very hot and fan spins loudly", "Warm but fan is completely quiet", "Cool / normal temperature"]
@@ -431,6 +573,12 @@ class ConversationalTroubleshooter:
                     "Analyze the user's latest statement, technical problem, and candidate causes. "
                     "Always output valid JSON with this exact schema:\n"
                     "{\n"
+                    '  "spoken": "Plain conversational sentences in 40 words or fewer, no markdown, no lists, no URLs",\n'
+                    '  "summary": "One line summary of current diagnosis without ellipsis",\n'
+                    '  "checks": [\n'
+                    '    {"title": "Check title", "detail": "Check instruction", "command": "optional command or null"}\n'
+                    "  ],\n"
+                    '  "question": {"text": "Decisive follow-up diagnostic question?", "options": ["opt1", "opt2", "opt3"]},\n'
                     '  "reply_text": "Markdown formatted technical response: directly address user observation, explain why it happens from a systems/hardware/software perspective, connect to top cause, and ask a decisive follow-up diagnostic question inquiring about temperatures, heat, fans, or error logs (2-4 clear sentences)",\n'
                     '  "suggested_responses": ["2 to 4 concise, context-specific quick-reply choices tailored to the exact question you just asked"]\n'
                     "}"
@@ -449,7 +597,7 @@ class ConversationalTroubleshooter:
                     f"Leading candidate causes: {causes_summary}\n\n"
                     f"Recent conversation:\n{history_text}\n\n"
                     f"User latest message: \"{user_reply}\"\n\n"
-                    f"Return JSON with 'reply_text' and 'suggested_responses' tailored to the diagnostic question you asked."
+                    f"Return JSON with 'spoken', 'summary', 'checks', 'question', 'reply_text', and 'suggested_responses'."
                 )
 
                 groq_resp = await groq_client.generate_chat_completion(
@@ -471,9 +619,14 @@ class ConversationalTroubleshooter:
                             lines = lines[:-1]
                         clean_resp = "\n".join(lines).strip()
                     data = json.loads(clean_resp)
-                    r_text = data.get("reply_text")
-                    s_resp = data.get("suggested_responses")
-                    if r_text and len(r_text.strip()) > 15:
+                    llm_raw_data = data
+                    r_text = data.get("reply_text") or (
+                        data.get("question", {}).get("text") if isinstance(data.get("question"), dict) else None
+                    )
+                    s_resp = data.get("suggested_responses") or (
+                        data.get("question", {}).get("options") if isinstance(data.get("question"), dict) else None
+                    )
+                    if r_text and len(r_text.strip()) > 10:
                         next_question_text = r_text.strip()
                     if s_resp and isinstance(s_resp, list) and len(s_resp) >= 2:
                         suggested = [str(opt).strip() for opt in s_resp[:4]]
@@ -493,6 +646,15 @@ class ConversationalTroubleshooter:
                     f"Does the problem happen only when running demanding applications, or even when the device is idle?"
                 )
 
+        turn_pres = _parse_or_fallback_presentation(
+            raw_data=llm_raw_data,
+            fallback_text=next_question_text,
+            fallback_options=suggested,
+            summary_hint=f"Leading cause is {top_cause}.",
+            action_title=action["title"] if action else None,
+            action_steps=action["steps"] if action else None,
+        )
+
         return {
             "reply_text": next_question_text,
             "suggested_responses": suggested,
@@ -500,6 +662,7 @@ class ConversationalTroubleshooter:
             "recommended_action": action,
             "next_question_id": f"followup_{active_question_id}",
             "ready_for_resolution": False,
+            "presentation": turn_pres,
         }
 
 

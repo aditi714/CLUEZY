@@ -23,7 +23,14 @@ from app.schemas.investigation import (
     InvestigationResolveRequest,
 )
 from app.schemas.knowledge import KnowledgeCategoryItem
-from app.schemas.message import MessageCreateRequest, MessageResponse
+from app.schemas.message import (
+    MessageCreateRequest,
+    MessageResponse,
+    TurnCheckItem,
+    TurnPresentation,
+    TurnQuestion,
+    build_fallback_turn_presentation,
+)
 from app.schemas.report import ReportResponse
 from app.schemas.session import SessionCreateRequest, SessionResponse
 

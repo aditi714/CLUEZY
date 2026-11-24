@@ -25,6 +25,7 @@ from app.schemas.investigation import (
     InvestigationCreateRequest,
     InvestigationProgressRequest,
 )
+from app.schemas.message import build_fallback_turn_presentation
 from app.services.session_service import session_service
 
 
@@ -109,8 +110,8 @@ class InvestigationService:
 
         title = request.title
         if not title:
-            desc = extraction.problem_summary or request.problem_description.strip()
-            title = desc if len(desc) <= 50 else desc[:47] + "..."
+            desc = (extraction.problem_summary or request.problem_description).replace("...", "").replace("…", "").strip()
+            title = desc if len(desc) <= 200 else desc[:200].rsplit(" ", 1)[0]
 
         device_val = request.device_type or next(
             (e.value for e in extraction.evidence if e.category == "device"), None
@@ -291,15 +292,22 @@ class InvestigationService:
             )
             q_id = planned_step.question.id if planned_step.question else "check_ip_access"
 
+            scenario_pres = diagnostic_engine.build_scenario_turn_presentation(
+                scored_causes=scored_causes,
+                planned_step=planned_step,
+            )
+
             assistant_reply = Message(
                 investigation_id=investigation.id,
                 sender="assistant",
-                content=(
-                    f"Got it. I'm investigating: \"{title}\". Let's run a few quick checks to isolate the cause.\n\n"
-                    f"{question_text}"
-                ),
+                content=f"{scenario_pres.summary}\n\n{question_text}",
                 suggested_responses=suggested,
-                extra_data={"question_id": q_id, "step_type": "question", "scenario_id": active_scenario_id},
+                extra_data={
+                    "question_id": q_id,
+                    "step_type": "question",
+                    "scenario_id": active_scenario_id,
+                    "presentation": scenario_pres.model_dump(),
+                },
                 created_at=turn_ts + timedelta(milliseconds=50),
             )
             db.add(assistant_reply)
@@ -339,18 +347,22 @@ class InvestigationService:
                     )
                 )
 
+            conv_pres = step_plan.presentation or build_fallback_turn_presentation(
+                raw_text=step_plan.question_text,
+                options=step_plan.suggested_responses,
+                summary_hint=f"Analyzing {title}.",
+            )
+
             assistant_reply = Message(
                 investigation_id=investigation.id,
                 sender="assistant",
-                content=(
-                    f"Got it. I'm investigating: \"{title}\". Let's run a few quick checks to isolate the cause.\n\n"
-                    f"{step_plan.question_text}"
-                ),
+                content=f"{conv_pres.summary}\n\n{step_plan.question_text}",
                 suggested_responses=step_plan.suggested_responses,
                 extra_data={
                     "question_id": step_plan.question_id,
                     "step_type": "question",
                     "scenario_id": active_scenario_id,
+                    "presentation": conv_pres.model_dump(),
                 },
                 created_at=turn_ts + timedelta(milliseconds=50),
             )
@@ -539,15 +551,22 @@ class InvestigationService:
         if request.action_outcome == "need_help":
             act_title = target_action.title if target_action else None
             guidance = diagnostic_engine.get_action_help_guidance(act_title)
+            help_opts = ["It's working now", "Still not working"]
+            help_pres = build_fallback_turn_presentation(
+                raw_text=guidance,
+                options=help_opts,
+                summary_hint=f"Detailed execution guidance for {act_title or 'the current diagnostic step'}.",
+            )
             db.add(
                 Message(
                     investigation_id=investigation.id,
                     sender="assistant",
                     content=guidance,
-                    suggested_responses=["It's working now", "Still not working"],
+                    suggested_responses=help_opts,
                     extra_data={
                         "action_title": act_title,
                         "step_type": "action_help",
+                        "presentation": help_pres.model_dump(),
                     },
                     created_at=assistant_ts,
                 )
@@ -627,16 +646,23 @@ class InvestigationService:
                     )
                 )
 
+            res_content = (
+                f"Problem Resolved! Your issue (**{top_cause_title}**) has been fixed by applying: "
+                f"**{fix_applied_text}**. A complete post-mortem resolution report is now ready."
+            )
+            res_opts = ["View Full Report", "Save this Fix", "Start a new investigation"]
+            res_pres = build_fallback_turn_presentation(
+                raw_text="Problem resolved! Would you like to view the full report or start a new investigation?",
+                options=res_opts,
+                summary_hint=f"Problem resolved by applying {fix_applied_text} for {top_cause_title}.",
+            )
             db.add(
                 Message(
                     investigation_id=investigation.id,
                     sender="assistant",
-                    content=(
-                        f"Problem Resolved! Your issue (**{top_cause_title}**) has been fixed by applying: "
-                        f"**{fix_applied_text}**. A complete post-mortem resolution report is now ready."
-                    ),
-                    suggested_responses=["View Full Report", "Save this Fix", "Start a new investigation"],
-                    extra_data={"resolution_confirmed": True},
+                    content=res_content,
+                    suggested_responses=res_opts,
+                    extra_data={"resolution_confirmed": True, "presentation": res_pres.model_dump()},
                     created_at=assistant_ts,
                 )
             )
@@ -645,16 +671,26 @@ class InvestigationService:
 
         # If user reports fix is working, but hasn't explicitly confirmed resolution yet:
         if request.action_outcome == "working":
+            confirm_text = (
+                "Great to hear that the fix worked! Can you please confirm if everything is working normally "
+                "so we can finalize the resolution report?"
+            )
+            confirm_opts = ["Yes, problem is resolved", "Still having issues"]
+            confirm_pres = build_fallback_turn_presentation(
+                raw_text=confirm_text,
+                options=confirm_opts,
+                summary_hint="Awaiting your final confirmation to generate the resolution report.",
+            )
             db.add(
                 Message(
                     investigation_id=investigation.id,
                     sender="assistant",
-                    content=(
-                        "Great to hear that the fix worked! Can you please confirm if everything is working normally "
-                        "so we can finalize the resolution report?"
-                    ),
-                    suggested_responses=["Yes, problem is resolved", "Still having issues"],
-                    extra_data={"awaiting_resolution_confirmation": True},
+                    content=confirm_text,
+                    suggested_responses=confirm_opts,
+                    extra_data={
+                        "awaiting_resolution_confirmation": True,
+                        "presentation": confirm_pres.model_dump(),
+                    },
                     created_at=assistant_ts,
                 )
             )
@@ -698,6 +734,12 @@ class InvestigationService:
                     matched_c.confidence_score = uc["confidence_score"]
                     matched_c.status = uc.get("status", "investigating")
 
+            conv_turn_pres = conv_result.get("presentation") or build_fallback_turn_presentation(
+                raw_text=conv_result["reply_text"],
+                options=conv_result.get("suggested_responses", []),
+                summary_hint="Evaluating diagnostic observations.",
+            )
+
             # Add assistant response message
             db.add(
                 Message(
@@ -709,6 +751,9 @@ class InvestigationService:
                         "question_id": conv_result.get("next_question_id"),
                         "step_type": "question",
                         "scenario_id": active_scenario_id,
+                        "presentation": conv_turn_pres.model_dump()
+                        if hasattr(conv_turn_pres, "model_dump")
+                        else conv_turn_pres,
                     },
                     created_at=assistant_ts,
                 )
@@ -816,6 +861,12 @@ class InvestigationService:
             if request.action_outcome == "not_working":
                 prefix = "Since the previous fix didn't resolve the issue, I've updated the cause rankings. "
 
+            rec_pres = diagnostic_engine.build_scenario_turn_presentation(
+                scored_causes=scored_causes,
+                planned_step=planned_step,
+                action_steps_override=action_steps,
+            )
+
             db.add(
                 Message(
                     investigation_id=investigation.id,
@@ -831,6 +882,7 @@ class InvestigationService:
                     extra_data={
                         "action_title": planned_step.action_title,
                         "step_type": "recommended_action",
+                        "presentation": rec_pres.model_dump(),
                     },
                     created_at=assistant_ts,
                 )
@@ -862,30 +914,46 @@ class InvestigationService:
                     )
                 )
 
+            q_pres = diagnostic_engine.build_scenario_turn_presentation(
+                scored_causes=scored_causes,
+                planned_step=planned_step,
+            )
+
             db.add(
                 Message(
                     investigation_id=investigation.id,
                     sender="assistant",
                     content=f"{prefix}{q.question_text}",
                     suggested_responses=planned_step.suggested_responses,
-                    extra_data={"question_id": q.id, "step_type": "question"},
+                    extra_data={
+                        "question_id": q.id,
+                        "step_type": "question",
+                        "presentation": q_pres.model_dump(),
+                    },
                     created_at=assistant_ts,
                 )
             )
 
         elif planned_step.step_type == "escalation":
             investigation.status = "active"
+            esc_text = (
+                "We have tested all primary diagnostic checks and local remediation actions, but the connection "
+                "issue persists. This indicates a deeper hardware or upstream ISP provisioning fault. "
+                "I recommend contacting your network administrator or ISP technical support with the evidence collected."
+            )
+            esc_opts = ["Restart Investigation", "Contact Support"]
+            esc_pres = build_fallback_turn_presentation(
+                raw_text="Should we restart the investigation or contact upstream support?",
+                options=esc_opts,
+                summary_hint="All local diagnostic checks tested; issue points to upstream ISP or hardware fault.",
+            )
             db.add(
                 Message(
                     investigation_id=investigation.id,
                     sender="assistant",
-                    content=(
-                        "We have tested all primary diagnostic checks and local remediation actions, but the connection "
-                        "issue persists. This indicates a deeper hardware or upstream ISP provisioning fault. "
-                        "I recommend contacting your network administrator or ISP technical support with the evidence collected."
-                    ),
-                    suggested_responses=["Restart Investigation", "Contact Support"],
-                    extra_data={"step_type": "escalation"},
+                    content=esc_text,
+                    suggested_responses=esc_opts,
+                    extra_data={"step_type": "escalation", "presentation": esc_pres.model_dump()},
                     created_at=assistant_ts,
                 )
             )
