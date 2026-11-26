@@ -71,6 +71,8 @@
     var isQueueSpeaking = false;
     var currentUtteranceEndCallback = null;
     var chunkPauseTimer = null;
+    var chunkWatchdogTimer = null;
+    var activeUtterance = null;
 
     // Term normalization map for common technical terms
     var NORMALIZATION_MAP = [
@@ -141,9 +143,14 @@
         clearTimeout(chunkPauseTimer);
         chunkPauseTimer = null;
       }
+      if (chunkWatchdogTimer) {
+        clearTimeout(chunkWatchdogTimer);
+        chunkWatchdogTimer = null;
+      }
       speechQueue = [];
       isQueueSpeaking = false;
       currentUtteranceEndCallback = null;
+      activeUtterance = null;
       if (isSynthesisSupported()) {
         try {
           window.speechSynthesis.cancel();
@@ -316,8 +323,14 @@
     }
 
     function processNextSpeechChunk() {
+      if (chunkWatchdogTimer) {
+        clearTimeout(chunkWatchdogTimer);
+        chunkWatchdogTimer = null;
+      }
+
       if (!isSynthesisSupported()) {
         isQueueSpeaking = false;
+        activeUtterance = null;
         if (typeof currentUtteranceEndCallback === "function") {
           var cb = currentUtteranceEndCallback;
           currentUtteranceEndCallback = null;
@@ -328,6 +341,7 @@
 
       if (speechQueue.length === 0) {
         isQueueSpeaking = false;
+        activeUtterance = null;
         if (typeof currentUtteranceEndCallback === "function") {
           var doneCb = currentUtteranceEndCallback;
           currentUtteranceEndCallback = null;
@@ -338,9 +352,30 @@
 
       isQueueSpeaking = true;
       var chunkText = speechQueue.shift();
+      var chunkSettled = false;
+
+      function advanceAfterChunk(withPause) {
+        if (chunkSettled) return;
+        chunkSettled = true;
+        if (chunkWatchdogTimer) {
+          clearTimeout(chunkWatchdogTimer);
+          chunkWatchdogTimer = null;
+        }
+        activeUtterance = null;
+        if (!isQueueSpeaking) return;
+        if (withPause && speechQueue.length > 0) {
+          chunkPauseTimer = setTimeout(function () {
+            chunkPauseTimer = null;
+            if (isQueueSpeaking) processNextSpeechChunk();
+          }, 180);
+        } else {
+          processNextSpeechChunk();
+        }
+      }
 
       try {
         var utterance = new SpeechSynthesisUtterance(chunkText);
+        activeUtterance = utterance;
         utterance.lang = appState.voiceLang || "en-IN";
         var voice = getVoiceForLang(utterance.lang);
         if (voice) utterance.voice = voice;
@@ -348,28 +383,38 @@
         utterance.pitch = 1.0;
 
         utterance.onend = function () {
-          if (!isQueueSpeaking) return;
-          if (speechQueue.length > 0) {
-            chunkPauseTimer = setTimeout(function () {
-              chunkPauseTimer = null;
-              if (isQueueSpeaking) processNextSpeechChunk();
-            }, 180);
-          } else {
-            processNextSpeechChunk();
+          advanceAfterChunk(true);
+        };
+
+        utterance.onerror = function (_e) {
+          // Even on "interrupted" or "canceled", advance if isQueueSpeaking is still true
+          // so currentUtteranceEndCallback is ALWAYS guaranteed to fire and Voice Mode never hangs.
+          advanceAfterChunk(false);
+        };
+
+        // Per-chunk watchdog timer so remote cloud voices that silently hang never freeze Voice Mode
+        var watchdogMs = Math.min(18000, Math.max(4000, chunkText.length * 95 + 2200));
+        chunkWatchdogTimer = setTimeout(function () {
+          chunkWatchdogTimer = null;
+          try {
+            if (window.speechSynthesis && window.speechSynthesis.speaking) {
+              window.speechSynthesis.cancel();
+            }
+          } catch (_e) {}
+          advanceAfterChunk(false);
+        }, watchdogMs);
+
+        try {
+          if (window.speechSynthesis.paused) {
+            window.speechSynthesis.resume();
           }
-        };
-
-        utterance.onerror = function (e) {
-          if (e && e.error === "interrupted") return;
-          if (!isQueueSpeaking) return;
-          processNextSpeechChunk();
-        };
-
+        } catch (_e) {}
         window.speechSynthesis.speak(utterance);
       } catch (err) {
         console.warn("Speech synthesis error:", err);
         isQueueSpeaking = false;
         speechQueue = [];
+        activeUtterance = null;
         if (typeof currentUtteranceEndCallback === "function") {
           var errCb = currentUtteranceEndCallback;
           currentUtteranceEndCallback = null;
@@ -388,6 +433,7 @@
         return;
       }
 
+      var wasBusy = isQueueSpeaking || Boolean(window.speechSynthesis && (window.speechSynthesis.speaking || window.speechSynthesis.pending));
       stopSpeaking();
 
       var clean = sanitizeTextForSpeech(textToSpeak);
@@ -398,7 +444,14 @@
 
       speechQueue = splitIntoSentenceChunks(clean);
       currentUtteranceEndCallback = typeof onEndCallback === "function" ? onEndCallback : null;
-      processNextSpeechChunk();
+      if (wasBusy) {
+        chunkPauseTimer = setTimeout(function () {
+          chunkPauseTimer = null;
+          processNextSpeechChunk();
+        }, 60);
+      } else {
+        processNextSpeechChunk();
+      }
     }
 
     function toggleRecording(textareaElement, onStateChange) {
@@ -476,6 +529,13 @@
 
         recognitionInstance.onerror = function (event) {
           var err = event.error;
+          if (err === "language-not-supported" && recognitionInstance && recognitionInstance.lang !== "en-US") {
+            try {
+              recognitionInstance.lang = "en-US";
+              recognitionInstance.start();
+              return;
+            } catch (_e) {}
+          }
           if (err === "no-speech") {
             appState.speechErrorMessage = "No speech detected. Please try speaking again.";
           } else if (err === "not-allowed" || err === "service-not-allowed") {
@@ -489,6 +549,10 @@
 
         recognitionInstance.onend = function () {
           appState.isRecording = false;
+          if (currentInterimText) {
+            baseTextBeforeSpeech = (baseTextBeforeSpeech ? baseTextBeforeSpeech + " " : "") + currentInterimText;
+            currentInterimText = "";
+          }
           if (textareaElement) {
             textareaElement.value = baseTextBeforeSpeech;
             autoResizeChatTextarea(textareaElement);
@@ -603,6 +667,8 @@
     var CANCEL_WINDOW_MS = 1100;
     var vmErrorMessage = null;
     var inRunbookStepFlow = false;
+    var fallbackLangOverride = null;
+    var micPermissionVerified = false;
 
     function isSupported() {
       return Boolean(SpeechRecognition) && CluezyVoice.isSynthesisSupported();
@@ -886,15 +952,22 @@
       }
     }
 
-    function startListeningState() {
+    function startListeningState(preserveTranscript) {
       if (!isOpen) return;
-      clearTimers();
+      if (!preserveTranscript) {
+        clearTimers();
+        accumulatedFinal = "";
+        liveInterim = "";
+        isCancelWindowActive = false;
+      } else {
+        if (restartTimer) {
+          clearTimeout(restartTimer);
+          restartTimer = null;
+        }
+      }
       CluezyVoice.stopSpeaking();
       stopRecognitionInstance();
 
-      accumulatedFinal = "";
-      liveInterim = "";
-      isCancelWindowActive = false;
       vmErrorMessage = null;
       transitionTo("listening");
 
@@ -903,7 +976,7 @@
         vmRecognition.continuous = true;
         vmRecognition.interimResults = true;
         vmRecognition.maxAlternatives = 1;
-        vmRecognition.lang = appState.voiceLang || "en-IN";
+        vmRecognition.lang = fallbackLangOverride || appState.voiceLang || "en-IN";
 
         vmRecognition.onstart = function () {
           retryCount = 0;
@@ -963,6 +1036,10 @@
             }, 1600);
             return;
           }
+          if (err === "language-not-supported" && !fallbackLangOverride) {
+            fallbackLangOverride = "en-US";
+            return;
+          }
           if (err === "no-speech" || err === "aborted") {
             // Normal silence timeout in Chrome; onend will handle auto-restart
             return;
@@ -979,13 +1056,32 @@
 
         vmRecognition.onend = function () {
           if (!isOpen || state !== "listening" || isCancelWindowActive) return;
+
+          // Flush any lingering interim words captured right before Chrome closed the audio stream
+          if (liveInterim) {
+            accumulatedFinal = (accumulatedFinal ? accumulatedFinal + " " : "") + liveInterim;
+            liveInterim = "";
+            updateOverlayDOM();
+          }
+
+          var capturedSoFar = (accumulatedFinal || "").trim();
+          if (capturedSoFar.length >= 2) {
+            // User already spoke meaningful text before onend fired; trigger auto-send instead of wiping transcript
+            if (silenceTimer) {
+              clearTimeout(silenceTimer);
+              silenceTimer = null;
+            }
+            triggerAutoSendWithCancelWindow();
+            return;
+          }
+
           // Auto-restart recognition on Chrome's silent end/timeout with exponential backoff
           if (retryCount <= MAX_RETRIES) {
             var delay = Math.min(2000, 250 * Math.pow(1.6, retryCount));
             retryCount++;
             restartTimer = setTimeout(function () {
               if (isOpen && state === "listening" && !isCancelWindowActive) {
-                startListeningState();
+                startListeningState(true);
               }
             }, delay);
           } else {
@@ -1105,6 +1201,31 @@
       accumulatedFinal = "";
       liveInterim = "";
       ensureOverlayMounted();
+
+      // Request/unlock microphone permission inside the synchronous user click gesture on HTTPS
+      if (
+        !micPermissionVerified &&
+        typeof navigator !== "undefined" &&
+        navigator.mediaDevices &&
+        typeof navigator.mediaDevices.getUserMedia === "function"
+      ) {
+        navigator.mediaDevices
+          .getUserMedia({ audio: true })
+          .then(function (stream) {
+            micPermissionVerified = true;
+            try {
+              stream.getTracks().forEach(function (t) {
+                t.stop();
+              });
+            } catch (_e) {}
+            if (isOpen) speakCurrentContextPrompt();
+          })
+          .catch(function (_err) {
+            if (isOpen) speakCurrentContextPrompt();
+          });
+        return;
+      }
+
       speakCurrentContextPrompt();
     }
 
